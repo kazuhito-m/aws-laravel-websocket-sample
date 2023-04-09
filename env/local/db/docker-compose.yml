@@ -1,0 +1,11 @@
+version: "3"
+services:
+  mysql:
+    image: "mysql:8-debian"
+    environment:
+      MYSQL_ROOT_PASSWORD: MySqLDaTabaSE
+      MYSQL_DATABASE: laravel
+    ports:
+      - "3306:3306"
+    container_name: "mysql-laravel"
+    restart: "unless-stopped"
