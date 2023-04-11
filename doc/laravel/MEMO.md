@@ -64,3 +64,9 @@ composer create-project --prefer-dist laravel/laravel webapp
 cd webapp
 php artisan serve
 ```
+## 簡単なコントローラとCRUD処理を実装
+
+以下のチュートリアルを参考に、元から在るUserのメンテ画面を作成。
+
+https://www.itsolutionstuff.com/post/laravel-10-crud-application-example-tutorialexample.html
+
