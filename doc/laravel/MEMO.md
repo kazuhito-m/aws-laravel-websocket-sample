@@ -76,3 +76,17 @@ https://www.itsolutionstuff.com/post/laravel-10-crud-application-example-tutoria
 
 https://zenn.dev/imah/articles/5d761f8f8c26fe
 
+## 認証の導入
+
+[ここ](https://readouble.com/laravel/10.x/ja/starter-kits.html) を参考に、組み込みログイン画面を導入する。
+
+```bash
+composer require laravel/breeze --dev
+php artisan breeze:install
+# テンプレートは Blade を選択。
+
+php artisan migrate
+npm install
+npm run dev
+```
+
