@@ -6,9 +6,6 @@
             <div class="pull-left">
                 <h2>Laravel 10 CRUD Example from scratch</h2>
             </div>
-            <div class="pull-right">
-                <a class="btn btn-success" href="{{ route('users.create') }}"> Create New user</a>
-            </div>
         </div>
     </div>
    

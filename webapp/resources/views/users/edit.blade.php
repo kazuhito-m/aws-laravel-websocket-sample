@@ -40,13 +40,7 @@
                     <input type="text" name="email" value="{{ $user->email }}" class="form-control" placeholder="Email">
                 </div>
             </div>
-            <div class="col-xs-12 col-sm-12 col-md-12">
-                <div class="form-group">
-                    <strong>Password:</strong>
-                    <input type="password" name="password" value="{{ $user->password }}" class="form-control" placeholder="Password">
-                </div>
-            </div>
-                <div class="col-xs-12 col-sm-12 col-md-12 text-center">
+            <div class="col-xs-12 col-sm-12 col-md-12 text-center">
               <button type="submit" class="btn btn-primary">Submit</button>
             </div>
         </div>
