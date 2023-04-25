@@ -31,4 +31,73 @@
 - [ ] FageteとALBはどういう関係なのか
 - [ ] 同ドメインにALBとAPIGatewayは存在しうるのか
 - [ ] テスト用に「LaravelをDockerfile一個に乗せる」をやってるが、Farget用の最適な設計はソレなのか
+- [ ] オートスケーリングの検証(ちゃんと働くか、条件はなにか)
+- [ ] オートスケーリングの最適性の設計(キャパプラからナンボがええのか)
 
+---
+
+## 実際にやってみるトライアル
+
+以下のチュートリアル記事を参考に、一回デプロイ・起動してみる。
+
+- https://prograshi.com/platform/aws/how-to-set-task-definition/
+- https://chigusa-web.com/blog/amazon-ecs%E3%81%A7fargate/
+- https://zenn.dev/knaka0209/articles/5bca67ea65ba20
+- https://dev.classmethod.jp/articles/add-alb-to-existing-ecs-fargate/
+
+### ECS+Fagateでコンテナ動かしてみる
+
+1. 昔作ったTerraformのファイルを元にVPCを作る
+0. Amazon Elastic Container Service画面から「クラスター作成」を行う
+  - VPCを上で作ったものを使う、以外はほぼデフォ
+  - デフォなので、無論Fagete指定
+0. ECRを作成
+0. ECRへローカルからイメージをプッシュ 
+  - aws-cli が必要だったので `sudo apt  install awscli` という雑いことする
+0. ECSの左メニューから「タスク定義」をクリック、作成
+0. ECSクラスタに「サービス」を作成 
+  - 最低タスク数を2にしてみる
+0. デプロイする
+
+## ECS周りのトラブルシュート
+
+### ECSのコンテナを外から接続出来ない
+
+ALBまで組みきって「接続できない」ってなった。
+
+せめて「LBかまさなくても、外からアクセスできる」テストはしたい。
+
+- https://qiita.com/NaokiIshimura/items/cc478096630a60c1e1b9
+- https://qiita.com/oiz-y/items/532fe4c22bfc790a134c
+- https://dev.classmethod.jp/articles/ecs-fargate-entry/
+
+#### 試行したメモ
+
+- ALB&AutoScalingの組み合わせでServiceを作ると到達できず
+- なんとなくSecurityGroupが怪しそうなので、かってに　作ってくれるものではなく、自力のものを指定する
+- 上記SecurityGroup+ALBのみ、でService作ると、ALBのみ追加であればそのURLでアプリがみれた！
+- その後、SecurityGroup+ALB+AutoScalingでService作っても、ALBのURLでアプリがみれた！
+
+### RDS作成
+
+- 前提
+  - テスト用なので最小
+  - セキュリティは「接続できる」ならゆるくてよい
+
+
+### ECSのコンテナ内にコンソールで入る
+
+DBへの接続テストが非常にやりやすそうなので、「コンテナに入れるようにして」おく。
+
+ほぼ [このとおり](https://blog.serverworks.co.jp/ecs-exec) にする。ので、ざっくりと書く。
+
+- Session Manager plugin for the AWS CLIのインストール
+  - https://docs.aws.amazon.com/systems-manager/latest/userguide/session-manager-working-with-install-plugin.html
+  - `curl "https://s3.amazonaws.com/session-manager-downloads/plugin/latest/ubuntu_64bit/session-manager-plugin.deb" -o "session-manager-plugin.deb"`
+- コマンドで「現在のServiceの状態」を確認
+  - `aws ecs describe-services --cluster EcscCurrent --services LaravelWebAppService17 | grep enableExecuteCommand`
+  - 最初、aws-cliのリージョンが正しくなかったので `Could not connect to the endpoint` だったが、ARNの中のリージョン名へ修正した
+- 既存サービスへのenableExecuteCommandの有効化
+  - `aws ecs update-service --cluster x --service y --enable-execute-command`
+- 実際に接続してコマンドうってみる
+  - `aws ecs execute-command --cluster ecs-exec-test --task タスクARN --container コンテナ名 --interactive --command "/bin/sh"`
