@@ -4,5 +4,4 @@
 SCRIPT_DIR=$(cd $(dirname $(readlink -f $0 || echo $0));pwd -P)
 cd ${SCRIPT_DIR}
 
-./migration.sh
-php artisan serve
+php artisan migrate
