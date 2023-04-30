@@ -104,3 +104,5 @@ DBへの接続テストが非常にやりやすそうなので、「コンテナ
 - 入った先がAlpineなのでmysqlのクライアントを入れてつないで見る
   - `apk add --no-cache mysql-client`
   - `mysql --host=xxxx.rds.amazonaws.com --user=root --password`
+  - 上記でつながればよし、稼働後はマイグレーションが効いてるかも確認出来る
+
