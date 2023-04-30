@@ -101,3 +101,6 @@ DBへの接続テストが非常にやりやすそうなので、「コンテナ
   - `aws ecs update-service --cluster x --service y --enable-execute-command`
 - 実際に接続してコマンドうってみる
   - `aws ecs execute-command --cluster ecs-exec-test --task タスクARN --container コンテナ名 --interactive --command "/bin/sh"`
+- 入った先がAlpineなのでmysqlのクライアントを入れてつないで見る
+  - `apk add --no-cache mysql-client`
+  - `mysql --host=xxxx.rds.amazonaws.com --user=root --password`
