@@ -106,3 +106,8 @@ DBへの接続テストが非常にやりやすそうなので、「コンテナ
   - `mysql --host=xxxx.rds.amazonaws.com --user=root --password`
   - 上記でつながればよし、稼働後はマイグレーションが効いてるかも確認出来る
 
+### AWSでドメインを取得し、ALBでHTTPS接続出来るようにする
+
+- https://qiita.com/keitakn/items/4b2db95eae81044a779c
+
+もう、完全に上のトレースで行った。(ので、やり方の詳細は上記記事を参照)
