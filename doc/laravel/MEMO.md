@@ -100,6 +100,21 @@ npm run dev
 
 ただし、Fargeteを使う上で「このビルド方法が適切か」はわからないため、これは「仮のやり方」とし、再度設計しなおす。
 
+## トラブルシュート:APサーバの冗長化構成でページを遷移するたび「419:PAGE EXPIRED」になる問題
+
+デフォルトが「サーバのファイルをセッションファイルにしている」になっているから、当然ちゃぁ当然なんだが…。
+
+- https://programing-school.work/laravel-419-csrf-error/
+- https://qiita.com/gone0021/items/e22d20414b0635d648c5
+
+ということでDBでSESSION管理するようにする。
+
+1. session.php を書き換える
+0. .env のSESSION_DRIVE の値を書き換える
+0. 専用コマンドでマイグレーション作る
+0. マイグレーションする
+
+
 ### その他、トラブルシュートに使った周辺知識
 
 - https://polidog.jp/2018/05/08/php-docker-imagick/
@@ -108,4 +123,5 @@ npm run dev
 - https://qiita.com/yyy752/items/4f6029835add675aebbc#:~:text=%E3%82%A8%E3%83%A9%E3%83%BC%EF%BC%9ACould%20not%20open%20input%20file%3A%20artisan&text=%E3%81%A8%E3%81%84%E3%81%86%E3%82%A8%E3%83%A9%E3%83%BC%E3%81%8C%E7%99%BA%E7%94%9F%E3%81%97%E3%81%BE%E3%81%99%E3%80%82&text=%E3%82%A8%E3%83%A9%E3%83%BC%E3%81%8C%E7%99%BA%E7%94%9F%E3%81%99%E3%82%8B%E3%81%A8%E3%81%84%E3%81%86,%E3%81%A6%E3%81%84%E3%82%8B%E3%81%8B%E7%A2%BA%E8%AA%8D%E3%81%97%E3%81%BE%E3%81%97%E3%82%87%E3%81%86%E3%80%82
 - https://note.com/secure_inc/n/ne86be57adcfb
 - https://qiita.com/tkek321/items/5d7714d7170bbf379c11
+
 
