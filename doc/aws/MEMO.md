@@ -78,12 +78,19 @@ ALBまで組みきって「接続できない」ってなった。
 - 上記SecurityGroup+ALBのみ、でService作ると、ALBのみ追加であればそのURLでアプリがみれた！
 - その後、SecurityGroup+ALB+AutoScalingでService作っても、ALBのURLでアプリがみれた！
 
+---
+
+- https://qiita.com/suzuki0430/items/6e4e7f513f982dadbf09
+
 ### RDS作成
 
 - 前提
   - テスト用なので最小
   - セキュリティは「接続できる」ならゆるくてよい
 
+### 接続まわり
+
+- https://qiita.com/kuromame1020611/items/8a19ae734f2925b42b20
 
 ### ECSのコンテナ内にコンソールで入る
 
