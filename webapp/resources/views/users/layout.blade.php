@@ -1,7 +1,7 @@
 <x-app-layout>
     <x-slot name="header">
         <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            {{ __('Profile') }}
+            {{ __('Users') }}
         </h2>
     </x-slot>
 
@@ -16,8 +16,4 @@
             </div>
         </div>
     </div>
-        
-    <div class="ml-4 text-center text-sm text-gray-500 sm:text-right sm:ml-0">
-        Laravel v{{ Illuminate\Foundation\Application::VERSION }} (PHP v{{ PHP_VERSION }})
-    </div>    
 </x-app-layout>

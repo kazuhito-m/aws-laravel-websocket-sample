@@ -11,6 +11,9 @@
                 <div class="pull-right">
                     <a class="btn btn-success" href="/users"> Users</a>
                 </div>    
+                <div class="pull-right">
+                    <a class="btn btn-success" href="/profile"> Profile</a>
+                </div>
             </div>
         </div>
     </div>
