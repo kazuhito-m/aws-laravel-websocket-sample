@@ -100,6 +100,11 @@ npm run dev
 
 ただし、Fargeteを使う上で「このビルド方法が適切か」はわからないため、これは「仮のやり方」とし、再度設計しなおす。
 
+### その他、参考
+
+- https://github.com/webdevops/Dockerfile/blob/master/docker/php-official/8.2-alpine/Dockerfile
+  - 元になってるイメージの、また元になっているDockerfile
+
 ## トラブルシュート:APサーバの冗長化構成でページを遷移するたび「419:PAGE EXPIRED」になる問題
 
 デフォルトが「サーバのファイルをセッションファイルにしている」になっているから、当然ちゃぁ当然なんだが…。
