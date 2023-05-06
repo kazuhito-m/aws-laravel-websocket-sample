@@ -9,6 +9,9 @@
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="pull-right">
+                    <a class="btn btn-success" href="/receive">メッセージ通知画面(receive)</a>
+                </div>    
+                <div class="pull-right">
                     <a class="btn btn-success" href="/users"> Users</a>
                 </div>    
                 <div class="pull-right">
