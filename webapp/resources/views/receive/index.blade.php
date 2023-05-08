@@ -98,11 +98,13 @@
         </div>
     </div>
 
-    <button id="messebutton">下部中央にメッセージを出す</button>
+    <button id="messegeButton">下部中央にメッセージを出す</button>
 
     <div id="snackbar">
     </div>
     <script>
+        let count = 1;
+
         function showSnackBar(message) {
             const bar = document.getElementById("snackbar");
             bar.className = "show";
@@ -112,8 +114,32 @@
             }, 2000);
         }
 
-        document.getElementById('messebutton').addEventListener('click', () => {
-           showSnackBar("xxx さんからメッセージが来ました。<br> これもんです。");
+        function insertTableFirstOf(signal) {
+
+        }
+
+        function showNotification(signal) {
+            const message = 'No.' + signal.no + ', ' + signal.sender + ' さんからの送信です。<p>' + signal.content
+                + '<p>ServerTime:' + signal.serverTime.toISOString() + '<br>ClientTime:' + signal.clientTime.toISOString();
+            showSnackBar(message);
+        }
+
+        function displayOf(signal) {
+            insertTableFirstOf(signal);
+            showNotification(signal);
+        }
+
+        document.getElementById('messegeButton').addEventListener('click', () => {
+            const signal = {
+                no: ++count,
+                sender: 'みうら かずひと',
+                content: 'ここがキモなので、実装する時は気合い入れましょう。',
+                serverTime: new Date(),
+                clientTime: new Date()
+            }
+
+            displayOf(signal);
         });
     </script>
+
 </x-app-layout>
