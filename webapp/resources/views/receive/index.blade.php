@@ -11,61 +11,52 @@
             position: fixed;
             z-index: 1;
             left: 50%;
-            bottom: 30px;
             transform: translateX(-50%);
             box-shadow: 0 3px 9px rgb(0 0 0 / 25%);
         }
 
         #snackbar.show {
             visibility: visible;
-            -webkit-animation: fadein 0.5s, fadeout 0.5s 1.5s;
-            animation: fadein 0.5s, fadeout 0.5s 1.5s;
+            -webkit-animation: fadein 0.5s, fadeout 0.5s 1.6s;
+            animation: fadein 0.5s, fadeout 0.5s 1.6s;
         }
 
         @-webkit-keyframes fadein {
             from {
-                bottom: 0;
                 opacity: 0;
             }
 
             to {
-                bottom: 30px;
                 opacity: 1;
             }
         }
 
         @keyframes fadein {
             from {
-                bottom: 0;
                 opacity: 0;
             }
 
             to {
-                bottom: 30px;
                 opacity: 1;
             }
         }
 
         @-webkit-keyframes fadeout {
             from {
-                bottom: 30px;
                 opacity: 1;
             }
 
             to {
-                bottom: 0;
                 opacity: 0;
             }
         }
 
         @keyframes fadeout {
             from {
-                bottom: 30px;
                 opacity: 1;
             }
 
             to {
-                bottom: 0;
                 opacity: 0;
             }
         }
