@@ -11,6 +11,7 @@
             position: fixed;
             z-index: 1;
             left: 50%;
+            top: 50%;
             transform: translateX(-50%);
             box-shadow: 0 3px 9px rgb(0 0 0 / 25%);
         }
@@ -75,7 +76,7 @@
                     User: {{ Auth::user()->name }}({{ Auth::user()->id }}) へのメッセージを表示する画面です。
                 </div>
                 <div>
-                    <table class="table-auto">
+                    <table id="receiveHistory">
                         <thead>
                             <tr>
                                 <th>No.</th>
@@ -83,13 +84,6 @@
                                 <th>メッセージ</th>
                                 <th>サーバ時間</th>
                                 <th>クライアント時間</th>
-                            </tr>
-                            <tr>
-                                <td>1</td>
-                                <td>みうらさん</td>
-                                <td>こういうのが送られてきたら成功です。</td>
-                                <td>2023/12/31 00:00:00</td>
-                                <td>2023/12/31 00:00:00</td>
                             </tr>
                         </thead>
                     </table>
@@ -100,10 +94,10 @@
 
     <button id="messegeButton">下部中央にメッセージを出す</button>
 
-    <div id="snackbar">
-    </div>
+    <div id="snackbar"></div>
+
     <script>
-        let count = 1;
+        let count = 0;
 
         function showSnackBar(message) {
             const bar = document.getElementById("snackbar");
@@ -115,12 +109,23 @@
         }
 
         function insertTableFirstOf(signal) {
+            const table = document.getElementById('receiveHistory');
+            const row = table.insertRow(1);
+            addTableColumnOf(row, signal.no);
+            addTableColumnOf(row, signal.sender);
+            addTableColumnOf(row, signal.content);
+            addTableColumnOf(row, signal.serverTime);
+            addTableColumnOf(row, signal.clientTime);
+        }
 
+        function addTableColumnOf(row, text) {
+            const node = document.createTextNode(text);
+            row.insertCell().appendChild(node);
         }
 
         function showNotification(signal) {
-            const message = 'No.' + signal.no + ', ' + signal.sender + ' さんからの送信です。<p>' + signal.content
-                + '<p>ServerTime:' + signal.serverTime.toISOString() + '<br>ClientTime:' + signal.clientTime.toISOString();
+            const message = 'No.' + signal.no + ', ' + signal.sender + ' さんからの送信です。<p>' + signal.content +
+                '<p>ServerTime:' + signal.serverTime + '<br>ClientTime:' + signal.clientTime;
             showSnackBar(message);
         }
 
@@ -134,8 +139,8 @@
                 no: ++count,
                 sender: 'みうら かずひと',
                 content: 'ここがキモなので、実装する時は気合い入れましょう。',
-                serverTime: new Date(),
-                clientTime: new Date()
+                serverTime: new Date().toISOString(),
+                clientTime: new Date().toISOString()
             }
 
             displayOf(signal);
