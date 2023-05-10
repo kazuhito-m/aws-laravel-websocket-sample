@@ -63,11 +63,15 @@
         }
     </style>
 
+    <div id="snackbar"></div>
+
     <x-slot name="header">
         <h2 class="font-semibold text-xl text-gray-800 leading-tight">
             {{ __('Receive') }}
         </h2>
     </x-slot>
+
+    <button id="messegeButton">下部中央にメッセージを出す</button>
 
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
@@ -75,6 +79,9 @@
                 <div class="max-w-xl">
                     User: {{ Auth::user()->name }}({{ Auth::user()->id }}) へのメッセージを表示する画面です。
                 </div>
+
+                <br/>
+
                 <div>
                     <table id="receiveHistory">
                         <thead>
@@ -91,10 +98,6 @@
             </div>
         </div>
     </div>
-
-    <button id="messegeButton">下部中央にメッセージを出す</button>
-
-    <div id="snackbar"></div>
 
     <script>
         let count = 0;
