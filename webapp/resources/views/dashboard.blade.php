@@ -10,10 +10,13 @@
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="pull-right">
                     <a class="btn btn-success" href="/receive">メッセージ通知画面(receive)</a>
-                </div>    
+                </div>
+                <div class="pull-right">
+                    <a class="btn btn-success" href="/send">メッセージ送信画面(send)</a>
+                </div>
                 <div class="pull-right">
                     <a class="btn btn-success" href="/users"> Users</a>
-                </div>    
+                </div>
                 <div class="pull-right">
                     <a class="btn btn-success" href="/profile"> Profile</a>
                 </div>
