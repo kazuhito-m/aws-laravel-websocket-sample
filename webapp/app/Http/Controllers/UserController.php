@@ -61,6 +61,8 @@ class UserController extends Controller
         ]);
 
         $user->update($request->all());
+
+        return redirect()->route('users.show', $user);
     }
 
     /**
