@@ -70,3 +70,9 @@ php artisan serve
 
 https://www.itsolutionstuff.com/post/laravel-10-crud-application-example-tutorialexample.html
 
+## laravel10の標準的な仕込み
+
+以下の記事を参考に、標準的な設定を。
+
+https://zenn.dev/imah/articles/5d761f8f8c26fe
+
