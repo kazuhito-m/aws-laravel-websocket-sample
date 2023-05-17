@@ -147,7 +147,7 @@
                 sender: `[${reseive.fromUserId}]:${reseive.fromUserName}`,
                 content: reseive.message,
                 serverTime: reseive.fromServerTime,
-                clientTime: new Date().toISOString()
+                clientTime: new Date().toString()
             }
             return signal;
         }
