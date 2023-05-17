@@ -71,8 +71,6 @@
         </h2>
     </x-slot>
 
-    <button id="messegeButton">下部中央にメッセージを出す</button>
-
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
             <div class="p-4 sm:p-8 bg-white shadow sm:rounded-lg">
@@ -138,18 +136,6 @@
             insertTableFirstOf(signal);
             showNotification(signal);
         }
-
-        document.getElementById('messegeButton').addEventListener('click', () => {
-            const signal = {
-                no: ++count,
-                sender: 'みうら かずひと',
-                content: 'ここがキモなので、実装する時は気合い入れましょう。',
-                serverTime: new Date().toISOString(),
-                clientTime: new Date().toISOString()
-            }
-
-            displayOf(signal);
-        });
 
         // ---- WebSocket Receive Functions ----
 
