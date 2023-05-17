@@ -29,12 +29,17 @@ class SendController extends Controller
             ->with('success', '送信成功しました。');
     }
 
+
     private function sendMessageOf(string $id, string $message)
     {
         Log::debug('ID:' . $id . ', message:' . $message);
-
         $signal = ClientPushSignal::of($id, $message, Auth::user());
 
+        $this->sendApiOfWebSocketClientRefrection($signal);
+    }
+
+    private function sendApiOfWebSocketClientRefrection(ClientPushSignal $signal)
+    {
         $url = config('custom.client-send-api-url');
         $options = array(
             'http' => array(
