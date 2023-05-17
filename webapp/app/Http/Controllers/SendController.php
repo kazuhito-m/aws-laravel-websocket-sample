@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\User;
 use App\Models\Send\ClientPushSignal;
 use Illuminate\Support\Facades\Log;
+use DateTime;
 
 class SendController extends Controller
 {
@@ -25,9 +26,14 @@ class SendController extends Controller
         // TODO APIに送信
         Log::debug('ID:' . $request->get('id') . ', message:' . $request->get('message'));
 
+        date_default_timezone_set('Asia/Tokyo');
+        $now = new DateTime();
+        $serverTime = $now->format(DateTime::ATOM);
+
         $signal = new ClientPushSignal();
         $signal->toUserId = $request->get('id');
         $signal->message = $request->get('message');
+        $signal->fromServerTime = $serverTime;
 
         $json = json_encode($signal);
         Log::debug("JSON文字列のテスト。");
