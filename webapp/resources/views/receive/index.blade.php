@@ -150,6 +150,41 @@
 
             displayOf(signal);
         });
+
+        // ---- WebSocket Receive Functions ----
+
+        function convertSignalDataOf(websocketReceiveData) {
+            const reseive = websocketReceiveData;
+            const signal = {
+                no: ++count,
+                sender: `[${reseive.fromUserId}]:${reseive.fromUserName}`,
+                content: reseive.message,
+                serverTime: reseive.fromServerTime,
+                clientTime: new Date().toISOString()
+            }
+            return signal;
+        }
+
+        function onReceiveServerPush(event) {
+            console.log(event);
+            const receiveData = JSON.parse(event.data);
+            const signal = convertSignalDataOf(receiveData);
+            displayOf(signal);
+        }
+
+        function onLaod() {
+            const idPart = document.getElementById('userIdentityPart');
+            const userId = idPart.getAttribute('data-user-id');
+            const websocketUrl = idPart.getAttribute('data-websocket-url');
+
+            const wssPath = `wss://${websocketUrl}?userId=${userId}`;
+            console.log('WebSocketFullPath:' + wssPath);
+
+            const webSocket = new WebSocket(wssPath);
+            webSocket.onmessage = onReceiveServerPush;
+        }
+
+        window.addEventListener('load', onLaod);
     </script>
 
 </x-app-layout>
