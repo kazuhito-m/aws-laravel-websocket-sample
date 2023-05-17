@@ -34,10 +34,6 @@ class SendController extends Controller
     {
         Log::debug('ID:' . $id . ', message:' . $message);
 
-        date_default_timezone_set('Asia/Tokyo');
-        $now = new DateTime();
-        $serverTime = $now->format(DateTime::ATOM);
-
         $myself = Auth::user();
 
         $signal = new ClientPushSignal();
@@ -45,21 +41,24 @@ class SendController extends Controller
         $signal->message = $message;
         $signal->fromUserId = $myself->id;
         $signal->fromUserName = $myself->name;
-        $signal->fromServerTime = $serverTime;
-
-        $json = json_encode($signal);
-        Log::debug("JSON文字列のテスト。");
-        Log::debug($json);
+        $signal->fromServerTime = $this->isoDateText();
 
         $url = config('custom.client-send-api-url');
         $options = array(
             'http' => array(
                 'method'=> 'POST',
                 'header'=> 'Content-type: application/json; charset=UTF-8',
-                'content' => $json
+                'content' => json_encode($signal)
             )
         );
         $context = stream_context_create($options);
         $contents = file_get_contents($url, false, $context);
+    }
+
+    private function isoDateText() 
+    {
+        date_default_timezone_set('Asia/Tokyo');
+        $now = new DateTime();
+        return $now->format(DateTime::ATOM);
     }
 }
