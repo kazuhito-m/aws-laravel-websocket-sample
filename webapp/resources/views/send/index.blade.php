@@ -21,13 +21,14 @@
                         </div>
                     @endif
 
-                    <table class="table table-bordered">
+                    <table class="table">
                         <tr>
                             <th>ID</th>
-                            <th>Name</th>
+                            <th style="min-width: 150px">Name</th>
                             <th>Email</th>
                             <th>Message</th>
                             <th>Action</th>
+                            <th style="min-width: 300px">Memo<th>
                         </tr>
                         @foreach ($users as $user)
                             <tr>
@@ -43,6 +44,13 @@
                                     </td>
                                     <td>
                                         <button type="submit" class="btn btn-danger">送信</button>
+                                    </td>
+                                    <td>
+                                        @if ($user->id == Auth::user()->id)
+                                            <div style="color: red">
+                                                自分へ送信する感じになります。
+                                            </div>
+                                        @endif
                                     </td>
                                 </form>
                             </tr>
