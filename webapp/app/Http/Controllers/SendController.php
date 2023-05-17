@@ -24,8 +24,15 @@ class SendController extends Controller
             'message' => 'required',
         ]);
 
-        // TODO APIに送信
-        Log::debug('ID:' . $request->get('id') . ', message:' . $request->get('message'));
+        $this->sendMessageOf($request->get('id'), $request->get('message'));
+
+        return redirect()->route('send.index')
+            ->with('success', '送信成功しました。');
+    }
+
+    private function sendMessageOf(string $id, string $message)
+    {
+        Log::debug('ID:' . $id . ', message:' . $message);
 
         date_default_timezone_set('Asia/Tokyo');
         $now = new DateTime();
@@ -34,8 +41,8 @@ class SendController extends Controller
         $myself = Auth::user();
 
         $signal = new ClientPushSignal();
-        $signal->toUserId = $request->get('id');
-        $signal->message = $request->get('message');
+        $signal->toUserId = $id;
+        $signal->message = $message;
         $signal->fromUserId = $myself->id;
         $signal->fromUserName = $myself->name;
         $signal->fromServerTime = $serverTime;
@@ -53,9 +60,6 @@ class SendController extends Controller
             )
         );
         $context = stream_context_create($options);
-        $contents = file_get_contents($url, false,$context);
-
-        return redirect()->route('send.index')
-            ->with('success', '送信成功しました。');
+        $contents = file_get_contents($url, false, $context);
     }
 }
