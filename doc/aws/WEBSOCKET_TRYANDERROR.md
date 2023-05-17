@@ -6,6 +6,7 @@
 - https://zenn.dev/mryhryki/articles/2020-12-01-aws-api-gateway-websocket
 - https://www.ragate.co.jp/blog/articles/17797
 - https://mihono-bourbon.com/aws-websocket/
+- https://qiita.com/miyuki_samitani/items/f01f1bd49334f97fe84c
 
 ## 初手、手習いでやること
 
