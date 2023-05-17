@@ -128,5 +128,28 @@ npm run dev
 - https://qiita.com/yyy752/items/4f6029835add675aebbc#:~:text=%E3%82%A8%E3%83%A9%E3%83%BC%EF%BC%9ACould%20not%20open%20input%20file%3A%20artisan&text=%E3%81%A8%E3%81%84%E3%81%86%E3%82%A8%E3%83%A9%E3%83%BC%E3%81%8C%E7%99%BA%E7%94%9F%E3%81%97%E3%81%BE%E3%81%99%E3%80%82&text=%E3%82%A8%E3%83%A9%E3%83%BC%E3%81%8C%E7%99%BA%E7%94%9F%E3%81%99%E3%82%8B%E3%81%A8%E3%81%84%E3%81%86,%E3%81%A6%E3%81%84%E3%82%8B%E3%81%8B%E7%A2%BA%E8%AA%8D%E3%81%97%E3%81%BE%E3%81%97%E3%82%87%E3%81%86%E3%80%82
 - https://note.com/secure_inc/n/ne86be57adcfb
 - https://qiita.com/tkek321/items/5d7714d7170bbf379c11
+- https://progtext.net/programming/laravel-user-data/
+- https://heppoko-room.net/archives/1648
+- https://qiita.com/mitashun/items/96caaf1c1f36eada20f2
+- https://codelikes.com/laravel-logging/
 
+#### PHP自体
 
+- https://medium-company.com/php-static/#static-5
+- https://www.php.net/manual/ja/functions.arguments.php
+- 日付関連
+  - https://qiita.com/shuntaro_tamura/items/b7908e6db527e1543837
+  - https://qiita.com/hogesuke_1/items/6d887c5669adeb1d1b08
+- https://www.w3schools.com/php/php_oop_classes_objects.asp
+- JSON関連
+  - https://www.php.net/manual/ja/function.json-encode.php
+  - https://hydrocul.github.io/wiki/programming_languages_diff/json/encode.html
+- 通信(外部WebAPI呼ぶ)まわり
+  - https://laraweb.net/surrounding/9720/
+
+#### HTML/JS関連
+
+- https://iwb.jp/javascript-canvas-confetti-animation/
+  - 紙吹雪を簡単に降らせることが出来た
+- https://developer.mozilla.org/ja/docs/Web/API/WebSockets_API/Writing_WebSocket_client_applications
+  - 本家(mdm)によるWebSocketの標準的な使い方の説明
