@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\User;
 use App\Models\Send\ClientPushSignal;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use DateTime;
 
@@ -30,9 +31,13 @@ class SendController extends Controller
         $now = new DateTime();
         $serverTime = $now->format(DateTime::ATOM);
 
+        $myself = Auth::user();
+
         $signal = new ClientPushSignal();
         $signal->toUserId = $request->get('id');
         $signal->message = $request->get('message');
+        $signal->fromUserId = $myself->id;
+        $signal->fromUserName = $myself->name;
         $signal->fromServerTime = $serverTime;
 
         $json = json_encode($signal);
