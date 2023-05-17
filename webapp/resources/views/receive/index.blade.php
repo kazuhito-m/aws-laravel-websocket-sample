@@ -1,4 +1,5 @@
 <x-app-layout>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.3.2/dist/confetti.browser.min.js"></script>
     <style type="text/css">
         #snackbar {
             visibility: hidden;
@@ -74,13 +75,12 @@
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
             <div class="p-4 sm:p-8 bg-white shadow sm:rounded-lg">
-                <div class="max-w-xl" id="userIdentityPart"
-                    data-user-id="{{ Auth::user()->id }}"
+                <div class="max-w-xl" id="userIdentityPart" data-user-id="{{ Auth::user()->id }}"
                     data-websocket-url="{{ config('custom.websocket-url') }}">
                     User: {{ Auth::user()->name }}({{ Auth::user()->id }}) へのメッセージを表示する画面です。
                 </div>
 
-                <br/>
+                <hr />
 
                 <div>
                     <table id="receiveHistory">
@@ -130,6 +130,7 @@
             const message = 'No.' + signal.no + ', ' + signal.sender + ' さんからの送信です。<p>' + signal.content +
                 '<p>ServerTime:' + signal.serverTime + '<br>ClientTime:' + signal.clientTime;
             showSnackBar(message);
+            confetti();
         }
 
         function displayOf(signal) {
