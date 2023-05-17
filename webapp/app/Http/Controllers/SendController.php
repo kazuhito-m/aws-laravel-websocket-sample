@@ -7,7 +7,6 @@ use App\Models\User;
 use App\Models\Send\ClientPushSignal;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
-use DateTime;
 
 class SendController extends Controller
 {
@@ -34,14 +33,7 @@ class SendController extends Controller
     {
         Log::debug('ID:' . $id . ', message:' . $message);
 
-        $myself = Auth::user();
-
-        $signal = new ClientPushSignal();
-        $signal->toUserId = $id;
-        $signal->message = $message;
-        $signal->fromUserId = $myself->id;
-        $signal->fromUserName = $myself->name;
-        $signal->fromServerTime = $this->isoDateText();
+        $signal = ClientPushSignal::of($id, $message, Auth::user());
 
         $url = config('custom.client-send-api-url');
         $options = array(
@@ -53,12 +45,5 @@ class SendController extends Controller
         );
         $context = stream_context_create($options);
         $contents = file_get_contents($url, false, $context);
-    }
-
-    private function isoDateText() 
-    {
-        date_default_timezone_set('Asia/Tokyo');
-        $now = new DateTime();
-        return $now->format(DateTime::ATOM);
     }
 }
