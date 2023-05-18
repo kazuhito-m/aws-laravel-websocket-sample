@@ -62,6 +62,19 @@
                 opacity: 0;
             }
         }
+
+        .original-box-shadow {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            background-color: red;
+            font-size: 16px;
+            width: 120px;
+            height: 30px;
+            border-radius: 3px;
+            box-shadow: 3px 3px 5px 0px rgba(0, 0, 0, 0.19);
+        }
     </style>
 
     <div id="snackbar"></div>
@@ -75,6 +88,7 @@
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
             <div class="p-4 sm:p-8 bg-white shadow sm:rounded-lg">
+                <div class="original-box-shadow" id="stateBox">未接続</div>
                 <div class="max-w-xl" id="userIdentityPart" data-user-id="{{ Auth::user()->id }}"
                     data-websocket-url="{{ config('custom.websocket-url') }}">
                     User: {{ Auth::user()->name }}({{ Auth::user()->id }}) へのメッセージを表示する画面です。
@@ -140,6 +154,10 @@
 
         // ---- WebSocket Receive Functions ----
 
+        let webSocket;
+
+        const HELTH_CHECK_INTERVAL_SEC = 20;
+
         function convertSignalDataOf(websocketReceiveData) {
             const reseive = websocketReceiveData;
             const signal = {
@@ -153,22 +171,64 @@
         }
 
         function onReceiveServerPush(event) {
-            console.log(event);
             const receiveData = JSON.parse(event.data);
             const signal = convertSignalDataOf(receiveData);
             displayOf(signal);
         }
 
-        function onLaod() {
+        function helthCheckAndReconnect() {
+            const STATE_DISPLAY = [
+                ["接続試み中...", "blue"],
+                ["接続済", "green"],
+                ["切断中...", "orange"],
+                ["未接続", "red"],
+            ];
+
+            let state = 3;
+            if (webSocket) state = webSocket.readyState;
+            const hitState = STATE_DISPLAY[state];
+            const caption = hitState[0];
+            const color = hitState[1];
+
+            const stateBox = document.getElementById('stateBox');
+            stateBox.innerText = caption;
+            stateBox.style.backgroundColor = color;
+        }
+
+        function onOpenWebSocket(event) {
+            console.log('On Open Event.');
+            helthCheckAndReconnect();
+        }
+
+        function onCloseWebSocket(event) {
+            console.log('On Close Event.');
+            webSocket = createWebSocket();
+            helthCheckAndReconnect();
+        }
+
+        function onErrorWebSocket(event) {
+            console.log('On Error Event.');
+            helthCheckAndReconnect();
+        }
+
+        function createWebSocket() {
             const idPart = document.getElementById('userIdentityPart');
             const userId = idPart.getAttribute('data-user-id');
             const websocketUrl = idPart.getAttribute('data-websocket-url');
 
             const wssPath = `wss://${websocketUrl}?userId=${userId}`;
-            console.log('WebSocketFullPath:' + wssPath);
+            const socket = new WebSocket(wssPath);
 
-            const webSocket = new WebSocket(wssPath);
-            webSocket.onmessage = onReceiveServerPush;
+            socket.addEventListener('open', onOpenWebSocket);
+            socket.addEventListener('close', onCloseWebSocket);
+            socket.addEventListener('error', onErrorWebSocket);
+            socket.onmessage = onReceiveServerPush;
+            return socket;
+        }
+
+        function onLaod() {
+            webSocket = createWebSocket();
+            setInterval(helthCheckAndReconnect, HELTH_CHECK_INTERVAL_SEC * 1000);
         }
 
         window.addEventListener('load', onLaod);
