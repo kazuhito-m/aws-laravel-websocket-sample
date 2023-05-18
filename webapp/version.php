@@ -1,3 +1,3 @@
 <?php const 
-VERSION='0.0.0-SNAPSHOT'
+VERSION='0.0.9';
 ;
