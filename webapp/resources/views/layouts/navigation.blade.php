@@ -22,6 +22,7 @@
             <div class="hidden sm:flex sm:items-center sm:ml-6">
                 <div class="ml-4 text-center text-sm text-gray-500 sm:text-right sm:ml-0">
                     host: {{ getHostName() }} |
+                    version: {{ config('app.version') }} |
                     Laravel v{{ Illuminate\Foundation\Application::VERSION }}
                      (PHP v{{ PHP_VERSION }})
                 </div>
