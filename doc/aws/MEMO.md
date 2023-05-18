@@ -115,6 +115,11 @@ DBへの接続テストが非常にやりやすそうなので、「コンテナ
 
 ### AWSでドメインを取得し、ALBでHTTPS接続出来るようにする
 
-- https://qiita.com/keitakn/items/4b2db95eae81044a779c
+- https://swiswiswift.com/2022-03-01/
 
 もう、完全に上のトレースで行った。(ので、やり方の詳細は上記記事を参照)
+
+#### その他の参照
+
+- https://swiswiswift.com/2022-03-01/
+
