@@ -91,7 +91,7 @@
                 <div class="original-box-shadow" id="stateBox">未接続</div>
                 <div class="max-w-xl" id="userIdentityPart" data-user-id="{{ Auth::user()->id }}"
                     data-websocket-url="{{ config('custom.websocket-url') }}">
-                    User: {{ Auth::user()->name }}({{ Auth::user()->id }}) へのメッセージを表示する画面です。
+                    User: [{{ Auth::user()->id }}]{{ Auth::user()->name }} へのメッセージを表示する画面です。
                 </div>
 
                 <hr />
