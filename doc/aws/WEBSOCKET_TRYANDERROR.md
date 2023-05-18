@@ -22,3 +22,14 @@
 - Lambdad
 - DynamoDB
 
+## クライアント側からの接続状態管理・リトライについて
+
+色々読んでみたが「ちゃんと動かない」らしい。
+
+Node.jsのライブラリを使えばマシみたいなのだが…クライアントはバニラで実装したいし、迷う。
+
+- https://developer.mozilla.org/ja/docs/Web/API/WebSocket/readyState
+- https://qiita.com/bagooon/items/d59b36eae1d938fb3549
+- https://www.npmjs.com/package/reconnecting-websocket
+- https://www.1ft-seabass.jp/memo/2021/02/22/nodejs-websocket-client-reconnect/
+- https://www.sophia-it.com/javascript-api/reference/%E3%82%AF%E3%83%A9%E3%82%A4%E3%82%A2%E3%83%B3%E3%83%88%E5%81%B4%E3%81%A7%E6%8E%A5%E7%B6%9A%E3%81%AE%E5%88%87%E6%96%AD%E3%82%92%E5%87%A6%E7%90%86%E3%81%99%E3%82%8B%E3%81%AB%E3%81%AF%EF%BC%9F
