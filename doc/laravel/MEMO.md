@@ -119,8 +119,26 @@ npm run dev
 0. 専用コマンドでマイグレーション作る
 0. マイグレーションする
 
+## トラブルシュート: ALB+HTTPSにしたのに、CSS/ScriptはHTTPになる
 
-### その他、トラブルシュートに使った周辺知識
+最終的には `TrustProxies.php` に * をしているするのは前提として、プラス `AppServiceProvide.php` に書くことにより解決した。
+
+```php
+public function boot()
+{
+  if (request()->isSecure()) {
+    URL::forceScheme('https');
+  }
+}
+```
+
+- https://qiita.com/e_tyubo/items/c25df0c545b1af8494c7
+- https://rapicro.com/laravel%E3%81%AEroute%E3%81%8Chttp%E3%81%AB%E3%81%AA%E3%82%8B%E3%80%90https%E5%8C%96%E3%80%91/
+- https://liginc.co.jp/490895
+- https://o-84.com/article/laravel-url-generator-cloudfront-alb-https/
+- https://egatech.net/laravel-https/
+
+## その他、トラブルシュートに使った周辺知識
 
 - https://polidog.jp/2018/05/08/php-docker-imagick/
 - https://wiki.alpinelinux.org/wiki/GCC
@@ -132,6 +150,7 @@ npm run dev
 - https://heppoko-room.net/archives/1648
 - https://qiita.com/mitashun/items/96caaf1c1f36eada20f2
 - https://codelikes.com/laravel-logging/
+- https://stackoverflow.com/questions/32061775/where-to-specify-an-app-version-on-a-laravel-app
 
 #### PHP自体
 
