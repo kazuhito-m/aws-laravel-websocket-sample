@@ -27,7 +27,7 @@
                             <th style="min-width: 150px">Name</th>
                             <th>Email</th>
                             <th>Message</th>
-                            <th>Action</th>
+                            <th style="min-width: 75px">Action</th>
                             <th style="min-width: 300px">Memo<th>
                         </tr>
                         @foreach ($users as $user)
