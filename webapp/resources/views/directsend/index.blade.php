@@ -32,7 +32,7 @@
                         </tr>
                         @foreach ($users as $user)
                             <tr>
-                                <form action="{{ route('send.store') }}" method="POST">
+                                <form action="{{ route('directsend.store') }}" method="POST">
                                     @csrf
                                     <td>{{ $user->id }}</td>
                                     <td>{{ $user->name }}</td>

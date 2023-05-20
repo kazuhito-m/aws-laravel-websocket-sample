@@ -25,7 +25,7 @@ class DirectSendController extends Controller
 
         $this->sendMessageOf($request->get('id'), $request->get('message'));
 
-        return redirect()->route('send.index')
+        return redirect()->route('directsend.index')
             ->with('success', '送信成功しました。');
     }
 
