@@ -4,6 +4,7 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\ReceiveController;
 use App\Http\Controllers\SendController;
+use App\Http\Controllers\DirectSendController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -32,5 +33,6 @@ Route::middleware('auth')->group(function () {
 Route::resource('users', UserController::class)->middleware(['auth', 'verified']);
 Route::resource('receive', ReceiveController::class)->middleware(['auth', 'verified']);
 Route::resource('send', SendController::class)->middleware(['auth', 'verified']);
+Route::resource('send', DirectSendController::class)->middleware(['auth', 'verified']);
 
 require __DIR__.'/auth.php';
