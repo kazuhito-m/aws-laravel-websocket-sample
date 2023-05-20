@@ -4,9 +4,11 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\User;
-use App\Models\Send\ClientPushSignal;
+use App\Models\DirectSend\ClientPushSignalForWebSocketEndpoint;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
+
+use Aws\ApiGatewayManagementApi\ApiGatewayManagementApiClient;
 
 class DirectSendController extends Controller
 {
@@ -33,22 +35,26 @@ class DirectSendController extends Controller
     private function sendMessageOf(string $id, string $message)
     {
         Log::debug('ID:' . $id . ', message:' . $message);
-        $signal = ClientPushSignal::of($id, $message, Auth::user());
+        $signal = ClientPushSignalForWebSocketEndpoint::of($id, $message, Auth::user());
 
-        $this->sendApiOfWebSocketClientRefrection($signal);
+        $this->sendDirectEndPointOfWebSocket($signal);
     }
 
-    private function sendApiOfWebSocketClientRefrection(ClientPushSignal $signal)
+    private function sendDirectEndPointOfWebSocket(ClientPushSignalForWebSocketEndpoint $signal)
     {
-        $url = config('custom.client-send-api-url');
-        $options = array(
-            'http' => array(
-                'method'=> 'POST',
-                'header'=> 'Content-type: application/json; charset=UTF-8',
-                'content' => json_encode($signal)
-            )
-        );
-        $context = stream_context_create($options);
-        $contents = file_get_contents($url, false, $context);
+        $endpoint = config('custom.websocket-url');
+        Log::debug('endpoint:' . $endpoint);  
+
+        $client = new ApiGatewayManagementApiClient([
+            'apiVersion' => '2018-11-29',
+            'version' => '2018-11-29',
+            'endpoint' => $endpoint,
+            'region' => 'ap-northeast-1'
+        ]);
+
+        $client->postToConnection([
+            'ConnectionId' => 'FPmttd4rNjMCKrA=', // TODO DBに貯めて、そっから取り出す方法。
+            'Data' => json_encode($signal),
+        ]);
     }
 }
