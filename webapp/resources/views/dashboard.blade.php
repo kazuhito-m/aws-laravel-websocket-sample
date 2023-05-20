@@ -15,6 +15,9 @@
                     <a class="btn btn-success" href="/send">メッセージ送信画面(send)</a>
                 </div>
                 <div class="pull-right">
+                    <a class="btn btn-success" href="/directsend">メッセージ送信画面(API Gatewau & Lambadを使わず直接送信)(directsend)</a>
+                </div>
+                <div class="pull-right">
                     <a class="btn btn-success" href="/users"> Users</a>
                 </div>
                 <div class="pull-right">
