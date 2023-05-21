@@ -23,6 +23,9 @@
                 <div class="pull-right">
                     <a class="btn btn-success" href="/profile"> Profile</a>
                 </div>
+                <div class="pull-right">
+                    <a class="btn btn-success" href="/websocketconnections"> Websockeet Connectilons</a>
+                </div>
             </div>
         </div>
     </div>
