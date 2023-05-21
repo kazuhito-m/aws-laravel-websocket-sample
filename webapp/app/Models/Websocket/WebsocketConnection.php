@@ -7,5 +7,10 @@ use Illuminate\Database\Eloquent\Model;
 
 class WebsocketConnection extends Model
 {
-    use HasFactory;
+    protected $fillable = [
+        'id',
+        'connection_id',
+        'user_id',
+        'created_at'
+    ];
 }
