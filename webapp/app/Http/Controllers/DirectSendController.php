@@ -53,7 +53,7 @@ class DirectSendController extends Controller
         ]);
 
         $client->postToConnection([
-            'ConnectionId' => 'FPmttd4rNjMCKrA=', // TODO DBに貯めて、そっから取り出す方法。
+            'ConnectionId' => $signal->message, // TODO とても仮実装。DBに貯めて、そっから取り出す方法。
             'Data' => json_encode($signal),
         ]);
     }
