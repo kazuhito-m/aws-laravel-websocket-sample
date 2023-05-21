@@ -104,6 +104,10 @@ Resources:
       AttributeDefinitions:
       - AttributeName: "connectionId"
         AttributeType: "S"
+      - AttributeName: "userId"
+        AttributeType: "S"
+      - AttributeName: "connectedTime"
+        AttributeType: "S"
       KeySchema:
       - AttributeName: "connectionId"
         KeyType: "HASH"
