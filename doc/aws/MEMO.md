@@ -82,6 +82,79 @@ ALBまで組みきって「接続できない」ってなった。
 
 - https://qiita.com/suzuki0430/items/6e4e7f513f982dadbf09
 
+
+### AWS-SDK for PHPを使ったPHPアプリからWebSocket用APIGatewayに接続するとStatus:410 Goneのエラー
+
+HTTPStatus410:Goneは [そのリソースが移動等で永久に見れなくなった](https://blog.halpas.com/archives/12440) 場合のステータス。
+
+とは言え、AWS的には「そんな意味ででる」のではなく、かつこのトラブル「複合要因がカラム」ため、大変難しかった。
+
+#### 今まで「WebSocketAPIGatewayと接続してきた実績」と違う言語のAWS-SDKでやろうとしている
+
+基本的に、`AWS-SDK` は…
+
+- 各言語ごとに用意されているが、インターフェイスは「ほぼ同じ」となるようにしてある
+- SDKはCLI & AWS操作用WebAPIのカタチと「ほぼ同じ」となるようにしてある
+
+という原則で作られているようなので、基本「LambdaniteJSで書いたものを、PHPでかきなおしゃ良かろう」と思ていた。
+
+の、だが…
+
+1. 疎通通して「成功している」と認識しているのは、JavaScript用のSDKな上、SDK Ver.2である
+0. Laravelアプリに組み込もうとしているのは、PHP用のSDK上かつSDK Ver.3である
+0. JavaScript用とPHP用のVer.2のSDKの仕様がだいぶ違う(ないクラスがある)
+
+という状況であった。
+
+具体的には
+
+1. JavaScriptのVer.2はWebSocketを `ApiGatewayManagementApi` というクラスで扱う
+    - 生成にはEndPointとApiVersionがあれば良い
+    - EndPointは「プロトコル部分を取ったURL」を指定する(少なくとも世のサンプルと成功例は)
+0. PHPのVer.2はWebSocketを `ApiGatewayManagementApiClient` というクラスで扱う
+    - 生成にはEndPointとApiVersion(vedrsionという名前)とRegionが必要
+    - EndPointは「HTTPS始まりのプロトコルを持ったURL」を指定する
+
+という差異があり、それに気付くまでにめちゃくちゃ掛かった
+
+- x
+
+#### aws-sdk Ver.3 のWebSocketAPIGatawayの扱いに関してはつい最近までバグがあったらしい
+
+2021年中盤あたりまで「正しく書いてもエンドポイントのステージ部分がおかしくなってつながらない」というバグがあったらしい。
+
+- https://github.com/aws/aws-sdk-js-v3/issues/2124
+- https://github.com/aws/aws-sdk-js-v3/issues/1830
+
+これにより「Ver.3はWebSocketをサポートしてないから、使いたかったらVer.2使おうね」な風潮になっていたみたい。
+
+また、治った今は
+
+- EndPointはhttps等プロトコル付き"でなけれいけない"
+
+という仕様となったようで、2の時の知識を持ってたらハマる感じに。
+
+(JavaScriptのサンプルがそればっかりなのも頷ける)
+
+#### 基本的にVCP内のEC2/ECSコンテナ等からAPIGatewayの「Publicなエンドポイント」は参照出来ない
+
+これがつながらなかった一番の理由、と思われる。
+
+- x
+
+上記記事は「かなりピンポイント」かつ「あるある」のようなのだが、翻訳と抽象度が噛み合わないのが、いまいちよくわからない。
+
+結果的には
+
+- カスタムドメイン名をAPIGatewayにはっつける
+
+ことで、解決したのだが…IAMや諸事情、また上記のVerから来る「HTTPS要る要らない問題」も相まって
+
+- HTTPSありなし
+- 通常EndPointかカスタムドメイン名か
+
+の2x2=4通りの組み合わせを常時試し続けるというものすごくしんどいトラブルシュートと成った。
+
 ### Lambda -> API Gateway(WebSocket用)に接続しようと思うとStatus:500エラー
 
 CloudFormationを使って、APIGateway(WebSocket用)もLambadもすべて作り直した際、今まで接続出来ていたLambdaが接続できなくなった。
@@ -195,7 +268,7 @@ DBへの接続テストが非常にやりやすそうなので、「コンテナ
 ### LambdaからMySQLのRDSにアクセスする
 
 - https://www.geekfeed.co.jp/geekblog/lambda_vpct status
-
+- https://qiita.com/tatsuya1970/items/261c7e9cf3e87b8db55f
 
 #### その他の参照
 
