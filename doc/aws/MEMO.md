@@ -148,6 +148,7 @@ Resourceの値を `"*"` に変えるとあっさりとアクセスできた。
 #### 解決
 
 - https://zenn.dev/mn87/articles/c421ebaea55f8b
+- https://qiita.com/hirorin/items/dba5ef8fcf570ac3a9e4
 
 JavaScriptの場合「 `nodejs/` というフォルダをZipのトップにカマス」必要があるようである。
 
@@ -190,6 +191,11 @@ DBへの接続テストが非常にやりやすそうなので、「コンテナ
 - https://swiswiswift.com/2022-03-01/
 
 もう、完全に上のトレースで行った。(ので、やり方の詳細は上記記事を参照)
+
+### LambdaからMySQLのRDSにアクセスする
+
+- https://www.geekfeed.co.jp/geekblog/lambda_vpct status
+
 
 #### その他の参照
 
