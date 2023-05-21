@@ -13,7 +13,10 @@ return new class extends Migration
     {
         Schema::create('websocket_connections', function (Blueprint $table) {
             $table->id();
-            $table->timestamps();
+            $table->string('connection_id')->index();
+            $table->foreignId('user_id')->index();
+            $table->timestamp('updated_at')->useCurrent();
+            $table->timestamp('created_at')->useCurrent();
         });
     }
 
