@@ -140,11 +140,17 @@ HTTPStatus410:Goneは [そのリソースが移動等で永久に見れなくな
 
 これがつながらなかった一番の理由、と思われる。
 
-- x
+- https://repost.aws/ja/knowledge-center/api-gateway-vpc-connections
+- https://rurukblog.com/post/aws-ecs-apigateway-403/
+- https://qiita.com/GoogIeSensei/items/6227cb8213ffc5d78347
+- https://bftnagoya.hateblo.jp/entry/2021/10/19/101744
+- https://docs.aws.amazon.com/ja_jp/apigateway/latest/developerguide/http-api-private-integration.html
 
 上記記事は「かなりピンポイント」かつ「あるある」のようなのだが、翻訳と抽象度が噛み合わないのが、いまいちよくわからない。
 
-結果的には
+ここは「深い理解が必要になる」と思しきとこであるため、テキトーではだめなのだが…。
+
+今回の取り組みでは、結論的に
 
 - カスタムドメイン名をAPIGatewayにはっつける
 
@@ -265,10 +271,12 @@ DBへの接続テストが非常にやりやすそうなので、「コンテナ
 
 もう、完全に上のトレースで行った。(ので、やり方の詳細は上記記事を参照)
 
-### LambdaからMySQLのRDSにアクセスする
+### Lambda(JavaScript指定)からMySQLのRDSにアクセスする
 
 - https://www.geekfeed.co.jp/geekblog/lambda_vpct status
 - https://qiita.com/tatsuya1970/items/261c7e9cf3e87b8db55f
+- https://qiita.com/na0AaooQ/items/ff9ab6ce9831236b3ea6
+- https://stackoverflow.com/questions/39298778/mysql-inserts-with-aws-lambda-node-js
 
 #### その他の参照
 
