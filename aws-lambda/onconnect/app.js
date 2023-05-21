@@ -20,7 +20,7 @@ function createWebsocketConnectedOnMySQL(connectionId, userId) {
   const connection = connectionOfMySQL();
   
   const sql = `INSERT INTO websocket_connections (connection_id, user_id) values (?, ?);`
-  connection.query(sql, [], (err, result) => {
+  connection.query(sql, [connectionId, userId], (err, result) => {
     if (err) throw err;
   });
   
