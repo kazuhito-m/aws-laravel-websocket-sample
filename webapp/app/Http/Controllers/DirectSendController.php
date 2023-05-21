@@ -46,10 +46,9 @@ class DirectSendController extends Controller
         Log::debug('endpoint:' . $endpoint);  
 
         $client = new ApiGatewayManagementApiClient([
-            'apiVersion' => '2018-11-29',
             'version' => '2018-11-29',
-            'endpoint' => $endpoint,
-            'region' => 'ap-northeast-1'
+            'endpoint' => config('custom.websocket-url'),
+            'region' => config('custom.websocket-api-region')
         ]);
 
         $client->postToConnection([
