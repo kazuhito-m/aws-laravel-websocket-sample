@@ -11,16 +11,19 @@ function connectionOfMySQL() {
   return mysql.createConnection({
         host     : process.env.RDS_ENDPOINT,
         user     : 'root',
-        password : 'QwPCtmf6rKuJdjadCZWn',
+        password : process.env.RDS_PASSWORD,
         database : 'laravel'
   });
 }
 
 function createWebsocketConnectedOnMySQL(connectionId, userId) {
   const connection = connectionOfMySQL();
+  connection.connect();
   
-  const sql = `INSERT INTO websocket_connections (connection_id, user_id) values (?, ?);`
+  const sql = `INSERT INTO websocket_connections (connection_id, user_id) VALUES (?, ?);`
+  console.log('実行SQL:' + sql);
   connection.query(sql, [connectionId, userId], (err, result) => {
+    if (err) console.log("error発生:" + err);
     if (err) throw err;
   });
   
@@ -43,11 +46,13 @@ exports.handler = async event => {
   } catch (err) {
     return { statusCode: 500, body: 'Failed to connect: ' + JSON.stringify(err) };
   }
-  
-  createWebsocketConnectedOnMySQL(
-    event.requestContext.connectionId,
-    parseInt(event.queryStringParameters.userId, 10)
-  );
+
+  // console.log('DBへのSessionIDの保存。');
+  // createWebsocketConnectedOnMySQL(
+  //   event.requestContext.connectionId,
+  //   parseInt(event.queryStringParameters.userId, 10)
+  // );
+  // console.log('DBへの保存、終わり。');
 
   return { statusCode: 200, body: 'Connected.' };
 };

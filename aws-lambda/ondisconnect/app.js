@@ -24,12 +24,12 @@ function connectionOfMySQL() {
 
 function removeWebsocketConnectedOnMySQL(connectionId) {
   const connection = connectionOfMySQL();
-
+  
   const sql = `DELETE websocket_connections WHERE connection_id = ?;`
   connection.query(sql, [connectionId], (err, result) => {
     if (err) throw err;
   });
-
+  
   connection.commit();
   connection.end();
 }
@@ -49,7 +49,7 @@ exports.handler = async event => {
     return { statusCode: 500, body: 'Failed to disconnect: ' + JSON.stringify(err) };
   }
 
-  removeWebsocketConnectedOnMySQL(event.requestContext.connectionId);
+  // removeWebsocketConnectedOnMySQL(event.requestContext.connectionId);
 
   return { statusCode: 200, body: 'Disconnected.' };
 };
