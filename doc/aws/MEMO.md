@@ -273,10 +273,44 @@ DBへの接続テストが非常にやりやすそうなので、「コンテナ
 
 ### Lambda(JavaScript指定)からMySQLのRDSにアクセスする
 
-- https://www.geekfeed.co.jp/geekblog/lambda_vpct status
+ものすごく「んなものん出来るやろ」くらいに考えてたが、AWSerの人らに言わせると「アンチパターン」と呼ばれるほどやっちゃいけないことらしかった。
+
+シンプルには、
+
+1. RDSをVPC外に出してLambdaと組む
+0. VPC Lambdaを配置してRDSに接続する
+0. RDS Proxyを使って外Lambdaから接続する
+
+くらいしか無いらしいし、未だにハードルが高いようだ。
+
+RDS Proxyは高いし、VPC Lambdaは「どうやって外からVPC内Lambdaにアクセスするのか」が、広大なインターネット上でも情報がなかった。
+(VPCLambdaからInternetにでていく話は食傷気味なくらい溢れていた)
+
+- https://docs.aws.amazon.com/ja_jp/lambda/latest/dg/configuration-vpc.html
+- https://repost.aws/ja/knowledge-center/connect-lambda-to-an-rds-instance
+- https://qiita.com/miyuki_samitani/items/6130f8716b4fb57d0c95
+- https://qiita.com/sugimount-a/items/7dc388c83bcbc3f6ffbd#lambda-function-%E3%82%92%E4%BD%9C%E6%88%90
+- https://tech.ilovex.co.jp/tech-blog/article-1
+- https://zenn.dev/shimi7o/articles/79fb5cb2175a6c
+- https://zenn.dev/nekoniki/articles/2318df67b6a02f
+
+以下は「VPCLambdaから外へ出るには」祭り
+
+- https://repost.aws/ja/knowledge-center/internet-access-lambda-function
+
+
+#### 単純な「JavaScriptからMySQLにアクセスする」方法
+
 - https://qiita.com/tatsuya1970/items/261c7e9cf3e87b8db55f
 - https://qiita.com/na0AaooQ/items/ff9ab6ce9831236b3ea6
 - https://stackoverflow.com/questions/39298778/mysql-inserts-with-aws-lambda-node-js
+
+### Lambdaを途中からVPCに参加させる
+
+「RDSにつながる前にタイムアウトしているが、アクセスできてないんじゃないか？」疑惑があったので、途中からVPCに参加させることにした。
+
+- https://dev.classmethod.jp/articles/tsnote-lambda-the-provided-execution-role-does-not-have-permissions-to-call-createnetworkinterface-on-ec2/
+- https://docs.aws.amazon.com/ja_jp/lambda/latest/dg/configuration-vpc.html
 
 #### その他の参照
 
