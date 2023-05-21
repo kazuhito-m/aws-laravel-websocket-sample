@@ -82,6 +82,78 @@ ALBまで組みきって「接続できない」ってなった。
 
 - https://qiita.com/suzuki0430/items/6e4e7f513f982dadbf09
 
+### Lambda -> API Gateway(WebSocket用)に接続しようと思うとStatus:500エラー
+
+CloudFormationを使って、APIGateway(WebSocket用)もLambadもすべて作り直した際、今まで接続出来ていたLambdaが接続できなくなった。
+
+`Containar -> (POSTでふつーのREST)APIGateway -> Lambda -> (WebSocket用の)APIAGateway -> HTML等Client`
+
+の、真ん中のLambdaからWebSocket用のAPIGatewayにつながらない。
+
+APIGatewayにはカスタムドメイン名を付けていたし、張替え直しても行ける…と思っていたが、そうもかず…。
+
+1時間くらいこれにハマっていた。
+
+#### 解決
+
+- https://qiita.com/hiroga/items/71a7c03035ae53036861#the-client-is-not-authorized-to-perform-this-operation
+- https://docs.aws.amazon.com/ja_jp/apigateway/latest/developerguide/security_iam_troubleshoot.html#security_iam_troubleshoot-no-permissions
+
+ここに書いてあるとおりなのだが…「ドンピシャ"個々直せば良い"ではない」ので、どこのことを指しているのかわからない。
+
+```
+PI Gateway自体のリソースポリシーで、指定したオペレーション（＝特定のエンドポイントへのリクエスト）が
+制限されています。
+API Gatewayのリソースポリシー（sam拡張のCFnテンプレートの場合はx-amazon-apigateway-policy）を確認し、
+目的のResource（＝エンドポイント）への　execute-api:Invoke がAllow担っていることを確認しましょう。
+```
+
+そう「Lambdaの権限に特定のリソース(=特定のAPIGateway)のアクセス権をつけよ」ということ。
+
+そんな「リソース一つを指定した権限緩和」をした記憶はなかったんだが…一つのポリシーに
+
+```yml
+{
+    "Statement": [
+        {
+            "Action": "execute-api:ManageConnections",
+            "Resource": "arn:aws:execute-api:ap-northeast-1:[固有番号]:[Gatewayの識別子っぽいの]/*",
+            "Effect": "Allow"
+        }
+    ]
+}
+```
+
+という記述があった。
+
+Resourceの値を `"*"` に変えるとあっさりとアクセスできた。
+
+### LambdaをJavaScriptを使う場合package.jsonのライブラリを持ってってくれない
+
+他人様のCloudFormationを借りてLambdaを作成した時にはライブラリを持ってってくれるのに、
+
+- 自力でpackage.jsonをAWSのUI上で作成・記載した場合
+- CloudFormationで作ったものも、自力でpackage.jsonに依存を増やした場合
+
+に、 `node_modules` の内容を持っていってくれない件について。
+
+`node_modules` ごとJSファイル群をZIPで固めてアップすれば行けるのだが「大きいZIPの場合AWSのUIエディターで編集できなくなる」ので、動いてるものが見れなくなって辛い。
+
+別の話、「ライブラリを上げておける」という「Lambdaレイヤー」というものがある。
+
+`node_modules` のフォルダをZIPであげ、それをLambda側で設定したのだが、状況が変わらない。
+
+できればこの「Lambdaレイヤー」で解決したいのだが…。
+
+#### 解決
+
+- https://zenn.dev/mn87/articles/c421ebaea55f8b
+
+JavaScriptの場合「 `nodejs/` というフォルダをZipのトップにカマス」必要があるようである。
+
+その形でZipに固めると、正しくライブラリを認識していた。
+
+
 ### RDS作成
 
 - 前提
