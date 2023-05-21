@@ -19,6 +19,6 @@ sam package --template-file template.yaml \
 
 # デプロイ
 aws cloudformation deploy --template-file output.yaml \
-  --stack-name WebSocketApiStack \
+  --stack-name WebSocketApiStack4 \
   --capabilities CAPABILITY_IAM
 
