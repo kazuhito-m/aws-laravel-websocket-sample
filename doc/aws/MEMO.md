@@ -82,6 +82,158 @@ ALBまで組みきって「接続できない」ってなった。
 
 - https://qiita.com/suzuki0430/items/6e4e7f513f982dadbf09
 
+
+### AWS-SDK for PHPを使ったPHPアプリからWebSocket用APIGatewayに接続するとStatus:410 Goneのエラー
+
+HTTPStatus410:Goneは [そのリソースが移動等で永久に見れなくなった](https://blog.halpas.com/archives/12440) 場合のステータス。
+
+とは言え、AWS的には「そんな意味ででる」のではなく、かつこのトラブル「複合要因がカラム」ため、大変難しかった。
+
+#### 今まで「WebSocketAPIGatewayと接続してきた実績」と違う言語のAWS-SDKでやろうとしている
+
+基本的に、`AWS-SDK` は…
+
+- 各言語ごとに用意されているが、インターフェイスは「ほぼ同じ」となるようにしてある
+- SDKはCLI & AWS操作用WebAPIのカタチと「ほぼ同じ」となるようにしてある
+
+という原則で作られているようなので、基本「LambdaniteJSで書いたものを、PHPでかきなおしゃ良かろう」と思ていた。
+
+の、だが…
+
+1. 疎通通して「成功している」と認識しているのは、JavaScript用のSDKな上、SDK Ver.2である
+0. Laravelアプリに組み込もうとしているのは、PHP用のSDK上かつSDK Ver.3である
+0. JavaScript用とPHP用のVer.2のSDKの仕様がだいぶ違う(ないクラスがある)
+
+という状況であった。
+
+具体的には
+
+1. JavaScriptのVer.2はWebSocketを `ApiGatewayManagementApi` というクラスで扱う
+    - 生成にはEndPointとApiVersionがあれば良い
+    - EndPointは「プロトコル部分を取ったURL」を指定する(少なくとも世のサンプルと成功例は)
+0. PHPのVer.2はWebSocketを `ApiGatewayManagementApiClient` というクラスで扱う
+    - 生成にはEndPointとApiVersion(vedrsionという名前)とRegionが必要
+    - EndPointは「HTTPS始まりのプロトコルを持ったURL」を指定する
+
+という差異があり、それに気付くまでにめちゃくちゃ掛かった
+
+- x
+
+#### aws-sdk Ver.3 のWebSocketAPIGatawayの扱いに関してはつい最近までバグがあったらしい
+
+2021年中盤あたりまで「正しく書いてもエンドポイントのステージ部分がおかしくなってつながらない」というバグがあったらしい。
+
+- https://github.com/aws/aws-sdk-js-v3/issues/2124
+- https://github.com/aws/aws-sdk-js-v3/issues/1830
+
+これにより「Ver.3はWebSocketをサポートしてないから、使いたかったらVer.2使おうね」な風潮になっていたみたい。
+
+また、治った今は
+
+- EndPointはhttps等プロトコル付き"でなけれいけない"
+
+という仕様となったようで、2の時の知識を持ってたらハマる感じに。
+
+(JavaScriptのサンプルがそればっかりなのも頷ける)
+
+#### 基本的にVCP内のEC2/ECSコンテナ等からAPIGatewayの「Publicなエンドポイント」は参照出来ない
+
+これがつながらなかった一番の理由、と思われる。
+
+- https://repost.aws/ja/knowledge-center/api-gateway-vpc-connections
+- https://rurukblog.com/post/aws-ecs-apigateway-403/
+- https://qiita.com/GoogIeSensei/items/6227cb8213ffc5d78347
+- https://bftnagoya.hateblo.jp/entry/2021/10/19/101744
+- https://docs.aws.amazon.com/ja_jp/apigateway/latest/developerguide/http-api-private-integration.html
+
+上記記事は「かなりピンポイント」かつ「あるある」のようなのだが、翻訳と抽象度が噛み合わないのが、いまいちよくわからない。
+
+ここは「深い理解が必要になる」と思しきとこであるため、テキトーではだめなのだが…。
+
+今回の取り組みでは、結論的に
+
+- カスタムドメイン名をAPIGatewayにはっつける
+
+ことで、解決したのだが…IAMや諸事情、また上記のVerから来る「HTTPS要る要らない問題」も相まって
+
+- HTTPSありなし
+- 通常EndPointかカスタムドメイン名か
+
+の2x2=4通りの組み合わせを常時試し続けるというものすごくしんどいトラブルシュートと成った。
+
+### Lambda -> API Gateway(WebSocket用)に接続しようと思うとStatus:500エラー
+
+CloudFormationを使って、APIGateway(WebSocket用)もLambadもすべて作り直した際、今まで接続出来ていたLambdaが接続できなくなった。
+
+`Containar -> (POSTでふつーのREST)APIGateway -> Lambda -> (WebSocket用の)APIAGateway -> HTML等Client`
+
+の、真ん中のLambdaからWebSocket用のAPIGatewayにつながらない。
+
+APIGatewayにはカスタムドメイン名を付けていたし、張替え直しても行ける…と思っていたが、そうもかず…。
+
+1時間くらいこれにハマっていた。
+
+#### 解決
+
+- https://qiita.com/hiroga/items/71a7c03035ae53036861#the-client-is-not-authorized-to-perform-this-operation
+- https://docs.aws.amazon.com/ja_jp/apigateway/latest/developerguide/security_iam_troubleshoot.html#security_iam_troubleshoot-no-permissions
+
+ここに書いてあるとおりなのだが…「ドンピシャ"個々直せば良い"ではない」ので、どこのことを指しているのかわからない。
+
+```
+PI Gateway自体のリソースポリシーで、指定したオペレーション（＝特定のエンドポイントへのリクエスト）が
+制限されています。
+API Gatewayのリソースポリシー（sam拡張のCFnテンプレートの場合はx-amazon-apigateway-policy）を確認し、
+目的のResource（＝エンドポイント）への　execute-api:Invoke がAllow担っていることを確認しましょう。
+```
+
+そう「Lambdaの権限に特定のリソース(=特定のAPIGateway)のアクセス権をつけよ」ということ。
+
+そんな「リソース一つを指定した権限緩和」をした記憶はなかったんだが…一つのポリシーに
+
+```yml
+{
+    "Statement": [
+        {
+            "Action": "execute-api:ManageConnections",
+            "Resource": "arn:aws:execute-api:ap-northeast-1:[固有番号]:[Gatewayの識別子っぽいの]/*",
+            "Effect": "Allow"
+        }
+    ]
+}
+```
+
+という記述があった。
+
+Resourceの値を `"*"` に変えるとあっさりとアクセスできた。
+
+### LambdaをJavaScriptを使う場合package.jsonのライブラリを持ってってくれない
+
+他人様のCloudFormationを借りてLambdaを作成した時にはライブラリを持ってってくれるのに、
+
+- 自力でpackage.jsonをAWSのUI上で作成・記載した場合
+- CloudFormationで作ったものも、自力でpackage.jsonに依存を増やした場合
+
+に、 `node_modules` の内容を持っていってくれない件について。
+
+`node_modules` ごとJSファイル群をZIPで固めてアップすれば行けるのだが「大きいZIPの場合AWSのUIエディターで編集できなくなる」ので、動いてるものが見れなくなって辛い。
+
+別の話、「ライブラリを上げておける」という「Lambdaレイヤー」というものがある。
+
+`node_modules` のフォルダをZIPであげ、それをLambda側で設定したのだが、状況が変わらない。
+
+できればこの「Lambdaレイヤー」で解決したいのだが…。
+
+#### 解決
+
+- https://zenn.dev/mn87/articles/c421ebaea55f8b
+- https://qiita.com/hirorin/items/dba5ef8fcf570ac3a9e4
+
+JavaScriptの場合「 `nodejs/` というフォルダをZipのトップにカマス」必要があるようである。
+
+その形でZipに固めると、正しくライブラリを認識していた。
+
+
 ### RDS作成
 
 - 前提
@@ -118,6 +270,47 @@ DBへの接続テストが非常にやりやすそうなので、「コンテナ
 - https://swiswiswift.com/2022-03-01/
 
 もう、完全に上のトレースで行った。(ので、やり方の詳細は上記記事を参照)
+
+### Lambda(JavaScript指定)からMySQLのRDSにアクセスする
+
+ものすごく「んなものん出来るやろ」くらいに考えてたが、AWSerの人らに言わせると「アンチパターン」と呼ばれるほどやっちゃいけないことらしかった。
+
+シンプルには、
+
+1. RDSをVPC外に出してLambdaと組む
+0. VPC Lambdaを配置してRDSに接続する
+0. RDS Proxyを使って外Lambdaから接続する
+
+くらいしか無いらしいし、未だにハードルが高いようだ。
+
+RDS Proxyは高いし、VPC Lambdaは「どうやって外からVPC内Lambdaにアクセスするのか」が、広大なインターネット上でも情報がなかった。
+(VPCLambdaからInternetにでていく話は食傷気味なくらい溢れていた)
+
+- https://docs.aws.amazon.com/ja_jp/lambda/latest/dg/configuration-vpc.html
+- https://repost.aws/ja/knowledge-center/connect-lambda-to-an-rds-instance
+- https://qiita.com/miyuki_samitani/items/6130f8716b4fb57d0c95
+- https://qiita.com/sugimount-a/items/7dc388c83bcbc3f6ffbd#lambda-function-%E3%82%92%E4%BD%9C%E6%88%90
+- https://tech.ilovex.co.jp/tech-blog/article-1
+- https://zenn.dev/shimi7o/articles/79fb5cb2175a6c
+- https://zenn.dev/nekoniki/articles/2318df67b6a02f
+
+以下は「VPCLambdaから外へ出るには」祭り
+
+- https://repost.aws/ja/knowledge-center/internet-access-lambda-function
+
+
+#### 単純な「JavaScriptからMySQLにアクセスする」方法
+
+- https://qiita.com/tatsuya1970/items/261c7e9cf3e87b8db55f
+- https://qiita.com/na0AaooQ/items/ff9ab6ce9831236b3ea6
+- https://stackoverflow.com/questions/39298778/mysql-inserts-with-aws-lambda-node-js
+
+### Lambdaを途中からVPCに参加させる
+
+「RDSにつながる前にタイムアウトしているが、アクセスできてないんじゃないか？」疑惑があったので、途中からVPCに参加させることにした。
+
+- https://dev.classmethod.jp/articles/tsnote-lambda-the-provided-execution-role-does-not-have-permissions-to-call-createnetworkinterface-on-ec2/
+- https://docs.aws.amazon.com/ja_jp/lambda/latest/dg/configuration-vpc.html
 
 #### その他の参照
 
