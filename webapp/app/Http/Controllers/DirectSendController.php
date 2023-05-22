@@ -5,11 +5,12 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\User;
 use App\Models\DirectSend\ClientPushSignalForWebSocketEndpoint;
-use App\Models\Websocket\WebsocketConnection;
+use App\Models\Websocket\WebsocketConnectionDDB;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 
 use Aws\ApiGatewayManagementApi\ApiGatewayManagementApiClient;
+use Aws\DynamoDb\DynamoDbClient;
 
 class DirectSendController extends Controller
 {
@@ -37,17 +38,26 @@ class DirectSendController extends Controller
     {
         Log::debug('ID:' . $id . ', message:' . $message);
 
-        $websocketConnections = WebsocketConnection::query()
-            ->where('user_id', intval($id))
-            ->get();
-        Log::debug('connection_ids:' . $websocketConnections);
+        $client = createDynamoDBClient();
+
+        $connections = $client.scan(['TableName' => 'simplechat_connections']);
+
+        Log::debug('DynamoDBで取得できた connectionData の中身。');
+        Log::debug($connections);
+
+        $connectionIds = array();
+        foreach ($connections['data']['items'] as $connection) {
+            if ($connection['userId'] == $id) {
+                array_push($connectionIds, $connection['connectionId']);
+            }
+        }
 
         $signal = ClientPushSignalForWebSocketEndpoint::of($id, $message, Auth::user());
 
-        $this->sendDirectEndPointOfWebSocket($signal, $websocketConnections);
+        $this->sendDirectEndPointOfWebSocket($signal, $connectionIds);
     }
 
-    private function sendDirectEndPointOfWebSocket(ClientPushSignalForWebSocketEndpoint $signal, $websocketConnections)
+    private function sendDirectEndPointOfWebSocket(ClientPushSignalForWebSocketEndpoint $signal, $connectionIds)
     {
         $client = new ApiGatewayManagementApiClient([
             'version' => '2018-11-29',
@@ -55,11 +65,26 @@ class DirectSendController extends Controller
             'region' => config('custom.websocket-api-region')
         ]);
 
-        foreach ($websocketConnections as $websocketConnection) {
+        foreach ($connectionIds as $connectionId) {
             $client->postToConnection([
-                'ConnectionId' => $websocketConnection->connection_id,
+                'ConnectionId' => $connectionId,
                 'Data' => json_encode($signal),
             ]);
         }
+    }
+
+    private function createDynamoDBClient()
+    {
+        return new DynamoDbClient([
+            'region' => 'ap-northeast-1',
+            'version' => 'latest',
+            'credentials' => [
+                'key' => $access_key,
+                'secret' => $secret_key,
+            ],
+            'http' => [
+                'timeout' => 5,
+            ],
+        ]);
     }
 }
