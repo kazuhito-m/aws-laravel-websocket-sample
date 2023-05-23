@@ -76,11 +76,11 @@ class DirectSendController extends Controller
     private function createDynamoDBClient()
     {
         return new DynamoDbClient([
-            'region' => 'ap-northeast-1',
+            'region' => config('custom.websocket-api-region'),
             'version' => 'latest',
             'credentials' => [
-                'key' => $access_key,
-                'secret' => $secret_key,
+                'key' =>  config('custom.wsddb-aws-access-key-id'),
+                'secret' => config('custom.wsddb-aws-secret-access-key'),
             ],
             'http' => [
                 'timeout' => 5,
