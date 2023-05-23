@@ -20,12 +20,15 @@ class WebsocketConnectionDDBController extends Controller
         $websocketConnections = array($wscItem);
 
         // DEBUG 検索のサンプル
-        $client = createDynamoDBClient();
+        Log::debug("region =>" . config('custom.websocket-api-region'));
+        Log::debug("key =>" . config('custom.wsddb-aws-access-key-id'));
+        Log::debug("secret =>" . config('custom.wsddb-aws-secret-access-key'));
 
-        $connections = $client.scan(['TableName' => 'simplechat_connections']);
+        // $client = $this->createDynamoDBClient();
+        // $connections = $client.scan(['TableName' => 'simplechat_connections']);
 
-        Log::debug('DynamoDBで取得できた connectionData の中身。');
-        Log::debug($connections);
+        // Log::debug('DynamoDBで取得できた connectionData の中身。');
+        // Log::debug($connections);
 
 
         return view('websocketconnectionddb.index')
@@ -45,7 +48,7 @@ class WebsocketConnectionDDBController extends Controller
     private function createDynamoDBClient()
     {
         return new DynamoDbClient([
-            'region' => config('custom.websocket-api-region'),
+            'region' => config('custom.default-region'),
             'version' => 'latest',
             'credentials' => [
                 'key' =>  config('custom.aws-access-key-id'),
