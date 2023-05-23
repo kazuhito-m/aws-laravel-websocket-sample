@@ -19,6 +19,15 @@ class WebsocketConnectionDDBController extends Controller
         $wscItem = WebsocketConnectionDDB::of('1', 'userId001', date(DATE_RFC2822));
         $websocketConnections = array($wscItem);
 
+        // DEBUG 検索のサンプル
+        $client = createDynamoDBClient();
+
+        $connections = $client.scan(['TableName' => 'simplechat_connections']);
+
+        Log::debug('DynamoDBで取得できた connectionData の中身。');
+        Log::debug($connections);
+
+
         return view('websocketconnectionddb.index')
             ->with('websocketConnections', $websocketConnections);
     }
@@ -33,15 +42,14 @@ class WebsocketConnectionDDBController extends Controller
             ->with('success', 'websocket connections deleted successfully');
     }
 
-
     private function createDynamoDBClient()
     {
         return new DynamoDbClient([
-            'region' => 'ap-northeast-1',
+            'region' => config('custom.websocket-api-region'),
             'version' => 'latest',
             'credentials' => [
-                'key' => $access_key,
-                'secret' => $secret_key,
+                'key' =>  config('custom.aws-access-key-id'),
+                'secret' => config('custom.aws-secret-access-key'),
             ],
             'http' => [
                 'timeout' => 5,
