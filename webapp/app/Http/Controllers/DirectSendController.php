@@ -68,9 +68,11 @@ class DirectSendController extends Controller
 
     private function sendDirectEndPointOfWebSocket(ClientPushSignalForWebSocketEndpoint $signal, $connectionIds)
     {
+        $endpoint = config('custom.websocket-api-url');
+        Log::debug('endpoint: ' . $endpoint);
         $client = new ApiGatewayManagementApiClient([
             'version' => '2018-11-29',
-            'endpoint' => config('custom.websocket-url'),
+            'endpoint' => $endpoint,
             'region' => config('custom.websocket-api-region')
         ]);
 
