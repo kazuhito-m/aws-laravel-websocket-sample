@@ -14,21 +14,22 @@ class WebsocketConnectionDDBController extends Controller
 {
     public function index()
     {
+        // TODO DynamoDBからデータを一覧する
         // $websocketConnections = WebsocketConnection::all();
-        $wscItem = WebsocketConnectionDDB::of('connection001', 'userId001', date(DATE_RFC2822));
+        $wscItem = WebsocketConnectionDDB::of('1', 'userId001', date(DATE_RFC2822));
         $websocketConnections = array($wscItem);
 
         return view('websocketconnectionddb.index')
             ->with('websocketConnections', $websocketConnections);
     }
 
-    public function destroy(WebsocketConnection $websocketConnection)
+    public function destroy(string $connectionId)
     {
-        Log::debug('削除対象ID:' . $websocketConnection->id);
+        Log::debug('削除対象ID:' . $connectionId);
 
-        $websocketConnection->delete();
+        // TODO DynamoDBをインデクスで削除。
 
-        return redirect()->route('websocketconnections.index')
+        return redirect()->route('websocketconnectionsddb.index')
             ->with('success', 'websocket connections deleted successfully');
     }
 }

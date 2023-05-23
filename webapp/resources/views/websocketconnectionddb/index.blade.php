@@ -1,7 +1,7 @@
 <x-app-layout>
     <x-slot name="header">
         <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            {{ __('Websockeet Connections') }}
+            {{ __('Websockeet Connections(Dynamo DB)') }}
         </h2>
     </x-slot>
 
