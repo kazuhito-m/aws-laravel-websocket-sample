@@ -37,20 +37,29 @@ class DirectSendController extends Controller
     private function sendMessageOf(string $id, string $message)
     {
         Log::debug('ID:' . $id . ', message:' . $message);
+        $client = $this->createDynamoDBClient();
 
-        $client = createDynamoDBClient();
+        $records = $client->scan(['TableName' => 'simplechat_connections']);
 
-        $connections = $client.scan(['TableName' => 'simplechat_connections']);
-
-        Log::debug('DynamoDBで取得できた connectionData の中身。');
-        Log::debug($connections);
+        $websocketConnections = array();
+        foreach ($records['Items'] as $record) {
+            $connection = WebsocketConnectionDDB::of(
+                $record['connectionId']['S'],
+                $record['userId']['S'],
+                $record['connectedTime']['S'],
+            );
+            array_push($websocketConnections, $connection);
+        }
 
         $connectionIds = array();
-        foreach ($connections['data']['items'] as $connection) {
-            if ($connection['userId'] == $id) {
-                array_push($connectionIds, $connection['connectionId']);
+        foreach ($websocketConnections as $connection) {
+            if ($connection->userId == $id) {
+                array_push($connectionIds, $connection->connectionId);
             }
         }
+
+        Log::debug('connextionIds');
+        Log::debug($connectionIds);
 
         $signal = ClientPushSignalForWebSocketEndpoint::of($id, $message, Auth::user());
 
