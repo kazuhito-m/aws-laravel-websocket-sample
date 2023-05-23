@@ -32,4 +32,20 @@ class WebsocketConnectionDDBController extends Controller
         return redirect()->route('websocketconnectionsddb.index')
             ->with('success', 'websocket connections deleted successfully');
     }
+
+
+    private function createDynamoDBClient()
+    {
+        return new DynamoDbClient([
+            'region' => 'ap-northeast-1',
+            'version' => 'latest',
+            'credentials' => [
+                'key' => $access_key,
+                'secret' => $secret_key,
+            ],
+            'http' => [
+                'timeout' => 5,
+            ],
+        ]);
+    }
 }
