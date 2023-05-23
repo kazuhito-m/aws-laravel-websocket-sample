@@ -35,8 +35,12 @@ class WebsocketConnectionDDBController extends Controller
     public function destroy(string $connectionId)
     {
         Log::debug('削除対象ID:' . $connectionId);
+        $client = $this->createDynamoDBClient();
 
-        // TODO DynamoDBをインデクスで削除。
+        $client->deleteItem([
+            'Key' => ['connectionId' => ['S' => $connectionId ]],
+            'TableName' => 'simplechat_connections',
+        ]);
 
         return redirect()->route('websocketconnectionsddb.index')
             ->with('success', 'websocket connections deleted successfully');
