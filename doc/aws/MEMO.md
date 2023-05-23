@@ -28,8 +28,10 @@
 
 以下、「調べて明確になった」ら、チェック付け、上のパートに記事化すること。
 
-- [ ] FageteとALBはどういう関係なのか
-- [ ] 同ドメインにALBとAPIGatewayは存在しうるのか
+- [x] FageteとALBはどういう関係なのか
+  - Fageteは「コンテナ実行バックエンド」なので、あまり関係ない
+- [x] 同ドメインにALBとAPIGatewayは存在しうるのか
+  - ALBとApiGatewayに別々のサブドメイン張ったら行ける
 - [ ] テスト用に「LaravelをDockerfile一個に乗せる」をやってるが、Farget用の最適な設計はソレなのか
 - [ ] オートスケーリングの検証(ちゃんと働くか、条件はなにか)
 - [ ] オートスケーリングの最適性の設計(キャパプラからナンボがええのか)
@@ -52,10 +54,10 @@
   - VPCを上で作ったものを使う、以外はほぼデフォ
   - デフォなので、無論Fagete指定
 0. ECRを作成
-0. ECRへローカルからイメージをプッシュ 
+0. ECRへローカルからイメージをプッシュ
   - aws-cli が必要だったので `sudo apt  install awscli` という雑いことする
 0. ECSの左メニューから「タスク定義」をクリック、作成
-0. ECSクラスタに「サービス」を作成 
+0. ECSクラスタに「サービス」を作成
   - 最低タスク数を2にしてみる
 0. デプロイする
 
@@ -206,6 +208,59 @@ API Gatewayのリソースポリシー（sam拡張のCFnテンプレートの場
 という記述があった。
 
 Resourceの値を `"*"` に変えるとあっさりとアクセスできた。
+
+### ECS内のコンテナから、PHPを使ってAPIGatewayを叩いた時、403 Forbiddenになる
+
+前述の「PublicなEndPointが参照出来ない」の課題はすべて解決している前提。
+
+ECS/Fargate内のPHPから
+
+```php
+$client = new ApiGatewayManagementApiClient(...);
+$client->postToConnection([...]);
+```
+
+を実行した場合、PHP側のスタックトレースとして、
+
+```
+Error executing "PostToConnection" on "https://api.APIGATEWAY/@connections/FFFFFFFFFFFFFFFFFF";
+AWS HTTP error:
+  Client error: `POST https://api.APIGATEWAY/@connections/FFFFFFFFFFFFFFFFFF` resulted in a `403 Forbidden`
+response: {
+    "Message":
+      "User: arn:aws:sts::000000000000:assumed-role/ecsTaskExecutionRole/00000000000000000000000000000000 is not au (truncated...)
+  AccessDeniedException (client):
+    User: arn:aws:sts::000000000000:assumed-role/ecsTaskExecutionRole/00000000000000000000000000000000
+    is not authorized to perform:
+    execute-api:ManageConnections on
+      resource: arn:aws:execute-api:ap-northeast-1:********2314:999999999/Prod/POST/@connections/{connectionId}
+        - {"Message":"User: arn:aws:sts::000000000000:assumed-role/ecsTaskExecutionRole/00000000000000000000000000000000 is not authorized
+          to perform: execute-api:ManageConnections on resource:
+            arn:aws:execute-api:ap-northeast-1:********2314:999999999/Prod/POST/@connections/{connectionId}"}
+```
+
+というエラーになる。
+
+#### 解決
+
+上記スタックトレースにも `ecsTaskExecutionRole` としてあるが、「ECSのコンテナのIAMに権限がなかった」のが原因。
+
+更に言えば、一度APIGatewayを作り直したので「APIGatewayの固有の一つのリソースだけを許していた」設定では、新しいGatewayに追いついていなかった。
+
+```yaml
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Effect": "Allow",
+            "Action": "execute-api:ManageConnections",
+            "Resource": "arn:aws:execute-api:*:[Accountの固有ID]:*/*/*/*"
+        }
+    ]
+}
+```
+
+と `*` で緩和した。(全部アスターでも良かったのかもしれないが…)
 
 ### LambdaをJavaScriptを使う場合package.jsonのライブラリを持ってってくれない
 
