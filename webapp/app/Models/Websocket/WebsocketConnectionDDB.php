@@ -17,6 +17,6 @@ class WebsocketConnectionDDB
         $con->userId = $userId;
         $con->connectedTime = $connectedTime;
 
-        return $signal;
+        return $con;
     }
 }

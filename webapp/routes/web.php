@@ -6,6 +6,7 @@ use App\Http\Controllers\ReceiveController;
 use App\Http\Controllers\SendController;
 use App\Http\Controllers\DirectSendController;
 use App\Http\Controllers\WebsocketConnectionController;
+use App\Http\Controllers\WebsocketConnectionDDBController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -36,5 +37,6 @@ Route::resource('receive', ReceiveController::class)->middleware(['auth', 'verif
 Route::resource('send', SendController::class)->middleware(['auth', 'verified']);
 Route::resource('directsend', DirectSendController::class)->middleware(['auth', 'verified']);
 Route::resource('websocketconnections', WebsocketConnectionController::class)->middleware(['auth', 'verified']);
+Route::resource('websocketconnectionsddb', WebsocketConnectionDDBController::class)->middleware(['auth', 'verified']);
 
 require __DIR__.'/auth.php';

@@ -26,6 +26,9 @@
                 <div class="pull-right">
                     <a class="btn btn-success" href="/websocketconnections"> Websockeet Connectilons</a>
                 </div>
+                <div class="pull-right">
+                    <a class="btn btn-success" href="/websocketconnectionsddb"> Websockeet Connectilons(Dynamo DB)</a>
+                </div>
             </div>
         </div>
     </div>
