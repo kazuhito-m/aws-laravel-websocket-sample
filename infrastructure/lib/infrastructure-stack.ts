@@ -15,9 +15,9 @@ export class InfrastructureStack extends Stack {
             ipAddresses: ec2.IpAddresses.cidr('10.0.0.0/16'),
         });
 
-        const webServers: WebServerInstance[] = Array<WebServerInstance>(2);
+        const webServers: WebServerInstance[] = [];
 
-        for (let i = 0; i < webServers.length; i++) {
+        for (let i = 0; i < 2; i++) {
             const webServer = new WebServerInstance(this, 'WebServer' + i, { vpc, });
             webServers.push(webServer);
         }
