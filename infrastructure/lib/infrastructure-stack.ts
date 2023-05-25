@@ -8,12 +8,6 @@ export class InfrastructureStack extends Stack {
   constructor(scope: Construct, id: string, props?: StackProps) {
     super(scope, id, props);
 
-    const queue = new sqs.Queue(this, 'InfrastructureQueue', {
-      visibilityTimeout: Duration.seconds(300)
-    });
-
-    const topic = new sns.Topic(this, 'InfrastructureTopic');
-
-    topic.addSubscription(new subs.SqsSubscription(queue));
+    // TODO 実装。
   }
 }
