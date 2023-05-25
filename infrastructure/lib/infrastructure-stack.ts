@@ -15,10 +15,12 @@ export class InfrastructureStack extends Stack {
             ipAddresses: ec2.IpAddresses.cidr('10.0.0.0/16'),
         });
 
-        const webServer1 = new WebServerInstance(this, 'WebServer1', { vpc, });
+        const webServers: WebServerInstance[] = Array<WebServerInstance>(2);
 
-        // 2 台目のインスタンスを宣言
-        const webServer2 = new WebServerInstance(this, 'WebServer2', { vpc, });
+        for (let i = 0; i < webServers.length; i++) {
+            const webServer = new WebServerInstance(this, 'WebServer' + i, { vpc, });
+            webServers.push(webServer);
+        }
 
         const dbServer = new rds.DatabaseInstance(this, "WordPressDB", {
             vpc,
@@ -27,9 +29,9 @@ export class InfrastructureStack extends Stack {
             databaseName: "wordpress",
         });
 
-        dbServer.connections.allowDefaultPortFrom(webServer1.instance);
-        // 2 台目のインスタンスの DB インスタンスへのアクセスを許可
-        dbServer.connections.allowDefaultPortFrom(webServer2.instance);
+        for (let webServer of webServers) {
+            dbServer.connections.allowDefaultPortFrom(webServer.instance);
+        }
 
         const alb = new elbv2.ApplicationLoadBalancer(this, "LoadBalancer", {
             vpc,
@@ -40,16 +42,16 @@ export class InfrastructureStack extends Stack {
         });
         listener.addTargets("ApplicationFleet", {
             port: 80,
-            targets: [new targets.InstanceTarget(webServer1.instance, 80),
+            targets: [new targets.InstanceTarget(webServers[0].instance, 80),
             // ターゲットに 2 台目のインスタンスを追加
-            new targets.InstanceTarget(webServer2.instance, 80)],
+            new targets.InstanceTarget(webServers[1].instance, 80)],
             healthCheck: {
                 path: "/wp-includes/images/blank.gif",
             },
         });
 
-        webServer1.instance.connections.allowFrom(alb, ec2.Port.tcp(80));
-        // ALB から 2 台目のインスタンスへのアクセスを許可
-        webServer2.instance.connections.allowFrom(alb, ec2.Port.tcp(80));
+        for (let webServer of webServers) {
+            webServer.instance.connections.allowFrom(alb, ec2.Port.tcp(80));
+        }
     }
 }
