@@ -12,11 +12,9 @@
 
 ゴミ掃除しないと「保持してるだけでお金かかる」系なので、使ってるリソース(あとで消さなきゃならないリソース)をメモっとく。
 
-- S3
 - CloudFormation
-- ApiGateway
-- Lambdad
-- DynamoDB
+- SNS
+- SQS
 
 ## x
 
