@@ -1,48 +1,51 @@
 import { Stack, StackProps } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
-
 import * as ec2 from "aws-cdk-lib/aws-ec2";
 import * as rds from "aws-cdk-lib/aws-rds";
-import { readFileSync } from 'fs';
+import * as elbv2 from "aws-cdk-lib/aws-elasticloadbalancingv2";
+import * as targets from "aws-cdk-lib/aws-elasticloadbalancingv2-targets";
+
+// 自作コンストラクトを import
+import { WebServerInstance } from './constructs/web-server-instance';
 
 export class InfrastructureStack extends Stack {
-  constructor(scope: Construct, id: string, props?: StackProps) {
-    super(scope, id, props);
+    constructor(scope: Construct, id: string, props?: StackProps) {
+        super(scope, id, props);
 
-    // VPC
-    const vpc = new ec2.Vpc(this, "BlogVpc", {
-      ipAddresses: ec2.IpAddresses.cidr('10.0.0.0/16'),
-    });
+        const vpc = new ec2.Vpc(this, "BlogVpc", {
+            ipAddresses: ec2.IpAddresses.cidr('10.0.0.0/16'),
+        });
 
+        // 新しく作成したコンストラクトを使用してインスタンスを宣言
+        const webServer1 = new WebServerInstance(this, 'WebServer1', { vpc });
 
-    // EC2
-    const webServer1 = new ec2.Instance(this, "WordpressServer1", {
-      vpc,
-      instanceType: ec2.InstanceType.of(ec2.InstanceClass.T2, ec2.InstanceSize.SMALL),
-      machineImage: new ec2.AmazonLinuxImage({
-        generation: ec2.AmazonLinuxGeneration.AMAZON_LINUX_2,
-      }),
-      vpcSubnets: { subnetType: ec2.SubnetType.PUBLIC },
-    });
+        const dbServer = new rds.DatabaseInstance(this, "WordPressDB", {
+            vpc,
+            engine: rds.DatabaseInstanceEngine.mysql({ version: rds.MysqlEngineVersion.VER_8_0_31 }),
+            instanceType: ec2.InstanceType.of(ec2.InstanceClass.T2, ec2.InstanceSize.SMALL),
+            databaseName: "wordpress",
+        });
 
-    const script = readFileSync("./lib/resources/user-data.sh", "utf8");
-    webServer1.addUserData(script);
+        // アクセス許可対象をコンストラクト内のインスタンスに変更
+        dbServer.connections.allowDefaultPortFrom(webServer1.instance);
 
-    // port80, 全ての IP アドレスからのアクセスを許可
-    webServer1.connections.allowFromAnyIpv4(ec2.Port.tcp(80));
+        const alb = new elbv2.ApplicationLoadBalancer(this, "LoadBalancer", {
+            vpc,
+            internetFacing: true,
+        });
+        const listener = alb.addListener("Listener", {
+            port: 80,
+        });
+        listener.addTargets("ApplicationFleet", {
+            port: 80,
+            // ターゲットをコンストラクト内のインスタンスに変更
+            targets: [new targets.InstanceTarget(webServer1.instance, 80)],
+            healthCheck: {
+                path: "/wp-includes/images/blank.gif",
+            },
+        });
 
-    // RDS
-    const dbServer = new rds.DatabaseInstance(this, "WordPressDB", {
-      vpc,
-      // DatabaseInstanceEngine クラスを利用してデータベースエンジンを設定
-      engine: rds.DatabaseInstanceEngine.mysql({ version: rds.MysqlEngineVersion.VER_8_0_31 }),
-      // RDS DB インスタンスのインスタンスタイプを設定
-      instanceType: ec2.InstanceType.of(ec2.InstanceClass.T2, ec2.InstanceSize.SMALL),
-      // RDS DB インスタンスのデータベース名を設定
-      databaseName: "wordpress",
-    });
-
-    // WebServer からのアクセスを許可
-    dbServer.connections.allowDefaultPortFrom(webServer1);
-  }
+        // ALB からインスタンスへのアクセスを許可
+        webServer1.instance.connections.allowFrom(alb, ec2.Port.tcp(80));
+    }
 }
