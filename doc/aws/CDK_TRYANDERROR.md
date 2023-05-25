@@ -15,6 +15,8 @@
 - CloudFormation
 - SNS
 - SQS
+- EC2
+- RDS
 
 ## x
 
