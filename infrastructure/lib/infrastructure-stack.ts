@@ -18,7 +18,7 @@ export class InfrastructureStack extends Stack {
         const webServers: WebServerInstance[] = [];
 
         for (let i = 0; i < 2; i++) {
-            const webServer = new WebServerInstance(this, 'WebServer' + i, { vpc, });
+            const webServer = new WebServerInstance(this, 'WebServer' + (i + 1), { vpc, });
             webServers.push(webServer);
         }
 
