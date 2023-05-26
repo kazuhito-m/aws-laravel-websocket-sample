@@ -15,12 +15,10 @@ export class InfrastructureStack extends Stack {
             ipAddresses: ec2.IpAddresses.cidr('10.0.0.0/16'),
         });
 
-        const webServers: WebServerInstance[] = [];
-
-        for (let i = 0; i < 2; i++) {
-            const webServer = new WebServerInstance(this, 'WebServer' + (i + 1), { vpc, });
-            webServers.push(webServer);
-        }
+        const EC2_INSTANCE_COUNT = 2;
+        const webServers = [...Array(EC2_INSTANCE_COUNT)]
+            .map((_, i) => i + 1)
+            .map(i => new WebServerInstance(this, `WebServer${i}`, { vpc }));
 
         const dbServer = new rds.DatabaseInstance(this, "WordPressDB", {
             vpc,
