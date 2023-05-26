@@ -25,6 +25,7 @@ export class InfrastructureStack extends Stack {
             engine: rds.DatabaseInstanceEngine.mysql({ version: rds.MysqlEngineVersion.VER_8_0_31 }),
             instanceType: ec2.InstanceType.of(ec2.InstanceClass.T2, ec2.InstanceSize.SMALL),
             databaseName: "wordpress",
+            multiAz: true,
         });
 
         for (let webServer of webServers) {
