@@ -21,5 +21,11 @@
 - EC2
 - RDS
 
-## x
+## DNS(Route53)を作る
+
+材料。
+
+- https://docs.aws.amazon.com/cdk/api/v2/docs/aws-cdk-lib.aws_route53-readme.html
+- https://zenn.dev/rentio/articles/import-route53-resources-with-cdk
+- https://mitchellgritts.com/snippets/aws-cdk-route53-cname-record
 
