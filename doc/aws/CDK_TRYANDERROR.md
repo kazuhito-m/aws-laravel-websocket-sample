@@ -26,6 +26,9 @@
 材料。
 
 - https://docs.aws.amazon.com/cdk/api/v2/docs/aws-cdk-lib.aws_route53-readme.html
+- https://docs.aws.amazon.com/cdk/api/v2/docs/aws-cdk-lib.aws_route53.CnameRecord.html
 - https://zenn.dev/rentio/articles/import-route53-resources-with-cdk
 - https://mitchellgritts.com/snippets/aws-cdk-route53-cname-record
+- https://gist.github.com/suz-lab/7d8774bf97a60057f09a
+- https://dev.classmethod.jp/articles/cloudformation-resources-with-route-53/
 
