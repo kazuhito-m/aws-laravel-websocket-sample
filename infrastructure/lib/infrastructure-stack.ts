@@ -4,6 +4,8 @@ import * as ec2 from "aws-cdk-lib/aws-ec2";
 import * as rds from "aws-cdk-lib/aws-rds";
 import * as elbv2 from "aws-cdk-lib/aws-elasticloadbalancingv2";
 import * as targets from "aws-cdk-lib/aws-elasticloadbalancingv2-targets";
+import * as route53 from "aws-cdk-lib/aws-route53";
+import * as cdk from "aws-cdk-lib/core";
 
 import { WebServerInstance } from './constructs/web-server-instance';
 
@@ -27,6 +29,17 @@ export class InfrastructureStack extends Stack {
             databaseName: "wordpress",
             multiAz: true,
         });
+
+        // RDSのエンドポイントをDNSで別名に置き換える
+        const zone = new route53.PrivateHostedZone(this, 'HostedZone', {
+            zoneName: 'invpc',
+            vpc,
+        })
+        new route53.CnameRecord(this, `CnameRdsRecord`, {
+            zone,
+            recordName: 'rds',
+            domainName: dbServer.dbInstanceEndpointAddress,
+        }).applyRemovalPolicy(cdk.RemovalPolicy.DESTROY);
 
         for (let webServer of webServers) {
             dbServer.connections.allowDefaultPortFrom(webServer.instance);
