@@ -2,7 +2,7 @@
 
 ## 予め集めた材料
 
-- x
+- https://dev.classmethod.jp/articles/aws-cdk-command-line-interface/
 
 ## 初手、手習いでやること
 
