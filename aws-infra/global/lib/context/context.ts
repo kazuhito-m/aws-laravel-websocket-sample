@@ -1,4 +1,4 @@
-import {Node} from 'constructs';
+import { Node } from 'constructs';
 import { Environment } from 'aws-cdk-lib';
 
 export interface GlobalContext {
@@ -22,8 +22,14 @@ export class Context {
             region: process.env.CDK_DEFAULT_REGION as string,
         }
 
-        const global =  node.tryGetContext('global');
-        
-        return new Context(env , global);
+        const global = node.tryGetContext('global');
+
+        return new Context(env, global);
+    }
+
+    public systemNameOfPascalCase(): string {
+        const name = this.global.systemName;
+        return name.substring(0, 1).toUpperCase
+            + name.substring(1);
     }
 }
