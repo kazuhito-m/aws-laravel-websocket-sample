@@ -1,5 +1,8 @@
 import * as cdk from 'aws-cdk-lib';
 import * as ecr from 'aws-cdk-lib/aws-ecr';
+import * as codebuild from 'aws-cdk-lib/aws-codebuild';
+import * as codecommit from 'aws-cdk-lib/aws-codecommit';
+
 import { Construct } from 'constructs';
 import { AlwsGlobalStackProps } from './alws-global-stack-props';
 
@@ -19,6 +22,23 @@ export class AlwsGlobalStack extends cdk.Stack {
         containerRepository.addLifecycleRule({
             maxImageCount: 500
         })
+
+        const tagBuildOfSourceCIProject = new codebuild.Project(this, 'BuildCImageByGitTagCodeBuild', {
+            projectName: `${settings.systemName()}-app-container-image-build-by-github-tag`,
+            description: 'GitHubでTag(数値始まり)が切られた場合、アプリケーションのコンテナイメージをビルド、レジストリに登録する。',
+            source: codebuild.Source.gitHub({
+                owner: 'kazuhito-m',
+                repo: 'aws-laravel-websocket-sample',
+                webhook: true,
+                webhookTriggersBatchBuild: true,
+                webhookFilters: [
+                    codebuild.FilterGroup
+                        .inEventOf(codebuild.EventAction.PUSH)
+                        .andTagIs('^[0-9]+\.[0-9]+\.[0-9].*$')
+                ]
+            }),
+            buildSpec: codebuild.BuildSpec.fromSourceFilename('cd/build/buildspec.yml')
+        });
 
         this.setTag("Version", settings.packageVersion());
     }
