@@ -27,9 +27,17 @@ export class Context {
         return new Context(env, global);
     }
 
+    public systemName(): string {
+        return this.global.systemName;
+    }
+
     public systemNameOfPascalCase(): string {
-        const name = this.global.systemName;
-        return name.substring(0, 1).toUpperCase
+        const name = this.systemName();
+        return name.substring(0, 1).toUpperCase()
             + name.substring(1);
+    }
+
+    public containerImageId(): string {
+        return `${this.systemName()}-app`;
     }
 }

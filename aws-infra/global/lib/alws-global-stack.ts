@@ -6,6 +6,6 @@ export class AlwsGlobalStack extends cdk.Stack {
     constructor(scope: Construct, id: string, props?: AlwsGlobalStackProps) {
         super(scope, id, props);
 
-        console.log('systemName: ' + props?.context.global.systemName);
+        console.log('systemName: ' + props?.context.systemNameOfPascalCase());
     }
 }
