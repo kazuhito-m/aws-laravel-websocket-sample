@@ -1,9 +1,7 @@
 import * as cdk from 'aws-cdk-lib';
-import { Duration, RemovalPolicy } from 'aws-cdk-lib';
-import { LifecycleHook } from 'aws-cdk-lib/aws-autoscaling';
 import * as ecr from 'aws-cdk-lib/aws-ecr';
+import { RemovalPolicy } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
-import { Duplex } from 'stream';
 import { AlwsGlobalStackProps } from './alws-global-stack-props';
 
 export class AlwsGlobalStack extends cdk.Stack {
@@ -19,8 +17,7 @@ export class AlwsGlobalStack extends cdk.Stack {
             autoDeleteImages: false,  // Stack削除時、連鎖削除設定だが、イメージが一つでも在れば削除しない。            
         });
         containerRepository.addLifecycleRule({
-            maxImageAge: Duration.days(180),
-            maxImageCount: 1000
+            maxImageCount: 500
         })
     }
 }
