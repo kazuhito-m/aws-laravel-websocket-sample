@@ -20,6 +20,10 @@ export class AlwsGlobalStack extends cdk.Stack {
             maxImageCount: 500
         })
 
-        cdk.Tags.of(this).add("Version", settings.packageVersion());
+        this.setTag("Version", settings.packageVersion());
+    }
+
+    private setTag(key: string, value: string): void {
+        cdk.Tags.of(this).add(key, value);
     }
 }
