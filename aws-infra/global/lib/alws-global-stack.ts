@@ -13,7 +13,7 @@ export class AlwsGlobalStack extends cdk.Stack {
         const containerRepository = new ecr.Repository(this, 'ContainerRepsitory', {
             repositoryName: settings?.containerImageId(),
             imageTagMutability: ecr.TagMutability.IMMUTABLE,
-            imageScanOnPush: true,
+            imageScanOnPush: false, // 脆弱性検査は Amazon Inspector に移譲する
         });
         // Stack削除時、連鎖削除設定だが、イメージが一つでも在れば削除せず、Stackから外れる。
         containerRepository.addLifecycleRule({
