@@ -8,6 +8,7 @@ export class AlwsGlobalStack extends cdk.Stack {
         super(scope, id, props);
 
         const settings = props?.context;
+        if (!settings) throw new Error('cdk.json の内容が読めませんでした。');
 
         const containerRepository = new ecr.Repository(this, 'ContainerRepsitory', {
             repositoryName: settings?.containerImageId(),
@@ -18,5 +19,7 @@ export class AlwsGlobalStack extends cdk.Stack {
         containerRepository.addLifecycleRule({
             maxImageCount: 500
         })
+
+        cdk.Tags.of(this).add("Version", settings.packageVersion());
     }
 }

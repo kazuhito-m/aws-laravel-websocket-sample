@@ -40,4 +40,9 @@ export class Context {
     public containerImageId(): string {
         return `${this.systemName()}-app`;
     }
+
+    public packageVersion(): string {
+        const ver = process.env.npm_package_version;
+        return ver ? ver : '';
+    }
 }
