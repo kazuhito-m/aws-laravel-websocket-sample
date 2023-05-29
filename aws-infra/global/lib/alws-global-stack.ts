@@ -41,6 +41,8 @@ export class AlwsGlobalStack extends cdk.Stack {
             buildSpec: codebuild.BuildSpec.fromSourceFilename('cd/build/buildspec.yml'),
             badge: true,
             environment: {
+                buildImage: codebuild.LinuxBuildImage.AMAZON_LINUX_2_4,
+                privileged: true,
                 environmentVariables: {
                     REPOSITORY_NAME: {
                         value: containerRepository.repositoryName,
