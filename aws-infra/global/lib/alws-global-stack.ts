@@ -48,6 +48,7 @@ export class AlwsGlobalStack extends cdk.Stack {
                 }
             }
         });
+        containerRepository.grantPullPush(tagBuildOfSourceCIProject.grantPrincipal);
 
         this.setTag("Version", settings.packageVersion());
     }
