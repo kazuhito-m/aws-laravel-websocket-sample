@@ -10,6 +10,7 @@ export class AlwsStageOfStack extends cdk.Stack {
         const settings = props?.context as Context;
         this.confimationOfPreconditions(props?.context);
 
+        this.setTag("Stage", settings.currentStageId);
         this.setTag("Version", settings.packageVersion());
     }
 
