@@ -32,3 +32,37 @@
 - https://gist.github.com/suz-lab/7d8774bf97a60057f09a
 - https://dev.classmethod.jp/articles/cloudformation-resources-with-route-53/
 
+## package.jsonを共有した、Stackを２つ以上作る
+
+環境の種類(production,stagingなど)で別れるもの以外で、「AWSアカウントに対して一つ」のものがある。例:
+
+- ECR
+- Route53のZone(サービスのドメイン名のもののみ、PriveteDNSは環境毎)
+- CodeBuild,CodePipeline
+
+環境毎のものと、AWSに対して一つのものを、Stack的に分けたい。
+
+しかし、ルートであるフォルダやpackage.jsonは共有したい。
+
+そこで「TopからCDKコマンドで叩けるStackを２つ作る」「コマンドで呼び分けることが可能」という状態を作
+りたい。
+
+- https://docs.aws.amazon.com/ja_jp/cdk/v2/guide/stack_how_to_create_multiple_stacks.html
+
+## 環境種ごとにスタックを作る
+
+- https://zenn.dev/chatii/articles/9486b3150849bb
+- https://qiita.com/motchi0214/items/eb0f93131fdfb64e0378
+
+
+## CDK自体をCD(CodeBuild)で実行する
+
+`stage` (production,stageingなど)は「自動適用」であってもいいかな？と構想している。
+
+- https://chariosan.com/2021/09/18/githubactions_codebuild_cdkdeploy/
+- x
+
+
+## Stackに環境変数を設定し、その下のすべてのリソースに伝播する
+
+- https://dev.classmethod.jp/articles/aws_cdk_add_common_tag/
