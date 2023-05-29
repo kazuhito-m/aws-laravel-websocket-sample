@@ -50,7 +50,8 @@
     "@aws-cdk/aws-ec2:restrictDefaultSecurityGroup": true,
     "@aws-cdk/aws-apigateway:requestValidatorUniqueId": true,
     "global": {
-        "systemName": "alws"
+        "systemName": "alws",
+        "githubAccessToken": "xxx"
     }
   }
 }

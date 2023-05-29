@@ -2,7 +2,8 @@ import { Node } from 'constructs';
 import { Environment } from 'aws-cdk-lib';
 
 export interface GlobalContext {
-    systemName: string
+    systemName: string,
+    githubAccessToken: string
 }
 
 export interface EnvContext extends Environment {
