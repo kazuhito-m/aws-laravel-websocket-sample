@@ -4,11 +4,11 @@ phases:
     commands:
       - echo "AWS_DEFAULT_REGION -> ${AWS_DEFAULT_REGION}"
       - aws ecr get-login --region ${AWS_DEFAULT_REGION} --no-include-email
+      - IMAGE_TAG=$(git describe --tags)
+      - echo "git tag:${IMAGE_TAG}"
       - $(aws ecr get-login --region ${AWS_DEFAULT_REGION} --no-include-email)
       - AWS_ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
       - REPOSITORY_URI=${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/${REPOSITORY_NAME}
-      - IMAGE_TAG=$(git describe --tags)
-      - echo ${IMAGE_TAG}
 
   build:
     commands:
