@@ -1,6 +1,5 @@
 import { Node } from 'constructs';
 import { Environment } from 'aws-cdk-lib';
-import { Key } from 'aws-cdk-lib/aws-kms';
 
 export interface GlobalContext {
     systemName: string,

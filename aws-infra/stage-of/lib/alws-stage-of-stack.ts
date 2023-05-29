@@ -7,6 +7,7 @@ export class AlwsStageOfStack extends cdk.Stack {
     constructor(scope: Construct, id: string, props?: AlwsStackProps) {
         super(scope, id, props);
 
+        const settings = props?.context as Context;
         this.confimationOfPreconditions(props?.context);
 
 
