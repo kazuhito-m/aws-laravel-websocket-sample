@@ -39,7 +39,14 @@ export class AlwsGlobalStack extends cdk.Stack {
                 ],
             }),
             buildSpec: codebuild.BuildSpec.fromSourceFilename('cd/build/buildspec.yml'),
-            badge: true
+            badge: true,
+            environment: {
+                environmentVariables: {
+                    REPOSITORY_NAME: {
+                        value: containerRepository.repositoryName,
+                    }
+                }
+            }
         });
 
         this.setTag("Version", settings.packageVersion());
