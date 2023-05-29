@@ -53,3 +53,16 @@
 
 - https://zenn.dev/chatii/articles/9486b3150849bb
 - https://qiita.com/motchi0214/items/eb0f93131fdfb64e0378
+
+
+## CDK自体をCD(CodeBuild)で実行する
+
+`stage` (production,stageingなど)は「自動適用」であってもいいかな？と構想している。
+
+- https://chariosan.com/2021/09/18/githubactions_codebuild_cdkdeploy/
+- x
+
+
+## Stackに環境変数を設定し、その下のすべてのリソースに伝播する
+
+- https://dev.classmethod.jp/articles/aws_cdk_add_common_tag/
