@@ -69,8 +69,8 @@ export class AlwsStageOfStack extends cdk.Stack {
 
         const rdsSettings = settings.currentStage().rds;
 
-        const appDb = new rds.DatabaseInstance(this, settings.wpp("App"), {
-            instanceIdentifier: settings.wpk('app'),
+        const appDb = new rds.DatabaseInstance(this, settings.wpp("AppRds"), {
+            instanceIdentifier: settings.wpk('app-rds'),
             engine: rds.DatabaseInstanceEngine.mysql({ version: rds.MysqlEngineVersion.VER_8_0_32 }),
             instanceType: ec2.InstanceType.of(
                 rdsSettings.class,
