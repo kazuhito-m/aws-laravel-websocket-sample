@@ -15,7 +15,31 @@ export class AlwsStageOfStack extends cdk.Stack {
         const settings = props?.context as Context;
         this.confimationOfPreconditions(props?.context);
 
-        // VPC & networks
+        const { vpc, rdsSecurityGroup } = this.buildVpcAndNetwork(settings);
+
+        const rds = this.buildRds(settings, vpc, rdsSecurityGroup);
+
+
+        // TODO 下を参考に、情報をコンテナ側へ環境変数で渡す
+        // const container = taskDefinition.addContainer('Container', {
+        //     // image: ecs.ContainerImage.fromRegistry('amazon/amazon-ecs-sample'),
+        //     image: ecs.ContainerImage.fromEcrRepository(repository),
+        //     memoryLimitMiB: 256,
+        //     cpu: 256,
+        //     environment: {
+        //         DB_HOST: postgresql.instanceEndpoint.hostname,
+        //         DB_PORT: String(postgresql.instanceEndpoint.port),
+        //         DB_NAME: 'testdatabase',
+        //         DB_USER: databaseCredentialSecret.secretValueFromJson('username').toString(),
+        //         APP_DATABASE_PASSWORD: databaseCredentialSecret.secretValueFromJson('password').toString(),
+        //     },
+        // })
+
+        this.setTag("Stage", settings.currentStageId);
+        this.setTag("Version", settings.packageVersion());
+    }
+
+    private buildVpcAndNetwork(settings: Context) {
         const vpc = new ec2.Vpc(this, settings.wpp('Vpc'), {
             vpcName: settings.wpk('vpc'),
             ipAddresses: ec2.IpAddresses.cidr('10.0.0.0/16'),
@@ -48,29 +72,7 @@ export class AlwsStageOfStack extends cdk.Stack {
             ec2.Port.tcp(3306),
             'from ECS(container) to RDS access.'
         );
-
-
-        // RDS
-        const rds = this.buildRds(settings, vpc, rdsSecurityGroup);
-
-
-        // TODO 下を参考に、情報をコンテナ側へ環境変数で渡す
-        // const container = taskDefinition.addContainer('Container', {
-        //     // image: ecs.ContainerImage.fromRegistry('amazon/amazon-ecs-sample'),
-        //     image: ecs.ContainerImage.fromEcrRepository(repository),
-        //     memoryLimitMiB: 256,
-        //     cpu: 256,
-        //     environment: {
-        //         DB_HOST: postgresql.instanceEndpoint.hostname,
-        //         DB_PORT: String(postgresql.instanceEndpoint.port),
-        //         DB_NAME: 'testdatabase',
-        //         DB_USER: databaseCredentialSecret.secretValueFromJson('username').toString(),
-        //         APP_DATABASE_PASSWORD: databaseCredentialSecret.secretValueFromJson('password').toString(),
-        //     },
-        // })
-
-        this.setTag("Stage", settings.currentStageId);
-        this.setTag("Version", settings.packageVersion());
+        return { vpc, rdsSecurityGroup };
     }
 
     private buildRds(settings: Context, vpc: ec2.Vpc, rdsSecurityGroup: ec2.SecurityGroup): rds.DatabaseInstance {
