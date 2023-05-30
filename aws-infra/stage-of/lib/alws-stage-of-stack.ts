@@ -47,6 +47,13 @@ export class AlwsStageOfStack extends cdk.Stack {
                 timeout: Duration.seconds(5),
                 retries: 3
             },
+            environment: {
+                DB_HOST: rds.instanceEndpoint.hostname,
+                DB_PORT: String(rds.instanceEndpoint.port),
+                DB_NAME: settings.systemName(),
+                DB_USER: rds.secret?.secretValueFromJson('username').unsafeUnwrap() as string,
+                APP_DATABASE_PASSWORD: rds.secret?.secretValueFromJson('password').unsafeUnwrap() as string,
+            }
         }).addPortMappings({
             containerPort: 80,
             hostPort: 80,
@@ -66,21 +73,6 @@ export class AlwsStageOfStack extends cdk.Stack {
             healthyThresholdCount: 2,
             interval: Duration.seconds(15),
         });
-
-        // TODO 下を参考に、情報をコンテナ側へ環境変数で渡す
-        // const container = taskDefinition.addContainer('Container', {
-        //     // image: ecs.ContainerImage.fromRegistry('amazon/amazon-ecs-sample'),
-        //     image: ecs.ContainerImage.fromEcrRepository(repository),
-        //     memoryLimitMiB: 256,
-        //     cpu: 256,
-        //     environment: {
-        //         DB_HOST: postgresql.instanceEndpoint.hostname,
-        //         DB_PORT: String(postgresql.instanceEndpoint.port),
-        //         DB_NAME: 'testdatabase',
-        //         DB_USER: databaseCredentialSecret.secretValueFromJson('username').toString(),
-        //         APP_DATABASE_PASSWORD: databaseCredentialSecret.secretValueFromJson('password').toString(),
-        //     },
-        // })
 
         this.setTag("Stage", settings.currentStageId);
         this.setTag("Version", settings.packageVersion());
