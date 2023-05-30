@@ -55,6 +55,7 @@ export class AlwsStageOfStack extends cdk.Stack {
                 APP_DATABASE_PASSWORD: rds.secret?.secretValueFromJson('password').unsafeUnwrap() as string,
             }
         }).addPortMappings({
+            name: `${settings.systemName()}-app-80-tcp`,
             containerPort: 80,
             hostPort: 80,
             protocol: ecs.Protocol.TCP,
