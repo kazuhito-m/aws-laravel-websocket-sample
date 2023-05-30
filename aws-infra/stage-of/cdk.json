@@ -58,8 +58,8 @@
                 "siteFqdn": "testcity.click",
                 "rds": {
                     "class": "t2",
-                    "size": "small",
-                    "multiAz": true
+                    "size": "micro",
+                    "multiAz": false
                 }
             },
             "staging": {
