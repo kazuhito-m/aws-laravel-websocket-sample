@@ -1,6 +1,7 @@
 import * as cdk from 'aws-cdk-lib';
 import * as ec2 from "aws-cdk-lib/aws-ec2";
 import * as rds from "aws-cdk-lib/aws-rds";
+import * as ecs from "aws-cdk-lib/aws-ecs";
 import * as sm from "aws-cdk-lib/aws-secretsmanager";
 import { SubnetType } from 'aws-cdk-lib/aws-ec2';
 import { Construct } from 'constructs';
@@ -17,7 +18,11 @@ export class AlwsStageOfStack extends cdk.Stack {
 
         const { vpc, rdsSecurityGroup } = this.buildVpcAndNetwork(settings);
 
-        const rds = this.buildRds(settings, vpc, rdsSecurityGroup);
+        // const rds = this.buildRds(settings, vpc, rdsSecurityGroup);
+
+        const ecsCluster = new ecs.Cluster(this, settings.wpp("EcsCluster"), {
+            vpc: vpc
+        });
 
 
         // TODO 下を参考に、情報をコンテナ側へ環境変数で渡す
