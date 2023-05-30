@@ -2,12 +2,13 @@ import * as cdk from 'aws-cdk-lib';
 import * as ec2 from "aws-cdk-lib/aws-ec2";
 import * as rds from "aws-cdk-lib/aws-rds";
 import * as ecs from "aws-cdk-lib/aws-ecs";
+import * as ecsPatterns from "aws-cdk-lib/aws-ecs-patterns";
 import * as sm from "aws-cdk-lib/aws-secretsmanager";
 import { SubnetType } from 'aws-cdk-lib/aws-ec2';
 import { Construct } from 'constructs';
 import { AlwsStackProps } from './alws-stack-props';
 import { Context } from './context/context';
-import { SecretValue } from 'aws-cdk-lib';
+import { Duration, SecretValue } from 'aws-cdk-lib';
 
 export class AlwsStageOfStack extends cdk.Stack {
     constructor(scope: Construct, id: string, props?: AlwsStackProps) {
@@ -16,14 +17,36 @@ export class AlwsStageOfStack extends cdk.Stack {
         const settings = props?.context as Context;
         this.confimationOfPreconditions(props?.context);
 
-        const { vpc, rdsSecurityGroup } = this.buildVpcAndNetwork(settings);
+        const { vpc, rdsSecurityGroup, ecsSecurityGroup } = this.buildVpcAndNetwork(settings);
 
         // const rds = this.buildRds(settings, vpc, rdsSecurityGroup);
 
         const ecsCluster = new ecs.Cluster(this, settings.wpp("EcsCluster"), {
-            vpc: vpc
+            clusterName: settings.wpk('ecs-cluster'),
+            vpc: vpc,
         });
 
+        const albFargateService = new ecsPatterns.ApplicationLoadBalancedFargateService(this, 'AppService', {
+            serviceName: `${settings.systemName}-app-service`,
+            memoryLimitMiB: 512,
+            cpu: 256,
+            desiredCount: 2,
+            listenerPort: 80,
+            taskImageOptions: {
+                image: ecs.ContainerImage.fromRegistry(
+                    "nginx:mainline-alpine"
+                ),
+                containerPort: 80,
+            },
+            securityGroups: [ecsSecurityGroup],
+            healthCheckGracePeriod: Duration.seconds(240),
+            cluster: ecsCluster,
+        });
+        albFargateService.targetGroup.configureHealthCheck({
+            path: "/",
+            healthyThresholdCount: 2,
+            interval: Duration.seconds(15),
+        });
 
         // TODO 下を参考に、情報をコンテナ側へ環境変数で渡す
         // const container = taskDefinition.addContainer('Container', {
@@ -77,7 +100,7 @@ export class AlwsStageOfStack extends cdk.Stack {
             ec2.Port.tcp(3306),
             'from ECS(container) to RDS access.'
         );
-        return { vpc, rdsSecurityGroup };
+        return { vpc, rdsSecurityGroup, ecsSecurityGroup };
     }
 
     private buildRds(settings: Context, vpc: ec2.Vpc, rdsSecurityGroup: ec2.SecurityGroup): rds.DatabaseInstance {
