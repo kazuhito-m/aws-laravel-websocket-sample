@@ -51,9 +51,9 @@ export class AlwsStageOfStack extends cdk.Stack {
             },
         });
         const rdsCredential = rds.Credentials.fromPassword(
-            rdsSecret.secretValueFromJson('username').toString(),
+            rdsSecret.secretValueFromJson('username').unsafeUnwrap(),
             SecretValue.unsafePlainText(
-                rdsSecret.secretValueFromJson('password').toString()
+                rdsSecret.secretValueFromJson('password').unsafeUnwrap()
             )
         )
 
