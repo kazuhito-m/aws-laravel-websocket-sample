@@ -26,18 +26,26 @@ export class AlwsStageOfStack extends cdk.Stack {
             vpc: vpc,
         });
 
-        const albFargateService = new ecsPatterns.ApplicationLoadBalancedFargateService(this, 'AppService', {
-            serviceName: `${settings.systemName}-app-service`,
-            memoryLimitMiB: 512,
+        const serviceTaskDefinition = new ecs.FargateTaskDefinition(this, `${settings.systemNameOfPascalCase()}AppTaskDefinition`, {
+            family: `${settings.systemName()}-app-task-difinition-family`,
             cpu: 256,
-            desiredCount: 2,
-            listenerPort: 80,
-            taskImageOptions: {
-                image: ecs.ContainerImage.fromRegistry(
-                    "nginx:mainline-alpine"
-                ),
-                containerPort: 80,
-            },
+            memoryLimitMiB: 512,
+        });
+        serviceTaskDefinition.addContainer(`${settings.systemNameOfPascalCase()}AppContainer`, {
+            containerName: `${settings.systemName()}-app`,
+            image: ecs.ContainerImage.fromRegistry("nginx:mainline-alpine"), // for first test.
+            cpu: 256,
+            memoryLimitMiB: 512,
+            memoryReservationMiB: 1024,
+        }).addPortMappings({
+            containerPort: 80,
+            hostPort: 80,
+            protocol: ecs.Protocol.TCP,
+        });
+
+        const albFargateService = new ecsPatterns.ApplicationLoadBalancedFargateService(this, 'AppService', {
+            serviceName: `${settings.systemName()}-app-service`,
+            taskDefinition: serviceTaskDefinition,
             securityGroups: [ecsSecurityGroup],
             healthCheckGracePeriod: Duration.seconds(240),
             cluster: ecsCluster,
