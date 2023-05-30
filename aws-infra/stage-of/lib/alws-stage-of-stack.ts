@@ -51,6 +51,29 @@ export class AlwsStageOfStack extends cdk.Stack {
 
 
         // RDS
+        const rds = this.buildRds(settings, vpc, rdsSecurityGroup);
+
+
+        // TODO 下を参考に、情報をコンテナ側へ環境変数で渡す
+        // const container = taskDefinition.addContainer('Container', {
+        //     // image: ecs.ContainerImage.fromRegistry('amazon/amazon-ecs-sample'),
+        //     image: ecs.ContainerImage.fromEcrRepository(repository),
+        //     memoryLimitMiB: 256,
+        //     cpu: 256,
+        //     environment: {
+        //         DB_HOST: postgresql.instanceEndpoint.hostname,
+        //         DB_PORT: String(postgresql.instanceEndpoint.port),
+        //         DB_NAME: 'testdatabase',
+        //         DB_USER: databaseCredentialSecret.secretValueFromJson('username').toString(),
+        //         APP_DATABASE_PASSWORD: databaseCredentialSecret.secretValueFromJson('password').toString(),
+        //     },
+        // })
+
+        this.setTag("Stage", settings.currentStageId);
+        this.setTag("Version", settings.packageVersion());
+    }
+
+    private buildRds(settings: Context, vpc: ec2.Vpc, rdsSecurityGroup: ec2.SecurityGroup): rds.DatabaseInstance {
         const rdsSecret = new sm.Secret(this, settings.wpp("RdsAppSecret"), {
             secretName: settings.wpk("rds-app-secret"),
             generateSecretString: {
@@ -65,7 +88,7 @@ export class AlwsStageOfStack extends cdk.Stack {
             SecretValue.unsafePlainText(
                 rdsSecret.secretValueFromJson('password').unsafeUnwrap()
             )
-        )
+        );
 
         const rdsSettings = settings.currentStage().rds;
 
@@ -92,25 +115,9 @@ export class AlwsStageOfStack extends cdk.Stack {
             })
         });
 
-
-        // TODO 下を参考に、情報をコンテナ側へ環境変数で渡す
-        // const container = taskDefinition.addContainer('Container', {
-        //     // image: ecs.ContainerImage.fromRegistry('amazon/amazon-ecs-sample'),
-        //     image: ecs.ContainerImage.fromEcrRepository(repository),
-        //     memoryLimitMiB: 256,
-        //     cpu: 256,
-        //     environment: {
-        //         DB_HOST: postgresql.instanceEndpoint.hostname,
-        //         DB_PORT: String(postgresql.instanceEndpoint.port),
-        //         DB_NAME: 'testdatabase',
-        //         DB_USER: databaseCredentialSecret.secretValueFromJson('username').toString(),
-        //         APP_DATABASE_PASSWORD: databaseCredentialSecret.secretValueFromJson('password').toString(),
-        //     },
-        // })
-
-        this.setTag("Stage", settings.currentStageId);
-        this.setTag("Version", settings.packageVersion());
+        return appDb;
     }
+
 
     private setTag(key: string, value: string): void {
         cdk.Tags.of(this).add(key, value);
