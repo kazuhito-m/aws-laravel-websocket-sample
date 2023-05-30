@@ -19,7 +19,7 @@ export class AlwsStageOfStack extends cdk.Stack {
 
         const { vpc, rdsSecurityGroup, ecsSecurityGroup } = this.buildVpcAndNetwork(settings);
 
-        // const rds = this.buildRds(settings, vpc, rdsSecurityGroup);
+        const rds = this.buildRds(settings, vpc, rdsSecurityGroup);
 
         const ecsCluster = new ecs.Cluster(this, settings.wpp("EcsCluster"), {
             clusterName: settings.wpk('ecs-cluster'),
@@ -30,17 +30,28 @@ export class AlwsStageOfStack extends cdk.Stack {
             family: `${settings.systemName()}-app-task-difinition-family`,
             cpu: 256,
             memoryLimitMiB: 512,
+            runtimePlatform: {
+                cpuArchitecture: ecs.CpuArchitecture.X86_64,
+                operatingSystemFamily: ecs.OperatingSystemFamily.LINUX
+            },
+            // executionRole: {} // TODO 実行時ロールの作り込み
         });
         serviceTaskDefinition.addContainer(`${settings.systemNameOfPascalCase()}AppContainer`, {
             containerName: `${settings.systemName()}-app`,
             image: ecs.ContainerImage.fromRegistry("nginx:mainline-alpine"), // for first test.
-            cpu: 256,
-            memoryLimitMiB: 512,
-            memoryReservationMiB: 1024,
+            memoryReservationMiB: 256,
+            // logging: xxx // TODO ログ設定
+            healthCheck: {
+                command: ["CMD-SHELL", "curl -f http://localhost/ || exit 1"],
+                interval: Duration.seconds(30),
+                timeout: Duration.seconds(5),
+                retries: 3
+            },
         }).addPortMappings({
             containerPort: 80,
             hostPort: 80,
             protocol: ecs.Protocol.TCP,
+            appProtocol: ecs.AppProtocol.http
         });
 
         const albFargateService = new ecsPatterns.ApplicationLoadBalancedFargateService(this, 'AppService', {
