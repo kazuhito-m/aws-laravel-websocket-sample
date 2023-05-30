@@ -7,7 +7,6 @@ import { Construct } from 'constructs';
 import { AlwsStackProps } from './alws-stack-props';
 import { Context } from './context/context';
 import { SecretValue } from 'aws-cdk-lib';
-import { setegid } from 'process';
 
 export class AlwsStageOfStack extends cdk.Stack {
     constructor(scope: Construct, id: string, props?: AlwsStackProps) {
