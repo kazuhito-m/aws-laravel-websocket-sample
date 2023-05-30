@@ -72,6 +72,22 @@ export class Context {
         return this.toPascalCase(this.currentStageId);
     }
 
+    public systemPrefixOfPascalCase(): string {
+        return `${this.systemNameOfPascalCase()}${this.currentStageIdOfPascalCase()}`;
+    }
+
+    public systemPrefixOfKebapCase(): string {
+        return `${this.systemName()}-${this.currentStageId}`;
+    }
+
+    public wpp(id: string): string {
+        return this.systemPrefixOfKebapCase() + id;
+    }
+
+    public wpk(id: string): string {
+        return `${this.systemPrefixOfKebapCase()}-${id}`;
+    }
+
     private toPascalCase(text: string): string {
         if (!text) return '';
         return text.substring(0, 1).toUpperCase()
