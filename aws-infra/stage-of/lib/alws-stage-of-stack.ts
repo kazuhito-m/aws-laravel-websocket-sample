@@ -22,23 +22,33 @@ export class AlwsStageOfStack extends cdk.Stack {
             maxAzs: 2,
             subnetConfiguration: [
                 {
-                    name: 'sn-public',
+                    name: 'Public',
                     subnetType: SubnetType.PUBLIC,
                 },
                 {
-                    name: 'sn-private-ecs',
+                    name: 'PrivateEcs',
                     subnetType: SubnetType.PRIVATE_WITH_EGRESS,
                 },
                 {
-                    name: 'sn-private-rds',
+                    name: 'PrivateRds',
                     subnetType: SubnetType.PRIVATE_ISOLATED,
                 }
             ]
         });
-        const rdsSecurityGroup = new ec2.SecurityGroup(this, 'SecurityGroupEcs', {
+        const ecsSecurityGroup = new ec2.SecurityGroup(this, 'SecurityGroupEcs', {
             vpc: vpc,
-            securityGroupName: settings.wpk('rds-sg')
+            securityGroupName: settings.wpk('ecs-sg')
         });
+        const rdsSecurityGroup = new ec2.SecurityGroup(this, 'SecurityGroupRds', {
+            vpc: vpc,
+            securityGroupName: settings.wpk('rds-sg'),
+        });
+        rdsSecurityGroup.addEgressRule(
+            ec2.Peer.securityGroupId(ecsSecurityGroup.securityGroupId),
+            ec2.Port.tcp(3306),
+            'ecs(container) -> rds access.'
+        )
+
 
         // RDS
         const rdsSecret = new sm.Secret(this, settings.wpp("RdsAppSecret"), {
