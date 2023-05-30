@@ -7,6 +7,7 @@ import { Construct } from 'constructs';
 import { AlwsStackProps } from './alws-stack-props';
 import { Context } from './context/context';
 import { SecretValue } from 'aws-cdk-lib';
+import { setegid } from 'process';
 
 export class AlwsStageOfStack extends cdk.Stack {
     constructor(scope: Construct, id: string, props?: AlwsStackProps) {
@@ -78,12 +79,19 @@ export class AlwsStageOfStack extends cdk.Stack {
             ),
             multiAz: rdsSettings.multiAz,
             databaseName: settings.systemName(),
+            credentials: rdsCredential,
             vpc,
             vpcSubnets: vpc.selectSubnets(),
             securityGroups: [rdsSecurityGroup],
-            credentials: rdsCredential,
+            subnetGroup: new rds.SubnetGroup(this, settings.wpp("AppRdsSubnetGroup"), {
+                subnetGroupName: settings.wpk('app-rds-sg'),
+                description: 'for App RDS Subnets(only Private and Isolated)',
+                vpc: vpc,
+                vpcSubnets: vpc.selectSubnets({
+                    subnetType: SubnetType.PRIVATE_ISOLATED
+                }),
+            })
         });
-
 
 
         // TODO 下を参考に、情報をコンテナ側へ環境変数で渡す
