@@ -54,3 +54,7 @@
 
 - x
 
+## CDKでECS/Fargeteを作成する
+
+- https://zenn.dev/akira_abe/articles/20220220-aws-cdk-fargate
+

@@ -1,5 +1,5 @@
 {
-    "app": "npx ts-node --prefer-ts-exts bin/alws-global.ts",
+    "app": "npx ts-node --prefer-ts-exts bin/alws-stage-of.ts",
     "watch": {
         "include": [
             "**"
@@ -55,10 +55,20 @@
         },
         "stages": {
             "production": {
-                "mainDomainFqdn": "testcity.click"
+                "siteFqdn": "testcity.click",
+                "rds": {
+                    "class": "t2",
+                    "size": "micro",
+                    "multiAz": false
+                }
             },
             "staging": {
-                "mainDomainFqdn": "staging.testcity.click"
+                "siteFqdn": "staging.testcity.click",
+                "rds": {
+                    "class": "t2",
+                    "size": "small",
+                    "multiAz": false
+                }
             }
         }
     }

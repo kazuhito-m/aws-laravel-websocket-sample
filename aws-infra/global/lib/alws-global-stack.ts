@@ -3,14 +3,15 @@ import * as ecr from 'aws-cdk-lib/aws-ecr';
 import * as codebuild from 'aws-cdk-lib/aws-codebuild';
 
 import { Construct } from 'constructs';
-import { AlwsGlobalStackProps } from './alws-global-stack-props';
+import { AlwsStackProps } from './alws-stack-props';
+import { Context } from './context/context';
 
 export class AlwsGlobalStack extends cdk.Stack {
-    constructor(scope: Construct, id: string, props?: AlwsGlobalStackProps) {
+    constructor(scope: Construct, id: string, props?: AlwsStackProps) {
         super(scope, id, props);
 
-        const settings = props?.context;
-        if (!settings) throw new Error('cdk.json の内容が読めませんでした。');
+        const settings = props?.context as Context;
+        this.confimationOfPreconditions(settings);
 
         const containerRepository = new ecr.Repository(this, 'ContainerRepsitory', {
             repositoryName: settings?.containerImageId(),
@@ -57,5 +58,9 @@ export class AlwsGlobalStack extends cdk.Stack {
 
     private setTag(key: string, value: string): void {
         cdk.Tags.of(this).add(key, value);
+    }
+
+    private confimationOfPreconditions(settings?: Context): void {
+        if (!settings) throw new Error('cdk.json の内容が読めませんでした。');
     }
 }
