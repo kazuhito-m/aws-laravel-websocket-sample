@@ -43,11 +43,11 @@ export class AlwsStageOfStack extends cdk.Stack {
             vpc: vpc,
             securityGroupName: settings.wpk('rds-sg'),
         });
-        rdsSecurityGroup.addEgressRule(
+        rdsSecurityGroup.addIngressRule(
             ec2.Peer.securityGroupId(ecsSecurityGroup.securityGroupId),
             ec2.Port.tcp(3306),
             'ecs(container) -> rds access.'
-        )
+        );
 
 
         // RDS
