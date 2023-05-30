@@ -371,3 +371,12 @@ RDS Proxyは高いし、VPC Lambdaは「どうやって外からVPC内Lambdaに�
 
 - https://swiswiswift.com/2022-03-01/
 
+
+
+## ローカルでLambdaやS3などを動かす(テスト時のMock)
+
+- https://qiita.com/bilzard/items/22d2457f3d6386d21796
+
+### AWSにおけるタグ、ID、環境変数等の命名則
+
+- https://dev.classmethod.jp/articles/aws-tagging-basic/
