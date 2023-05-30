@@ -46,7 +46,7 @@ export class AlwsStageOfStack extends cdk.Stack {
         rdsSecurityGroup.addIngressRule(
             ec2.Peer.securityGroupId(ecsSecurityGroup.securityGroupId),
             ec2.Port.tcp(3306),
-            'ecs(container) -> rds access.'
+            'from ECS(container) to RDS access.'
         );
 
 
@@ -70,6 +70,7 @@ export class AlwsStageOfStack extends cdk.Stack {
         const rdsSettings = settings.currentStage().rds;
 
         const appDb = new rds.DatabaseInstance(this, settings.wpp("App"), {
+            instanceIdentifier: settings.wpk('app'),
             engine: rds.DatabaseInstanceEngine.mysql({ version: rds.MysqlEngineVersion.VER_8_0_32 }),
             instanceType: ec2.InstanceType.of(
                 rdsSettings.class,
