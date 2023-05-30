@@ -1,5 +1,6 @@
 import { Node } from 'constructs';
 import { Environment } from 'aws-cdk-lib';
+import { InstanceClass, InstanceSize } from 'aws-cdk-lib/aws-ec2';
 
 export interface GlobalContext {
     systemName: string,
@@ -8,7 +9,14 @@ export interface GlobalContext {
 
 export interface Stage {
     id: string,
-    mainDomainFqdn: string,
+    siteFqdn: string,
+    rds: RdsSettings,
+}
+
+export interface RdsSettings {
+    class: InstanceClass,
+    size: InstanceSize,
+    multiAz: boolean
 }
 
 export interface EnvContext extends Environment {
@@ -68,6 +76,11 @@ export class Context {
             .join(', ');
     }
 
+    public currentStage(): Stage {
+        return this.stages[this.currentStageId];
+    }
+
+
     public currentStageIdOfPascalCase(): string {
         return this.toPascalCase(this.currentStageId);
     }
@@ -81,7 +94,7 @@ export class Context {
     }
 
     public wpp(id: string): string {
-        return this.systemPrefixOfKebapCase() + id;
+        return this.systemPrefixOfPascalCase() + id;
     }
 
     public wpk(id: string): string {

@@ -55,10 +55,20 @@
         },
         "stages": {
             "production": {
-                "mainDomainFqdn": "testcity.click"
+                "siteFqdn": "testcity.click",
+                "rds": {
+                    "class": "t2",
+                    "size": "small",
+                    "multiAz": true
+                }
             },
             "staging": {
-                "mainDomainFqdn": "staging.testcity.click"
+                "siteFqdn": "staging.testcity.click",
+                "rds": {
+                    "class": "t2",
+                    "size": "small",
+                    "multiAz": false
+                }
             }
         }
     }
