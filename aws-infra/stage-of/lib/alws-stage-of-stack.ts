@@ -4,6 +4,7 @@ import * as rds from "aws-cdk-lib/aws-rds";
 import * as ecs from "aws-cdk-lib/aws-ecs";
 import * as ecsPatterns from "aws-cdk-lib/aws-ecs-patterns";
 import * as sm from "aws-cdk-lib/aws-secretsmanager";
+import * as elb from 'aws-cdk-lib/aws-elasticloadbalancingv2';
 import { SubnetType } from 'aws-cdk-lib/aws-ec2';
 import { Construct } from 'constructs';
 import { AlwsStackProps } from './alws-stack-props';
@@ -67,12 +68,22 @@ export class AlwsStageOfStack extends cdk.Stack {
             taskDefinition: serviceTaskDefinition,
             securityGroups: [ecsSecurityGroup],
             healthCheckGracePeriod: Duration.seconds(240),
+            loadBalancerName: settings.wpk('app-alb'),
+            // redirectHTTP: true,
             cluster: ecsCluster,
         });
         albFargateService.targetGroup.configureHealthCheck({
             path: "/",
             healthyThresholdCount: 2,
             interval: Duration.seconds(15),
+        });
+
+        albFargateService.loadBalancer.addListener('id-one-test', {
+            protocol: elb.ApplicationProtocol.HTTPS,
+            defaultAction: elb.ListenerAction.forward([albFargateService.targetGroup]),
+            sslPolicy: elb.SslPolicy.RECOMMENDED,
+            // TODO CetificateManagerから検索して取る…とか？
+            certificates: [elb.ListenerCertificate.fromArn('arn:aws:acm:ap-northeast-1:077931172314:certificate/fe97f4e9-4329-48d0-bf1c-5deb5b710241')]
         });
 
         this.setTag("Stage", settings.currentStageId);
