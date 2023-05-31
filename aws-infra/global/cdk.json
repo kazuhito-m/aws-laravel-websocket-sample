@@ -57,6 +57,7 @@
         "stages": {
             "production": {
                 "siteFqdn": "testcity.click",
+                "apiFqdn": "api.testcity.click",
                 "rds": {
                     "class": "t2",
                     "size": "micro",
@@ -70,6 +71,7 @@
             },
             "staging": {
                 "siteFqdn": "staging.testcity.click",
+                "apiFqdn": "stagingapi.testcity.click",
                 "rds": {
                     "class": "t2",
                     "size": "small",

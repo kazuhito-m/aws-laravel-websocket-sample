@@ -11,6 +11,7 @@ export interface GlobalContext {
 export interface Stage {
     id: string,
     siteFqdn: string,
+    apiFqdn: string,
     rds: RdsSettings,
     container: ContainerSettings,
 }

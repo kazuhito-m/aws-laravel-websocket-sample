@@ -2,6 +2,7 @@ import * as cdk from 'aws-cdk-lib';
 import * as ecr from 'aws-cdk-lib/aws-ecr';
 import * as codebuild from 'aws-cdk-lib/aws-codebuild';
 import * as cm from 'aws-cdk-lib/aws-certificatemanager';
+import * as route53 from 'aws-cdk-lib/aws-route53';
 
 import { Construct } from 'constructs';
 import { AlwsStackProps } from './alws-stack-props';
@@ -16,12 +17,15 @@ export class AlwsGlobalStack extends cdk.Stack {
 
         this.buildContainerRepository(settings);
 
-        const certificate = new cm.Certificate(this, 'Certificate',
+        const domainName = settings.global.siteDomain;
+        const hostedZone = new route53.PublicHostedZone(this, `${settings.systemNameOfPascalCase}HostedZone`, {
+            zoneName: domainName,
+            comment: `Site ${domainName} hosted Zone. Created from cdk.`
+        });
+        const certificate = new cm.Certificate(this, `${settings.systemNameOfPascalCase}Certificate`,
             {
-                domainName: `${props.hostName}.${props.domainName}`,
-                hostedZone: hostedZone,
-                validation:
-                    certificatemanager.CertificateValidation.fromDns(hostedZone),
+                domainName: `*.${domainName}`,
+                validation: cm.CertificateValidation.fromDns(hostedZone),
             }
         );
 
