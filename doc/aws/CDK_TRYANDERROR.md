@@ -77,3 +77,13 @@
 ## テストを書く
 
 - https://techblog.styleedge.co.jp/entry/2022/07/19/163825
+
+
+## CDKでLogGroup周りを追加する
+
+- https://zenn.dev/krabben16/articles/send-fargate-container-metrics-to-dd-with-cdk-ts
+- https://dev.classmethod.jp/articles/ecs-deploy-using-cdk/
+
+## リソースに付いたIAMPolicy(その場下書き)を仕込む
+
+- https://zenn.dev/hkdord/articles/process-of-writing-cdk
