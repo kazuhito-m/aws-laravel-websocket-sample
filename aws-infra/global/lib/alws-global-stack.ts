@@ -30,7 +30,7 @@ export class AlwsGlobalStack extends cdk.Stack {
             comment: `Site ${domainName} hosted Zone. Created from cdk.`
         });
         new cm.Certificate(this, `${settings.systemNameOfPascalCase()}Certificate`, {
-            certificateName: `${settings.systemName}-common-certificate`,
+            certificateName: `${settings.systemName()}-common-certificate`,
             domainName: `*.${domainName}`,
             validation: cm.CertificateValidation.fromDns(hostedZone),
         });
