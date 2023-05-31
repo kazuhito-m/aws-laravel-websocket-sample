@@ -25,11 +25,11 @@ export class AlwsGlobalStack extends cdk.Stack {
 
     private buildDnsAndCertificate(settings: Context) {
         const domainName = settings.global.siteDomain;
-        const hostedZone = new route53.PublicHostedZone(this, `${settings.systemNameOfPascalCase}HostedZone`, {
+        const hostedZone = new route53.PublicHostedZone(this, `${settings.systemNameOfPascalCase()}HostedZone`, {
             zoneName: domainName,
             comment: `Site ${domainName} hosted Zone. Created from cdk.`
         });
-        new cm.Certificate(this, `${settings.systemNameOfPascalCase}Certificate`, {
+        new cm.Certificate(this, `${settings.systemNameOfPascalCase()}Certificate`, {
             domainName: `*.${domainName}`,
             validation: cm.CertificateValidation.fromDns(hostedZone),
         });
