@@ -110,8 +110,9 @@ export class Context {
 
     public isContainerAutoScaling(): boolean {
         const settings = this.currentStage().container;
-        return settings.minCapacity <= 1
-            && settings.maxCapacity <= 1;
+        return settings.minCapacity > 1
+            && settings.maxCapacity > 1
+            && settings.maxCapacity > settings.minCapacity;
     }
 
     private toPascalCase(text: string): string {
