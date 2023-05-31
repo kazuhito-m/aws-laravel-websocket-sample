@@ -60,6 +60,11 @@
                     "class": "t2",
                     "size": "micro",
                     "multiAz": false
+                },
+                "container": {
+                    "minCapacity": 2,
+                    "maxCapacity": 10,
+                    "cpuUtilizationPercent": 80
                 }
             },
             "staging": {
@@ -68,6 +73,11 @@
                     "class": "t2",
                     "size": "small",
                     "multiAz": false
+                },
+                "container": {
+                    "minCapacity": 1,
+                    "maxCapacity": 1,
+                    "cpuUtilizationPercent": 0
                 }
             }
         }

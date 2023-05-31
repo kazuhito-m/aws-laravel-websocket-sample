@@ -57,4 +57,16 @@
 ## CDKでECS/Fargeteを作成する
 
 - https://zenn.dev/akira_abe/articles/20220220-aws-cdk-fargate
+- https://dev.classmethod.jp/articles/ecs-deploy-using-cdk/
 
+### CDKでオートスケーリングを設定する
+
+- https://dev.classmethod.jp/articles/fargate-with-autoscaling-using-cdk/
+
+### CDKかつECSかつロードバランサーを仕込む
+
+- https://tech.excite.co.jp/entry/2022/10/21/105138
+  - TargetGroupについては、ちょっと「どこから取って良いか」が解らなかった
+  - 試行錯誤の結果は、本ソースから参照されたし
+- https://dev.classmethod.jp/articles/alb-vpc-lambda-sample-cdk/
+  - これはLambdaの例だが、ALB周りの知識として
