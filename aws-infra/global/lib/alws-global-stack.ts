@@ -7,6 +7,7 @@ import * as route53 from 'aws-cdk-lib/aws-route53';
 import { Construct } from 'constructs';
 import { AlwsStackProps } from './alws-stack-props';
 import { Context } from './context/context';
+import { Duration } from 'aws-cdk-lib';
 
 export class AlwsGlobalStack extends cdk.Stack {
     constructor(scope: Construct, id: string, props?: AlwsStackProps) {
@@ -15,21 +16,31 @@ export class AlwsGlobalStack extends cdk.Stack {
         const settings = props?.context as Context;
         this.confimationOfPreconditions(settings);
 
-        this.buildContainerRepository(settings);
+        // this.buildContainerRepository(settings);
 
+        this.buildDnsAndCertificate(settings);
+
+        this.setTag("Version", settings.packageVersion());
+    }
+
+    private buildDnsAndCertificate(settings: Context) {
         const domainName = settings.global.siteDomain;
         const hostedZone = new route53.PublicHostedZone(this, `${settings.systemNameOfPascalCase}HostedZone`, {
             zoneName: domainName,
             comment: `Site ${domainName} hosted Zone. Created from cdk.`
         });
-        const certificate = new cm.Certificate(this, `${settings.systemNameOfPascalCase}Certificate`,
-            {
-                domainName: `*.${domainName}`,
-                validation: cm.CertificateValidation.fromDns(hostedZone),
-            }
-        );
+        new cm.Certificate(this, `${settings.systemNameOfPascalCase}Certificate`, {
+            domainName: `*.${domainName}`,
+            validation: cm.CertificateValidation.fromDns(hostedZone),
+        });
 
-        this.setTag("Version", settings.packageVersion());
+        new route53.CnameRecord(this, "DnsCommonCnameRecord", {
+            zone: hostedZone,
+            recordName: "*",
+            domainName: ".",
+            ttl: Duration.minutes(5),
+            comment: 'All names that do not exist in the A record are treated as "."'
+        });
     }
 
     private buildContainerRepository(settings: Context) {
