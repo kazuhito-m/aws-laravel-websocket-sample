@@ -69,7 +69,7 @@ export class AlwsStageOfStack extends cdk.Stack {
             securityGroups: [ecsSecurityGroup],
             healthCheckGracePeriod: Duration.seconds(240),
             loadBalancerName: settings.wpk('app-alb'),
-            // redirectHTTP: true,
+            redirectHTTP: true,
             cluster: ecsCluster,
         });
         albFargateService.targetGroup.configureHealthCheck({
