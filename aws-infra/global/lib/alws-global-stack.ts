@@ -1,6 +1,7 @@
 import * as cdk from 'aws-cdk-lib';
 import * as ecr from 'aws-cdk-lib/aws-ecr';
 import * as codebuild from 'aws-cdk-lib/aws-codebuild';
+import * as cm from 'aws-cdk-lib/aws-certificatemanager';
 
 import { Construct } from 'constructs';
 import { AlwsStackProps } from './alws-stack-props';
@@ -13,6 +14,21 @@ export class AlwsGlobalStack extends cdk.Stack {
         const settings = props?.context as Context;
         this.confimationOfPreconditions(settings);
 
+        this.buildContainerRepository(settings);
+
+        const certificate = new cm.Certificate(this, 'Certificate',
+            {
+                domainName: `${props.hostName}.${props.domainName}`,
+                hostedZone: hostedZone,
+                validation:
+                    certificatemanager.CertificateValidation.fromDns(hostedZone),
+            }
+        );
+
+        this.setTag("Version", settings.packageVersion());
+    }
+
+    private buildContainerRepository(settings: Context) {
         const containerRepository = new ecr.Repository(this, 'ContainerRepsitory', {
             repositoryName: settings?.containerImageId(),
             imageTagMutability: ecr.TagMutability.IMMUTABLE,
@@ -21,7 +37,7 @@ export class AlwsGlobalStack extends cdk.Stack {
         // Stack削除時、連鎖削除設定だが、イメージが一つでも在れば削除せず、Stackから外れる。
         containerRepository.addLifecycleRule({
             maxImageCount: 500
-        })
+        });
 
         new codebuild.GitHubSourceCredentials(this, 'CodebuildGithubCredentials', {
             accessToken: cdk.SecretValue.unsafePlainText(settings.global.githubAccessToken),
@@ -52,8 +68,6 @@ export class AlwsGlobalStack extends cdk.Stack {
             }
         });
         containerRepository.grantPullPush(tagBuildOfSourceCIProject.grantPrincipal);
-
-        this.setTag("Version", settings.packageVersion());
     }
 
     private setTag(key: string, value: string): void {
