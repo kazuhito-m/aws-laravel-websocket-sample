@@ -7,15 +7,13 @@ import * as sm from "aws-cdk-lib/aws-secretsmanager";
 import * as elb from 'aws-cdk-lib/aws-elasticloadbalancingv2';
 import * as logs from 'aws-cdk-lib/aws-logs';
 import * as iam from 'aws-cdk-lib/aws-iam';
-import * as route53 from 'aws-cdk-lib/aws-route53';
 import { SubnetType } from 'aws-cdk-lib/aws-ec2';
 import { Construct } from 'constructs';
 import { AlwsStackProps } from './alws-stack-props';
 import { Context } from './context/context';
-import { Duration, SecretValue, TagManager } from 'aws-cdk-lib';
+import { Duration, SecretValue } from 'aws-cdk-lib';
 import { HostedZone, ARecord, RecordTarget } from 'aws-cdk-lib/aws-route53';
 import { LoadBalancerTarget } from 'aws-cdk-lib/aws-route53-targets';
-import { StringParameter } from 'aws-cdk-lib/aws-ssm';
 
 export class AlwsStageOfStack extends cdk.Stack {
     constructor(scope: Construct, id: string, props?: AlwsStackProps) {
@@ -24,32 +22,11 @@ export class AlwsStageOfStack extends cdk.Stack {
         const settings = props?.context as Context;
         this.confimationOfPreconditions(props?.context);
 
-        // const { vpc, rdsSecurityGroup, ecsSecurityGroup } = this.buildVpcAndNetwork(settings);
+        const { vpc, rdsSecurityGroup, ecsSecurityGroup } = this.buildVpcAndNetwork(settings);
 
-        // const { appRds, rdsSecret } = this.buildRds(settings, vpc, rdsSecurityGroup);
+        const { appRds, rdsSecret } = this.buildRds(settings, vpc, rdsSecurityGroup);
 
-        // this.buildEcsCluster(settings, vpc, appRds, ecsSecurityGroup, rdsSecret);
-
-        const hostedZone = HostedZone.fromLookup(this, "HostZone", {
-            domainName: settings.global.siteDomain,
-        });
-        console.log('hostedZone');
-        console.log(hostedZone);
-
-        new route53.ARecord(this, "DnsCommonAnameRecord", {
-            zone: hostedZone,
-            recordName: "test",
-            target: RecordTarget.fromIpAddresses('10.0.0.231'),
-            ttl: Duration.minutes(5),
-            comment: 'for test.'
-        });
-
-        const arn = StringParameter.valueFromLookup(this, settings.certificationArn());
-        console.log('arn:' + arn);
-
-        if (arn) {
-            this.setTag("CertificateArnXXX", arn);
-        }
+        this.buildEcsCluster(settings, vpc, appRds, ecsSecurityGroup, rdsSecret);
 
         this.setTag("Stage", settings.currentStageId);
         this.setTag("Version", settings.packageVersion());
