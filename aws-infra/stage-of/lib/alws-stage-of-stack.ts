@@ -28,7 +28,7 @@ export class AlwsStageOfStack extends cdk.Stack {
         });
 
         const serviceTaskDefinition = new ecs.FargateTaskDefinition(this, `${settings.systemNameOfPascalCase()}AppTaskDefinition`, {
-            family: `${settings.systemName()}-app-task-difinition-family`,
+            family: settings.wpk('app-task-difinition-family'),
             cpu: 256,
             memoryLimitMiB: 512,
             runtimePlatform: {
