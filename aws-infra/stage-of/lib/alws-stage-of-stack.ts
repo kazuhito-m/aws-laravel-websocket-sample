@@ -5,6 +5,7 @@ import * as ecs from "aws-cdk-lib/aws-ecs";
 import * as ecsPatterns from "aws-cdk-lib/aws-ecs-patterns";
 import * as sm from "aws-cdk-lib/aws-secretsmanager";
 import * as elb from 'aws-cdk-lib/aws-elasticloadbalancingv2';
+import * as logs from 'aws-cdk-lib/aws-logs';
 import * as iam from 'aws-cdk-lib/aws-iam';
 import { SubnetType } from 'aws-cdk-lib/aws-ec2';
 import { Construct } from 'constructs';
@@ -146,11 +147,18 @@ export class AlwsStageOfStack extends cdk.Stack {
                 }
             })
         });
+        const containerName = `${settings.systemName()}-app`;
         serviceTaskDefinition.addContainer(`${settings.systemNameOfPascalCase()}AppContainer`, {
-            containerName: `${settings.systemName()}-app`,
+            containerName: containerName,
             image: ecs.ContainerImage.fromRegistry("nginx:mainline-alpine"),
             memoryReservationMiB: 256,
-            // logging: xxx // TODO ログ設定
+            logging: ecs.LogDriver.awsLogs({
+                streamPrefix: 'ecs',
+                logGroup: new logs.LogGroup(this, 'ContainerLogGroup', {
+                    logGroupName: `/ecs/${containerName}`,
+                    retention: 30,
+                }),
+            }),
             healthCheck: {
                 command: ["CMD-SHELL", "curl -f http://localhost/ || exit 1"],
                 interval: Duration.seconds(30),
