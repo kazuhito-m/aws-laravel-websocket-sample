@@ -115,6 +115,13 @@ export class Context {
             && settings.maxCapacity > settings.minCapacity;
     }
 
+    public applicationDnsARecordName(): string {
+        const appHostName = this.currentStage().siteFqdn;
+        const siteHostName = this.global.siteDomain;
+        return appHostName.replace(siteHostName, '') + '.';
+    }
+
+
     private toPascalCase(text: string): string {
         if (!text) return '';
         return text.substring(0, 1).toUpperCase()

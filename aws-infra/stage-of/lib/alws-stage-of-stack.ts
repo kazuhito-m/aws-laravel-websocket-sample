@@ -7,11 +7,14 @@ import * as sm from "aws-cdk-lib/aws-secretsmanager";
 import * as elb from 'aws-cdk-lib/aws-elasticloadbalancingv2';
 import * as logs from 'aws-cdk-lib/aws-logs';
 import * as iam from 'aws-cdk-lib/aws-iam';
+import * as elbv2 from 'aws-cdk-lib/aws-elasticloadbalancingv2';
 import { SubnetType } from 'aws-cdk-lib/aws-ec2';
 import { Construct } from 'constructs';
 import { AlwsStackProps } from './alws-stack-props';
 import { Context } from './context/context';
 import { Duration, SecretValue } from 'aws-cdk-lib';
+import { HostedZone, ARecord, RecordTarget } from 'aws-cdk-lib/aws-route53';
+import { LoadBalancerTarget } from 'aws-cdk-lib/aws-route53-targets';
 
 export class AlwsStageOfStack extends cdk.Stack {
     constructor(scope: Construct, id: string, props?: AlwsStackProps) {
@@ -211,6 +214,19 @@ export class AlwsStageOfStack extends cdk.Stack {
             sslPolicy: elb.SslPolicy.RECOMMENDED_TLS,
             // TODO CetificateManagerから検索して取る…とか？
             certificates: [elb.ListenerCertificate.fromArn('arn:aws:acm:ap-northeast-1:077931172314:certificate/fe97f4e9-4329-48d0-bf1c-5deb5b710241')]
+        });
+
+        console.log("settings.applicationDnsARecordName():" + settings.applicationDnsARecordName());
+
+        const hostedZone = HostedZone.fromLookup(this, "HostZone", {
+            domainName: settings.global.siteDomain
+        })
+        new ARecord(this, "DnsAppAnameRecord", {
+            zone: hostedZone,
+            recordName: settings.applicationDnsARecordName(),
+            target: RecordTarget.fromAlias(new LoadBalancerTarget(albFargateService.loadBalancer)),
+            ttl: Duration.minutes(5),
+            comment: 'Application LB Record.'
         });
 
         return ecsCluster;
