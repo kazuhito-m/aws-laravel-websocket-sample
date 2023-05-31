@@ -123,6 +123,10 @@ export class Context {
         return this.toARecordName(this.currentStage().apiFqdn, this.global.siteDomain);
     }
 
+    public certificationArn(): string {
+        return `${this.systemName()}-certification-arn`;
+    }
+
     private toARecordName(host: string, site: string): string {
         if (host === site) return '.';
         return host.replace(site, '');
