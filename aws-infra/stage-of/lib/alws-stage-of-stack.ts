@@ -78,10 +78,10 @@ export class AlwsStageOfStack extends cdk.Stack {
             interval: Duration.seconds(15),
         });
 
-        albFargateService.loadBalancer.addListener('id-one-test', {
+        albFargateService.loadBalancer.addListener('AlbListenerHTTPS', {
             protocol: elb.ApplicationProtocol.HTTPS,
             defaultAction: elb.ListenerAction.forward([albFargateService.targetGroup]),
-            sslPolicy: elb.SslPolicy.RECOMMENDED,
+            sslPolicy: elb.SslPolicy.RECOMMENDED_TLS,
             // TODO CetificateManagerから検索して取る…とか？
             certificates: [elb.ListenerCertificate.fromArn('arn:aws:acm:ap-northeast-1:077931172314:certificate/fe97f4e9-4329-48d0-bf1c-5deb5b710241')]
         });
