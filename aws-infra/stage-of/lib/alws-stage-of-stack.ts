@@ -5,6 +5,7 @@ import * as ecs from "aws-cdk-lib/aws-ecs";
 import * as ecsPatterns from "aws-cdk-lib/aws-ecs-patterns";
 import * as sm from "aws-cdk-lib/aws-secretsmanager";
 import * as elb from 'aws-cdk-lib/aws-elasticloadbalancingv2';
+import * as iam from 'aws-cdk-lib/aws-iam';
 import { SubnetType } from 'aws-cdk-lib/aws-ec2';
 import { Construct } from 'constructs';
 import { AlwsStackProps } from './alws-stack-props';
@@ -128,7 +129,24 @@ export class AlwsStageOfStack extends cdk.Stack {
                 cpuArchitecture: ecs.CpuArchitecture.X86_64,
                 operatingSystemFamily: ecs.OperatingSystemFamily.LINUX
             },
-            // executionRole: {} // TODO 実行時ロールの作り込み
+            // TODO 実行時ロールの作り込み
+            executionRole: new iam.Role(this, 'TaskExecutionRole', {
+                assumedBy: new iam.ServicePrincipal('ecs-tasks.amazonaws.com'),
+                inlinePolicies: {
+                    "ApiGatewayManagementForWebSocketRequestPolicy": iam.PolicyDocument.fromJson(`
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Effect": "Allow",
+            "Action": "execute-api:ManageConnections",
+            "Resource": "arn:aws:execute-api:*:*:*/*/*/*"
+        }
+    ]
+}
+                    `)  // FIXME これはレンジ広すぎてひどい…
+                }
+            })
         });
         serviceTaskDefinition.addContainer(`${settings.systemNameOfPascalCase()}AppContainer`, {
             containerName: `${settings.systemName()}-app`,
