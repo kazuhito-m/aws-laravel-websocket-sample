@@ -53,8 +53,6 @@ export class Context {
         for (const key in stages) stages[key].id = key;
         const stageId = node.tryGetContext('stageId');
 
-        console.log('stageId ->-> ' + stageId);
-
         return new Context(env, global, stages, stageId);
     }
 
