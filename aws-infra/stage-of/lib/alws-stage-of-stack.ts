@@ -133,18 +133,16 @@ export class AlwsStageOfStack extends cdk.Stack {
             executionRole: new iam.Role(this, 'TaskExecutionRole', {
                 assumedBy: new iam.ServicePrincipal('ecs-tasks.amazonaws.com'),
                 inlinePolicies: {
-                    "ApiGatewayManagementForWebSocketRequestPolicy": iam.PolicyDocument.fromJson(`
-{
-    "Version": "2012-10-17",
-    "Statement": [
-        {
-            "Effect": "Allow",
-            "Action": "execute-api:ManageConnections",
-            "Resource": "arn:aws:execute-api:*:*:*/*/*/*"
-        }
-    ]
-}
-                    `)  // FIXME これはレンジ広すぎてひどい…
+                    "ApiGatewayManagementForWebSocketRequestPolicy": iam.PolicyDocument.fromJson({
+                        "Version": "2012-10-17",
+                        "Statement": [
+                            {
+                                "Effect": "Allow",
+                                "Action": "execute-api:ManageConnections",
+                                "Resource": "arn:aws:execute-api:*:*:*/*/*/*"
+                            }
+                        ]
+                    })  // FIXME これはレンジ広すぎてひどい…
                 }
             })
         });
@@ -180,7 +178,7 @@ export class AlwsStageOfStack extends cdk.Stack {
             securityGroups: [ecsSecurityGroup],
             healthCheckGracePeriod: Duration.seconds(240),
             loadBalancerName: settings.wpk('app-alb'),
-            redirectHTTP: true,
+            // redirectHTTP: true,  // TODO この設定だけでは80塞ぎが出来ないよう、後で
             cluster: ecsCluster,
         });
         albFargateService.targetGroup.configureHealthCheck({
