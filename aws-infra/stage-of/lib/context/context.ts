@@ -5,7 +5,6 @@ import { InstanceClass, InstanceSize } from 'aws-cdk-lib/aws-ec2';
 export interface GlobalContext {
     systemName: string,
     siteDomain: string,
-    githubAccessToken: string
 }
 
 export interface Stage {
