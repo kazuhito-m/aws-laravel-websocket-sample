@@ -216,8 +216,6 @@ export class AlwsStageOfStack extends cdk.Stack {
             certificates: [elb.ListenerCertificate.fromArn('arn:aws:acm:ap-northeast-1:077931172314:certificate/fe97f4e9-4329-48d0-bf1c-5deb5b710241')]
         });
 
-        console.log("settings.applicationDnsARecordName():" + settings.applicationDnsARecordName());
-
         const hostedZone = HostedZone.fromLookup(this, "HostZone", {
             domainName: settings.global.siteDomain
         })

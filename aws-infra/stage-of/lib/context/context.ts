@@ -116,11 +116,17 @@ export class Context {
     }
 
     public applicationDnsARecordName(): string {
-        const appHostName = this.currentStage().siteFqdn;
-        const siteHostName = this.global.siteDomain;
-        return appHostName.replace(siteHostName, '') + '.';
+        return this.toARecordName(this.currentStage().siteFqdn, this.global.siteDomain);
     }
 
+    public apiDnsARecordName(): string {
+        return this.toARecordName(this.currentStage().apiFqdn, this.global.siteDomain);
+    }
+
+    private toARecordName(host: string, site: string): string {
+        if (host === site) return '.';
+        return host.replace(site, '');
+    }
 
     private toPascalCase(text: string): string {
         if (!text) return '';
