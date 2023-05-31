@@ -11,12 +11,19 @@ export interface Stage {
     id: string,
     siteFqdn: string,
     rds: RdsSettings,
+    container: ContainerSettings,
 }
 
 export interface RdsSettings {
     class: InstanceClass,
     size: InstanceSize,
     multiAz: boolean
+}
+
+export interface ContainerSettings {
+    minCapacity: number,
+    maxCapacity: number,
+    cpuUtilizationPercent: number
 }
 
 export interface EnvContext extends Environment {
@@ -99,6 +106,12 @@ export class Context {
 
     public wpk(id: string): string {
         return `${this.systemPrefixOfKebapCase()}-${id}`;
+    }
+
+    public isContainerAutoScaling(): boolean {
+        const settings = this.currentStage().container;
+        return settings.minCapacity <= 1
+            && settings.maxCapacity <= 1;
     }
 
     private toPascalCase(text: string): string {

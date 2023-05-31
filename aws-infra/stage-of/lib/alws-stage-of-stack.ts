@@ -170,6 +170,16 @@ export class AlwsStageOfStack extends cdk.Stack {
             healthyThresholdCount: 2,
             interval: Duration.seconds(15),
         });
+        if (settings.isContainerAutoScaling()) {
+            const config = settings.currentStage().container;
+            const autoScaling = albFargateService.service.autoScaleTaskCount({
+                minCapacity: config.minCapacity,
+                maxCapacity: config.maxCapacity,
+            });
+            autoScaling.scaleOnCpuUtilization('CpuBurstControl', {
+                targetUtilizationPercent: config.cpuUtilizationPercent
+            })
+        }
 
         albFargateService.loadBalancer.addListener('AlbListenerHTTPS', {
             protocol: elb.ApplicationProtocol.HTTPS,
