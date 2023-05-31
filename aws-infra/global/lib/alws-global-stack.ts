@@ -16,7 +16,7 @@ export class AlwsGlobalStack extends cdk.Stack {
         const settings = props?.context as Context;
         this.confimationOfPreconditions(settings);
 
-        // this.buildContainerRepository(settings);
+        this.buildContainerRepository(settings);
 
         this.buildDnsAndCertificate(settings);
 
