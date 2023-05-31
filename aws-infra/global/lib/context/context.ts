@@ -1,14 +1,31 @@
 import { Node } from 'constructs';
 import { Environment } from 'aws-cdk-lib';
+import { InstanceClass, InstanceSize } from 'aws-cdk-lib/aws-ec2';
 
 export interface GlobalContext {
     systemName: string,
+    siteDomain: string,
     githubAccessToken: string
 }
 
 export interface Stage {
     id: string,
-    mainDomainFqdn: string,
+    siteFqdn: string,
+    apiFqdn: string,
+    rds: RdsSettings,
+    container: ContainerSettings,
+}
+
+export interface RdsSettings {
+    class: InstanceClass,
+    size: InstanceSize,
+    multiAz: boolean
+}
+
+export interface ContainerSettings {
+    minCapacity: number,
+    maxCapacity: number,
+    cpuUtilizationPercent: number
 }
 
 export interface EnvContext extends Environment {
@@ -35,8 +52,6 @@ export class Context {
         const stages = node.tryGetContext('stages');
         for (const key in stages) stages[key].id = key;
         const stageId = node.tryGetContext('stageId');
-
-        console.log('stageId ->-> ' + stageId);
 
         return new Context(env, global, stages, stageId);
     }
@@ -68,8 +83,36 @@ export class Context {
             .join(', ');
     }
 
+    public currentStage(): Stage {
+        return this.stages[this.currentStageId];
+    }
+
+
     public currentStageIdOfPascalCase(): string {
         return this.toPascalCase(this.currentStageId);
+    }
+
+    public systemPrefixOfPascalCase(): string {
+        return `${this.systemNameOfPascalCase()}${this.currentStageIdOfPascalCase()}`;
+    }
+
+    public systemPrefixOfKebapCase(): string {
+        return `${this.systemName()}-${this.currentStageId}`;
+    }
+
+    public wpp(id: string): string {
+        return this.systemPrefixOfPascalCase() + id;
+    }
+
+    public wpk(id: string): string {
+        return `${this.systemPrefixOfKebapCase()}-${id}`;
+    }
+
+    public isContainerAutoScaling(): boolean {
+        const settings = this.currentStage().container;
+        return settings.minCapacity > 1
+            && settings.maxCapacity > 1
+            && settings.maxCapacity > settings.minCapacity;
     }
 
     private toPascalCase(text: string): string {

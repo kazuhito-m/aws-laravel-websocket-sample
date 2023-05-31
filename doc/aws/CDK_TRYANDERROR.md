@@ -87,3 +87,8 @@
 ## リソースに付いたIAMPolicy(その場下書き)を仕込む
 
 - https://zenn.dev/hkdord/articles/process-of-writing-cdk
+
+## CDKでRoute53とCertificate(証明書)周りを仕込む
+
+- https://note.com/dafujii/n/ne1595c74bcc7
+

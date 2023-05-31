@@ -1,10 +1,13 @@
 import * as cdk from 'aws-cdk-lib';
 import * as ecr from 'aws-cdk-lib/aws-ecr';
 import * as codebuild from 'aws-cdk-lib/aws-codebuild';
+import * as cm from 'aws-cdk-lib/aws-certificatemanager';
+import * as route53 from 'aws-cdk-lib/aws-route53';
 
 import { Construct } from 'constructs';
 import { AlwsStackProps } from './alws-stack-props';
 import { Context } from './context/context';
+import { Duration } from 'aws-cdk-lib';
 
 export class AlwsGlobalStack extends cdk.Stack {
     constructor(scope: Construct, id: string, props?: AlwsStackProps) {
@@ -13,6 +16,37 @@ export class AlwsGlobalStack extends cdk.Stack {
         const settings = props?.context as Context;
         this.confimationOfPreconditions(settings);
 
+        this.buildContainerRepository(settings);
+
+        this.buildDnsAndCertificate(settings);
+
+        this.setTag("Version", settings.packageVersion());
+    }
+
+    private buildDnsAndCertificate(settings: Context) {
+        const domainName = settings.global.siteDomain;
+        const hostedZone = new route53.PublicHostedZone(this, `${settings.systemNameOfPascalCase()}HostedZone`, {
+            zoneName: domainName,
+            comment: `Site ${domainName} hosted Zone. Created from cdk.`
+        });
+        const certificate = new cm.Certificate(this, `${settings.systemNameOfPascalCase()}Certificate`, {
+            certificateName: `${settings.systemName()}-common-certificate`,
+            domainName: `*.${domainName}`,
+            validation: cm.CertificateValidation.fromDns(hostedZone),
+        });
+
+        new route53.CnameRecord(this, "DnsCommonCnameRecord", {
+            zone: hostedZone,
+            recordName: "*",
+            domainName: ".",
+            ttl: Duration.minutes(5),
+            comment: 'All names that do not exist in the A record are treated as "."'
+        });
+        // FXIME 苦肉の策。fromCertificateName()が実装されるか、HotedZoneのTagが取れるようになったらそれに置き換え。
+        cdk.Tags.of(hostedZone).add("CertificateArn", certificate.certificateArn);
+    }
+
+    private buildContainerRepository(settings: Context) {
         const containerRepository = new ecr.Repository(this, 'ContainerRepsitory', {
             repositoryName: settings?.containerImageId(),
             imageTagMutability: ecr.TagMutability.IMMUTABLE,
@@ -21,7 +55,7 @@ export class AlwsGlobalStack extends cdk.Stack {
         // Stack削除時、連鎖削除設定だが、イメージが一つでも在れば削除せず、Stackから外れる。
         containerRepository.addLifecycleRule({
             maxImageCount: 500
-        })
+        });
 
         new codebuild.GitHubSourceCredentials(this, 'CodebuildGithubCredentials', {
             accessToken: cdk.SecretValue.unsafePlainText(settings.global.githubAccessToken),
@@ -52,8 +86,6 @@ export class AlwsGlobalStack extends cdk.Stack {
             }
         });
         containerRepository.grantPullPush(tagBuildOfSourceCIProject.grantPrincipal);
-
-        this.setTag("Version", settings.packageVersion());
     }
 
     private setTag(key: string, value: string): void {

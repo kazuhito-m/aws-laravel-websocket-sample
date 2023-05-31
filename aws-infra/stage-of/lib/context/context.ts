@@ -4,12 +4,14 @@ import { InstanceClass, InstanceSize } from 'aws-cdk-lib/aws-ec2';
 
 export interface GlobalContext {
     systemName: string,
+    siteDomain: string,
     githubAccessToken: string
 }
 
 export interface Stage {
     id: string,
     siteFqdn: string,
+    apiFqdn: string,
     rds: RdsSettings,
     container: ContainerSettings,
 }
@@ -50,8 +52,6 @@ export class Context {
         const stages = node.tryGetContext('stages');
         for (const key in stages) stages[key].id = key;
         const stageId = node.tryGetContext('stageId');
-
-        console.log('stageId ->-> ' + stageId);
 
         return new Context(env, global, stages, stageId);
     }
