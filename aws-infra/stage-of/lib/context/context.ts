@@ -123,7 +123,7 @@ export class Context {
         return this.toARecordName(this.currentStage().apiFqdn, this.global.siteDomain);
     }
 
-    public certificationArn(): string {
+    public certArnPraStoreName(): string {
         return `${this.systemName()}-certification-arn`;
     }
 

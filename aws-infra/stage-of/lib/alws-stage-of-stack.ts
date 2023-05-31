@@ -14,6 +14,7 @@ import { Context } from './context/context';
 import { Duration, SecretValue } from 'aws-cdk-lib';
 import { HostedZone, ARecord, RecordTarget } from 'aws-cdk-lib/aws-route53';
 import { LoadBalancerTarget } from 'aws-cdk-lib/aws-route53-targets';
+import { StringParameter } from 'aws-cdk-lib/aws-ssm';
 
 export class AlwsStageOfStack extends cdk.Stack {
     constructor(scope: Construct, id: string, props?: AlwsStackProps) {
@@ -207,12 +208,14 @@ export class AlwsStageOfStack extends cdk.Stack {
             })
         }
 
+        const certificateArn = StringParameter.valueFromLookup(this, settings.certArnPraStoreName());
+        const certificate = elb.ListenerCertificate.fromArn(certificateArn);
+
         albFargateService.loadBalancer.addListener('AlbListenerHTTPS', {
             protocol: elb.ApplicationProtocol.HTTPS,
             defaultAction: elb.ListenerAction.forward([albFargateService.targetGroup]),
             sslPolicy: elb.SslPolicy.RECOMMENDED_TLS,
-            // TODO CetificateManagerから検索して取る…とか？
-            certificates: [elb.ListenerCertificate.fromArn('arn:aws:acm:ap-northeast-1:077931172314:certificate/fe97f4e9-4329-48d0-bf1c-5deb5b710241')]
+            certificates: [certificate]
         });
 
         const hostedZone = HostedZone.fromLookup(this, "HostZone", {
