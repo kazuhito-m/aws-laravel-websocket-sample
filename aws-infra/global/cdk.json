@@ -51,6 +51,7 @@
         "@aws-cdk/aws-apigateway:requestValidatorUniqueId": true,
         "global": {
             "systemName": "alws",
+            "siteDomain": "textcity.click",
             "githubAccessToken": "xxx"
         },
         "stages": {
