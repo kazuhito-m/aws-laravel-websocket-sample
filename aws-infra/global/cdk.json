@@ -55,10 +55,30 @@
         },
         "stages": {
             "production": {
-                "mainDomainFqdn": "testcity.click"
+                "siteFqdn": "testcity.click",
+                "rds": {
+                    "class": "t2",
+                    "size": "micro",
+                    "multiAz": false
+                },
+                "container": {
+                    "minCapacity": 2,
+                    "maxCapacity": 10,
+                    "cpuUtilizationPercent": 80
+                }
             },
             "staging": {
-                "mainDomainFqdn": "staging.testcity.click"
+                "siteFqdn": "staging.testcity.click",
+                "rds": {
+                    "class": "t2",
+                    "size": "small",
+                    "multiAz": false
+                },
+                "container": {
+                    "minCapacity": 1,
+                    "maxCapacity": 1,
+                    "cpuUtilizationPercent": 0
+                }
             }
         }
     }
