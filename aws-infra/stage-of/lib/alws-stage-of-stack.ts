@@ -10,7 +10,7 @@ import * as iam from 'aws-cdk-lib/aws-iam';
 import * as dynamodb from 'aws-cdk-lib/aws-dynamodb';
 import * as apigatewayv2 from 'aws-cdk-lib/aws-apigatewayv2';
 import { SubnetType } from 'aws-cdk-lib/aws-ec2';
-import { Construct } from 'constructs';
+import { Construct, DependencyGroup } from 'constructs';
 import { AlwsStackProps } from './alws-stack-props';
 import { Context } from './context/context';
 import { Duration, SecretValue } from 'aws-cdk-lib';
@@ -21,6 +21,7 @@ import { Runtime, Function, AssetCode } from 'aws-cdk-lib/aws-lambda';
 import { NodejsFunction } from 'aws-cdk-lib/aws-lambda-nodejs';
 import { RestApi, LambdaIntegration, MethodLoggingLevel } from 'aws-cdk-lib/aws-apigateway';
 import { Table } from 'aws-cdk-lib/aws-dynamodb';
+import { ConcreteWidget } from 'aws-cdk-lib/aws-cloudwatch';
 
 export class AlwsStageOfStack extends cdk.Stack {
     constructor(scope: Construct, id: string, props?: AlwsStackProps) {
@@ -288,18 +289,21 @@ export class AlwsStageOfStack extends cdk.Stack {
             credentialsArn: role.roleArn,
         });
 
-        ['connect', 'disconnect'].forEach(route => {
-            new apigatewayv2.CfnRoute(this, `${route}-route`, {
+        const dependencyGroup = new DependencyGroup();
+        ['connect', 'disconnect'].forEach(routeType => {
+            const route = new apigatewayv2.CfnRoute(this, `${routeType}-route`, {
                 apiId: webSocketApi.ref,
-                routeKey: `$${route}`,
+                routeKey: `$${routeType}`,
                 authorizationType: 'NONE',
                 target: 'integrations/' + integration.ref,
             });
+            dependencyGroup.add(route);
         });
 
         const deployment = new apigatewayv2.CfnDeployment(this, 'WebSocketApiGatewayDeployment', {
             apiId: webSocketApi.ref,
         })
+        deployment.node.addDependency(dependencyGroup);
 
         const stage = new apigatewayv2.CfnStage(this, 'WebSocketApiGatewayStage', {
             apiId: webSocketApi.ref,
