@@ -135,7 +135,7 @@ export class Context {
     }
 
     public websocketEndpointUrl(): string {
-        return `https://${settings.currentStage().apiFqdn}`;
+        return `https://${this.currentStage().apiFqdn}`;
     }
 
     private toPascalCase(text: string): string {
