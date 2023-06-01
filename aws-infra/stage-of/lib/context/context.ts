@@ -115,11 +115,11 @@ export class Context {
     }
 
     public applicationDnsARecordName(): string {
-        return this.currentStage().siteFqdn.replace(this.global.siteDomain, '');
+        return this.currentStage().siteFqdn + '.';
     }
 
     public apiDnsARecordName(): string {
-        return this.currentStage().apiFqdn.replace( this.global.siteDomain, '');
+        return this.currentStage().apiFqdn + '.';
     }
 
     public certArnPraStoreName(): string {

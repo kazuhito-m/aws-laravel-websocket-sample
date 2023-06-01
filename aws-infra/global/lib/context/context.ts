@@ -114,6 +114,18 @@ export class Context {
             && settings.maxCapacity > settings.minCapacity;
     }
 
+    public applicationDnsARecordName(): string {
+        return this.currentStage().siteFqdn + '.';
+    }
+
+    public apiDnsARecordName(): string {
+        return this.currentStage().apiFqdn + '.';
+    }
+
+    public certArnPraStoreName(): string {
+        return `${this.systemName()}-certification-arn`;
+    }
+
     private toPascalCase(text: string): string {
         if (!text) return '';
         return text.substring(0, 1).toUpperCase()
