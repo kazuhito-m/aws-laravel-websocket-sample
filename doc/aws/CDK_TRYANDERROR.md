@@ -120,3 +120,14 @@ const hostedZone = HostedZone.fromHostedZoneAttributes(this, "Zone", {
 参考(厳密には同じ問題ではない)
 
 - https://github.com/aws/aws-cdk/issues/5547
+
+### CDKでRoute53のHostedZoneにRecordを足す時のFQDN指定方法
+
+- https://qiita.com/kpkpkp/items/e51eafcde4c5a67bcfa2
+
+「サブドメインだけ書く制約だ」と思っていたが逆で…
+
+- フルで書く(ex. www.example.com.)
+- 末尾に `.` を書く
+
+が必要で、クセあんなと。
