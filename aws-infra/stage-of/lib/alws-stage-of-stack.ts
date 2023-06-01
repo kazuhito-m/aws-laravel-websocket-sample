@@ -8,6 +8,7 @@ import * as elb from 'aws-cdk-lib/aws-elasticloadbalancingv2';
 import * as logs from 'aws-cdk-lib/aws-logs';
 import * as iam from 'aws-cdk-lib/aws-iam';
 import * as dynamodb from 'aws-cdk-lib/aws-dynamodb';
+import * as apigatewayv2 from 'aws-cdk-lib/aws-apigatewayv2';
 import { SubnetType } from 'aws-cdk-lib/aws-ec2';
 import { Construct } from 'constructs';
 import { AlwsStackProps } from './alws-stack-props';
@@ -16,9 +17,10 @@ import { Duration, SecretValue } from 'aws-cdk-lib';
 import { HostedZone, ARecord, RecordTarget } from 'aws-cdk-lib/aws-route53';
 import { LoadBalancerTarget } from 'aws-cdk-lib/aws-route53-targets';
 import { StringParameter } from 'aws-cdk-lib/aws-ssm';
-import { Runtime } from 'aws-cdk-lib/aws-lambda';
+import { Runtime, Function, AssetCode } from 'aws-cdk-lib/aws-lambda';
 import { NodejsFunction } from 'aws-cdk-lib/aws-lambda-nodejs';
 import { RestApi, LambdaIntegration, MethodLoggingLevel } from 'aws-cdk-lib/aws-apigateway';
+import { Table } from 'aws-cdk-lib/aws-dynamodb';
 
 export class AlwsStageOfStack extends cdk.Stack {
     constructor(scope: Construct, id: string, props?: AlwsStackProps) {
@@ -242,12 +244,51 @@ export class AlwsStageOfStack extends cdk.Stack {
     }
 
     private buildApiGatewayAndLambda(settings: Context): RestApi {
-        this.buildDynamoDbTableOfWebSocketConnection(settings);
-        this.buildWebSocektApiGatewayAndLambda(settings);
+        const dynamoDbTable = this.buildDynamoDbTableOfWebSocketConnection(settings);
+        this.buildWebSocektApiGatewayAndLambda(settings, dynamoDbTable);
         return this.buildWebSocektApiKickApiGatewayAndLambda(settings);
     }
 
-    private buildWebSocektApiGatewayAndLambda(settings: Context): void {
+    private buildWebSocektApiGatewayAndLambda(settings: Context, dynamoDbTable: Table): void {
+        const webSocketApi = new apigatewayv2.CfnApi(this, settings.wpp('WebSocketApi'), {
+            name: settings.wpk('websocket-api'),
+            protocolType: 'WEBSOCKET',
+            routeSelectionExpression: '$request.body.action',
+        })
+
+        const connectLambda = new Function(this, 'web-socket-connect', {
+            code: new AssetCode('lib/dummy'), // dummy
+            handler: 'webSocket/connect.handler',   // dummy
+            runtime: Runtime.NODEJS_14_X,
+            environment: {
+                TABLE_NAME: dynamoDbTable.tableName,
+                TABLE_KEY: 'connectionId',
+            },
+        })
+        dynamoDbTable.grantWriteData(connectLambda)
+        const policy = new iam.PolicyStatement({
+            effect: iam.Effect.ALLOW,
+            resources: [connectLambda.functionArn],
+            actions: ['lambda:InvokeFunction'],
+        })
+        const role = new iam.Role(this, 'WebSocketApiGatewayIntegrationRole', {
+            assumedBy: new iam.ServicePrincipal('apigateway.amazonaws.com'),
+        })
+        role.addToPolicy(policy)
+
+        const integration = new apigatewayv2.CfnIntegration(this, `connect-lambda-integration`, {
+            apiId: webSocketApi.ref,
+            integrationType: 'AWS_PROXY',
+            integrationUri: `arn:aws:apigateway:${this.region}:lambda:path/2015-03-31/functions/${connectLambda.functionArn}/invocations`,
+            credentialsArn: role.roleArn,
+        })
+
+        const route = new apigatewayv2.CfnRoute(this, `connect-route`, {
+            apiId: webSocketApi.ref,
+            routeKey: "$connect", // ＊１
+            authorizationType: 'NONE',
+            target: 'integrations/' + integration.ref,
+        })
     }
 
     private buildWebSocektApiKickApiGatewayAndLambda(settings: Context): RestApi {
