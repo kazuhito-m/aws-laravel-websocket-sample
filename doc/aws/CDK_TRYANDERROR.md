@@ -131,3 +131,11 @@ const hostedZone = HostedZone.fromHostedZoneAttributes(this, "Zone", {
 - 末尾に `.` を書く
 
 が必要で、クセあんなと。
+
+### CDKでRambda & APIGatewayを作成する
+
+- https://confrage.jp/aws-cdk%E3%81%A7%E4%BD%9C%E6%88%90%E3%81%99%E3%82%8Blambdanode-js%E3%81%A8%E3%83%AD%E3%83%BC%E3%83%AB%E3%82%92%E3%83%87%E3%83%97%E3%83%AD%E3%82%A4%E3%81%99%E3%82%8B%E6%96%B9%E6%B3%95/
+- https://dev.classmethod.jp/articles/cdk-aws-ssm-api-gateway-url/
+- https://dev.classmethod.jp/articles/local-build-a-lambda-function-nodejs-without-docker-desktop-with-aws-cdk/
+- https://dev.classmethod.jp/articles/aws-cdk-api-gateway-lambda-rest-auth0-lambda-authorizer/
+- x

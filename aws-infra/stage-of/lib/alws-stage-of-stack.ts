@@ -241,7 +241,11 @@ export class AlwsStageOfStack extends cdk.Stack {
     }
 
     private buildApiGatewayAndLambda(settings: Context): RestApi {
+        this.buildWebSocektApiGatewayAndLambda(settings);
         return this.buildWebSocektApiKickApiGatewayAndLambda(settings);
+    }
+
+    private buildWebSocektApiGatewayAndLambda(settings: Context): void {
     }
 
     private buildWebSocektApiKickApiGatewayAndLambda(settings: Context): RestApi {
