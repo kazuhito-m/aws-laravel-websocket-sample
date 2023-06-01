@@ -291,7 +291,7 @@ export class AlwsStageOfStack extends cdk.Stack {
             role: lambdaRole,
             entry: 'lib/dummy/index.js',
             environment: {
-                "DYNAMODB_WEBSOCKET_TABLE": `websocket_connections_${settings.currentStageId}`,
+                "DYNAMODB_WEBSOCKET_TABLE": settings.dynamoDbTableName(),
                 "WEBSOCKET_ENDPOINT": `https://${settings.currentStage().apiFqdn}`
             }
         });

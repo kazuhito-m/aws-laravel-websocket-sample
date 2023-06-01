@@ -130,6 +130,10 @@ export class Context {
         return `${this.systemName()}-hostedzone-id`;
     }
 
+    public dynamoDbTableName(): string {
+        return `websocket_connections_${this.currentStageId}`;
+    }
+
     private toPascalCase(text: string): string {
         if (!text) return '';
         return text.substring(0, 1).toUpperCase()
