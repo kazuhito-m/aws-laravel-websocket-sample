@@ -181,9 +181,16 @@ export class AlwsStageOfStack extends cdk.Stack {
             environment: {
                 DB_HOST: rds.instanceEndpoint.hostname,
                 DB_PORT: String(rds.instanceEndpoint.port),
-                DB_NAME: settings.systemName(),
-                DB_USER: rdsSecret.secretValueFromJson('username').unsafeUnwrap(),
+                DB_DATABASE: settings.systemName(),
+                DB_USERNAME: rdsSecret.secretValueFromJson('username').unsafeUnwrap(),
+                DB_PASSWORD: rdsSecret.secretValueFromJson('password').unsafeUnwrap(),
                 CLIENT_SEND_API_URL: innerApi.url,
+                WEBSOCKET_URL: settings.currentStage().apiFqdn,
+                WEBSOCKET_API_URL: settings.websocketEndpointUrl(),
+                WEBSOCKET_API_REGION: this.region,
+                // TODO 以下は「何をどうやって仕込むか」を要検討
+                // WSDDB_AWS_ACCESS_KEY_ID: '',
+                // WSDDB_AWS_SECRET_ACCESS_KEY: ''
             }
         }).addPortMappings({
             name: `${settings.systemName()}-app-80-tcp`,
@@ -357,7 +364,7 @@ export class AlwsStageOfStack extends cdk.Stack {
             entry: 'lib/dummy/index.js',
             environment: {
                 "DYNAMODB_WEBSOCKET_TABLE": settings.dynamoDbTableName(),
-                "WEBSOCKET_ENDPOINT": `https://${settings.currentStage().apiFqdn}`
+                "WEBSOCKET_ENDPOINT": settings.websocketEndpointUrl(),
             }
         });
 

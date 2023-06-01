@@ -134,6 +134,10 @@ export class Context {
         return `${this.systemName()}_websocket_connections_${this.currentStageId}`;
     }
 
+    public websocketEndpointUrl(): string {
+        return `https://${settings.currentStage().apiFqdn}`;
+    }
+
     private toPascalCase(text: string): string {
         if (!text) return '';
         return text.substring(0, 1).toUpperCase()
