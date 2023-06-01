@@ -8,4 +8,10 @@ const app = new cdk.App();
 
 const context = Context.of(app.node);
 
-new AlwsGlobalStack(app, 'AlwsGlobalStack', { context });
+new AlwsGlobalStack(app, 'AlwsGlobalStack', {
+    context,
+    env: {
+        account: process.env.CDK_DEFAULT_ACCOUNT,
+        region: process.env.CDK_DEFAULT_REGION
+    }
+});

@@ -8,6 +8,7 @@ import { Construct } from 'constructs';
 import { AlwsStackProps } from './alws-stack-props';
 import { Context } from './context/context';
 import { Duration } from 'aws-cdk-lib';
+import { StringParameter } from 'aws-cdk-lib/aws-ssm';
 
 export class AlwsGlobalStack extends cdk.Stack {
     constructor(scope: Construct, id: string, props?: AlwsStackProps) {
@@ -42,8 +43,6 @@ export class AlwsGlobalStack extends cdk.Stack {
             ttl: Duration.minutes(5),
             comment: 'All names that do not exist in the A record are treated as "."'
         });
-        // FXIME 苦肉の策。fromCertificateName()が実装されるか、HotedZoneのTagが取れるようになったらそれに置き換え。
-        cdk.Tags.of(hostedZone).add("CertificateArn", certificate.certificateArn);
     }
 
     private buildContainerRepository(settings: Context) {
@@ -57,8 +56,9 @@ export class AlwsGlobalStack extends cdk.Stack {
             maxImageCount: 500
         });
 
+        const githubAccessToken = StringParameter.valueFromLookup(this, `${settings.systemName()}-github-access-token`);
         new codebuild.GitHubSourceCredentials(this, 'CodebuildGithubCredentials', {
-            accessToken: cdk.SecretValue.unsafePlainText(settings.global.githubAccessToken),
+            accessToken: cdk.SecretValue.unsafePlainText(githubAccessToken),
         });
         const tagBuildOfSourceCIProject = new codebuild.Project(this, 'BuildCImageByGitTagCodeBuild', {
             projectName: `${settings.systemName()}-app-container-image-build-by-github-tag`,

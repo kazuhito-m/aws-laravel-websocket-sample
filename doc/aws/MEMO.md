@@ -372,7 +372,6 @@ RDS Proxyは高いし、VPC Lambdaは「どうやって外からVPC内Lambdaに�
 - https://swiswiswift.com/2022-03-01/
 
 
-
 ## ローカルでLambdaやS3などを動かす(テスト時のMock)
 
 - https://qiita.com/bilzard/items/22d2457f3d6386d21796
@@ -380,3 +379,18 @@ RDS Proxyは高いし、VPC Lambdaは「どうやって外からVPC内Lambdaに�
 ### AWSにおけるタグ、ID、環境変数等の命名則
 
 - https://dev.classmethod.jp/articles/aws-tagging-basic/
+
+### Route53でゾーンを作り直すとDNS応答も証明書もぐちゃくちゃなる
+
+- https://dev.classmethod.jp/articles/cname_rrset_error/
+
+いつまでも、
+
+1. DNSが名前解決をするようにならない(浸透(って言ったらだめなんだな)しない)
+2. 名前解決できないので、証明書がいつまでも「ステータス: 保留中の検証」のまま
+
+おそらくは、SOAレコードのTTLが「172800=48時間」なので、「前に消したやつ」が居座ってるんだろうなーと。
+
+そのせいで、それを使おうとしているCDKもコケる。
+
+- https://qiita.com/mziyut/items/b48933b9114a0250bfab

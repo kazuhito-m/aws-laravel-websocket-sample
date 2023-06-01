@@ -5,7 +5,6 @@ import { InstanceClass, InstanceSize } from 'aws-cdk-lib/aws-ec2';
 export interface GlobalContext {
     systemName: string,
     siteDomain: string,
-    githubAccessToken: string
 }
 
 export interface Stage {
@@ -113,6 +112,22 @@ export class Context {
         return settings.minCapacity > 1
             && settings.maxCapacity > 1
             && settings.maxCapacity > settings.minCapacity;
+    }
+
+    public applicationDnsARecordName(): string {
+        return this.currentStage().siteFqdn + '.';
+    }
+
+    public apiDnsARecordName(): string {
+        return this.currentStage().apiFqdn + '.';
+    }
+
+    public certArnPraStoreName(): string {
+        return `${this.systemName()}-certification-arn`;
+    }
+
+    public hostedZoneIdPraStoreName(): string {
+        return `${this.systemName()}-hostedzone-id`;
     }
 
     private toPascalCase(text: string): string {

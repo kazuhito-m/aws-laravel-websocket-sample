@@ -3,6 +3,7 @@
 ## 予め集めた材料
 
 - https://blog.serverworks.co.jp/cicd-ecs-build-deploy-flow
+- https://qiita.com/14kw/items/886848541fdf206e0d50
 
 ## コンテナイメージを「git tagを切ったらECRに乗る」にしたい
 
