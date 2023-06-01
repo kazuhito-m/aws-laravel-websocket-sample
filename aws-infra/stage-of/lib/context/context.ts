@@ -131,7 +131,7 @@ export class Context {
     }
 
     public dynamoDbTableName(): string {
-        return `${this.systemName}_websocket_connections_${this.currentStageId}`;
+        return `${this.systemName()}_websocket_connections_${this.currentStageId}`;
     }
 
     private toPascalCase(text: string): string {
