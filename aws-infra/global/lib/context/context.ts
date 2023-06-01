@@ -126,6 +126,10 @@ export class Context {
         return `${this.systemName()}-certification-arn`;
     }
 
+    public hostedZoneIdPraStoreName(): string {
+        return `${this.systemName()}-hostedzone-id`;
+    }
+
     private toPascalCase(text: string): string {
         if (!text) return '';
         return text.substring(0, 1).toUpperCase()
