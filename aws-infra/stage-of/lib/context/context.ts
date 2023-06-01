@@ -115,20 +115,15 @@ export class Context {
     }
 
     public applicationDnsARecordName(): string {
-        return this.toARecordName(this.currentStage().siteFqdn, this.global.siteDomain);
+        return this.currentStage().siteFqdn.replace(this.global.siteDomain, '');
     }
 
     public apiDnsARecordName(): string {
-        return this.toARecordName(this.currentStage().apiFqdn, this.global.siteDomain);
+        return this.currentStage().apiFqdn.replace( this.global.siteDomain, '');
     }
 
     public certArnPraStoreName(): string {
         return `${this.systemName()}-certification-arn`;
-    }
-
-    private toARecordName(host: string, site: string): string {
-        if (host === site) return '.';
-        return host.replace(site, '');
     }
 
     private toPascalCase(text: string): string {
