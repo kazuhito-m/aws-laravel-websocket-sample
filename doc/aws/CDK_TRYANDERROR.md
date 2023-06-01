@@ -92,3 +92,31 @@
 
 - https://note.com/dafujii/n/ne1595c74bcc7
 
+### CDKでRoute53のHostedZone.fromLockup()に「正しいドメイン名」を指定しても取得できない
+
+```typescript
+route53.HostedZone.fromLookup(this, 'Zone', { domainName: 'example.com' });
+```
+
+をしても「HostedZoneオブジェクトは取得できるが、存在しないモノで、レコード追加などするとコケる」という状況がある。
+
+- 同じ名前のドメインのZoneが2つある
+- 過去同じ名前のドメインのZoneがあった
+
+場合、上記のように「違うもの」が返ってくる可能性が在る。
+
+なら、 `HostedZone.fromHostedZoneId()` を使えば良いのか？というと「このメソッドで取ったものは、HostNameを参照出来ない」と後のメソッドで言われてしまう。
+
+結局、第三の選択肢である
+
+```typescript
+const hostedZone = HostedZone.fromHostedZoneAttributes(this, "Zone", {
+    zoneName: 'example.com',
+    hostedZoneId: 'XXXXXXXXXXXX',
+});
+```
+と書いたらいける…のだけれど、「それしか使えないなら他のメソッド滅しておけ」と感じる。
+
+参考(厳密には同じ問題ではない)
+
+- https://github.com/aws/aws-cdk/issues/5547
