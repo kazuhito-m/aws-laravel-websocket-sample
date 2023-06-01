@@ -7,6 +7,7 @@ import * as sm from "aws-cdk-lib/aws-secretsmanager";
 import * as elb from 'aws-cdk-lib/aws-elasticloadbalancingv2';
 import * as logs from 'aws-cdk-lib/aws-logs';
 import * as iam from 'aws-cdk-lib/aws-iam';
+import * as dynamodb from 'aws-cdk-lib/aws-dynamodb';
 import { SubnetType } from 'aws-cdk-lib/aws-ec2';
 import { Construct } from 'constructs';
 import { AlwsStackProps } from './alws-stack-props';
@@ -241,6 +242,7 @@ export class AlwsStageOfStack extends cdk.Stack {
     }
 
     private buildApiGatewayAndLambda(settings: Context): RestApi {
+        this.buildDynamoDbTableOfWebSocketConnection(settings);
         this.buildWebSocektApiGatewayAndLambda(settings);
         return this.buildWebSocektApiKickApiGatewayAndLambda(settings);
     }
@@ -306,6 +308,17 @@ export class AlwsStageOfStack extends cdk.Stack {
         });
         innerApi.root.addMethod('POST', new LambdaIntegration(lambdaFunc));
         return innerApi;
+    }
+
+    private buildDynamoDbTableOfWebSocketConnection(settings: Context): dynamodb.Table {
+        return new dynamodb.Table(this, 'WebSocketConnectionDynamoDBTable', {
+            partitionKey: {
+                name: 'connectionId',
+                type: dynamodb.AttributeType.STRING,
+            },
+            tableName: settings.dynamoDbTableName(),
+            billingMode: dynamodb.BillingMode.PAY_PER_REQUEST,
+        });
     }
 
 
