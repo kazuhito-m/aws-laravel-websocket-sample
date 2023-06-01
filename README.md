@@ -60,8 +60,8 @@ XXX
 
 1. `git tag 0.0.1 && git push --tag` を実行し、gitのtagを作成・GitHubに登録
 0. AWSのElastic Container Registry(ECR)の `alws-app` にイメージが登録されていることを確認
-0. `git tag production && git push --tag` を実行し、gitのtagを作成・GitHubに登録
-1. `./aws-infra/stage-of/cdk.json` の `context.stages.production.siteFqdn` にあるアドレスをブラウザで確認(このリポジトリのアプリのログイン画面が出る)
+0. `git tag -a 0.0.1 production -m 'first release.' && git push --tag` を実行し、gitのtagを作成・GitHubに登録
+0. `./aws-infra/stage-of/cdk.json` の `context.stages.production.siteFqdn` にあるアドレスをブラウザで確認(このリポジトリのアプリのログイン画面が出る)
 
 ## Author
 
