@@ -39,10 +39,13 @@ XXX
 
 - Node.js/npm は最新がインストールされている
 - 以下の作業はbashかつ開発リポジトリフォルダの直下から開始する
+- AWSの
 
 ## AWSにGlobal(全体)に掛かる構成を構築
 
-1. AWSのManerger
+1. 「WebHookを登録出来る権限を持ったGitHubのAccessToken」を、AWSのSystemManergerのパラメータストアに `alws-github-access-token` という名前で登録
+0. コンソールから `cd ./aws-infra/global && npm run deploy` を実行
+0. AWSのCertificate Managerから、作成された証明書のARNを、AWSのSystemManergerのパラメータストアに `alws-certification-arn` という名前で登録
 
 ## AWSにStage(環境ごと)に掛かる構成を構築
 ## アプリケーションをビルド・デプロイ
