@@ -7,14 +7,20 @@ import * as sm from "aws-cdk-lib/aws-secretsmanager";
 import * as elb from 'aws-cdk-lib/aws-elasticloadbalancingv2';
 import * as logs from 'aws-cdk-lib/aws-logs';
 import * as iam from 'aws-cdk-lib/aws-iam';
+import * as dynamodb from 'aws-cdk-lib/aws-dynamodb';
+import * as apigatewayv2 from 'aws-cdk-lib/aws-apigatewayv2';
 import { SubnetType } from 'aws-cdk-lib/aws-ec2';
-import { Construct } from 'constructs';
+import { Construct, DependencyGroup } from 'constructs';
 import { AlwsStackProps } from './alws-stack-props';
 import { Context } from './context/context';
 import { Duration, SecretValue } from 'aws-cdk-lib';
 import { HostedZone, ARecord, RecordTarget } from 'aws-cdk-lib/aws-route53';
 import { LoadBalancerTarget } from 'aws-cdk-lib/aws-route53-targets';
 import { StringParameter } from 'aws-cdk-lib/aws-ssm';
+import { Runtime } from 'aws-cdk-lib/aws-lambda';
+import { NodejsFunction } from 'aws-cdk-lib/aws-lambda-nodejs';
+import { RestApi, LambdaIntegration, MethodLoggingLevel } from 'aws-cdk-lib/aws-apigateway';
+import { Table } from 'aws-cdk-lib/aws-dynamodb';
 
 export class AlwsStageOfStack extends cdk.Stack {
     constructor(scope: Construct, id: string, props?: AlwsStackProps) {
@@ -27,7 +33,9 @@ export class AlwsStageOfStack extends cdk.Stack {
 
         const { appRds, rdsSecret } = this.buildRds(settings, vpc, rdsSecurityGroup);
 
-        this.buildEcsCluster(settings, vpc, appRds, ecsSecurityGroup, rdsSecret);
+        const innerApi = this.buildApiGatewayAndLambda(settings);
+
+        this.buildEcsCluster(settings, vpc, appRds, ecsSecurityGroup, rdsSecret, innerApi);
 
         this.setTag("Stage", settings.currentStageId);
         this.setTag("Version", settings.packageVersion());
@@ -118,7 +126,8 @@ export class AlwsStageOfStack extends cdk.Stack {
         vpc: ec2.Vpc,
         rds: rds.DatabaseInstance,
         ecsSecurityGroup: ec2.SecurityGroup,
-        rdsSecret: sm.Secret
+        rdsSecret: sm.Secret,
+        innerApi: RestApi
     ) {
         const ecsCluster = new ecs.Cluster(this, settings.wpp("EcsCluster"), {
             clusterName: settings.wpk('ecs-cluster'),
@@ -171,9 +180,16 @@ export class AlwsStageOfStack extends cdk.Stack {
             environment: {
                 DB_HOST: rds.instanceEndpoint.hostname,
                 DB_PORT: String(rds.instanceEndpoint.port),
-                DB_NAME: settings.systemName(),
-                DB_USER: rdsSecret.secretValueFromJson('username').unsafeUnwrap(),
-                APP_DATABASE_PASSWORD: rdsSecret.secretValueFromJson('password').unsafeUnwrap()
+                DB_DATABASE: settings.systemName(),
+                DB_USERNAME: rdsSecret.secretValueFromJson('username').unsafeUnwrap(),
+                DB_PASSWORD: rdsSecret.secretValueFromJson('password').unsafeUnwrap(),
+                CLIENT_SEND_API_URL: innerApi.url,
+                WEBSOCKET_URL: settings.currentStage().apiFqdn,
+                WEBSOCKET_API_URL: settings.websocketEndpointUrl(),
+                WEBSOCKET_API_REGION: this.region,
+                // TODO 以下は「何をどうやって仕込むか」を要検討
+                // WSDDB_AWS_ACCESS_KEY_ID: '',
+                // WSDDB_AWS_SECRET_ACCESS_KEY: ''
             }
         }).addPortMappings({
             name: `${settings.systemName()}-app-80-tcp`,
@@ -233,6 +249,148 @@ export class AlwsStageOfStack extends cdk.Stack {
 
         return ecsCluster;
     }
+
+    private buildApiGatewayAndLambda(settings: Context): RestApi {
+        const dynamoDbTable = this.buildDynamoDbTableOfWebSocketConnection(settings);
+        this.buildWebSocektApiGatewayAndLambda(settings, dynamoDbTable);
+        return this.buildWebSocektApiKickApiGatewayAndLambda(settings);
+    }
+
+    private buildWebSocektApiGatewayAndLambda(settings: Context, dynamoDbTable: Table): void {
+        const webSocketApi = new apigatewayv2.CfnApi(this, settings.wpp('WebSocketApi'), {
+            name: settings.wpk('websocket-api'),
+            protocolType: 'WEBSOCKET',
+            routeSelectionExpression: '$request.body.action',
+            description: `WebSocketのサーバ(API)の本体。(${settings.currentStageId}用)`,
+        })
+
+        const websocketLambda = new NodejsFunction(this, settings.wpp('WebSocketLambda'), {
+            runtime: Runtime.NODEJS_14_X,
+            functionName: settings.wpk('websocket-lambda'),
+            timeout: Duration.seconds(25),
+            logRetention: 30,
+            entry: 'lib/dummy/index.js',    // dummy
+            handler: 'index.handler',   // dummy
+            environment: {
+                TABLE_NAME: dynamoDbTable.tableName,
+                TABLE_KEY: 'connectionId',
+            }
+        });
+
+        dynamoDbTable.grantWriteData(websocketLambda)
+        const policy = new iam.PolicyStatement({
+            effect: iam.Effect.ALLOW,
+            resources: [websocketLambda.functionArn],
+            actions: ['lambda:InvokeFunction'],
+        })
+        const role = new iam.Role(this, 'WebSocketApiGatewayIntegrationRole', {
+            assumedBy: new iam.ServicePrincipal('apigateway.amazonaws.com'),
+        })
+        role.addToPolicy(policy)
+
+        const integration = new apigatewayv2.CfnIntegration(this, `connect-lambda-integration`, {
+            apiId: webSocketApi.ref,
+            integrationType: 'AWS_PROXY',
+            integrationUri: `arn:aws:apigateway:${this.region}:lambda:path/2015-03-31/functions/${websocketLambda.functionArn}/invocations`,
+            credentialsArn: role.roleArn,
+        });
+
+        const dependencyGroup = new DependencyGroup();
+        ['connect', 'disconnect'].forEach(routeType => {
+            const route = new apigatewayv2.CfnRoute(this, `${routeType}-route`, {
+                apiId: webSocketApi.ref,
+                routeKey: `$${routeType}`,
+                authorizationType: 'NONE',
+                target: 'integrations/' + integration.ref,
+            });
+            dependencyGroup.add(route);
+        });
+
+        const deployment = new apigatewayv2.CfnDeployment(this, 'WebSocketApiGatewayDeployment', {
+            apiId: webSocketApi.ref,
+        })
+        deployment.node.addDependency(dependencyGroup);
+
+        const stage = new apigatewayv2.CfnStage(this, 'WebSocketApiGatewayStage', {
+            apiId: webSocketApi.ref,
+            autoDeploy: true,
+            deploymentId: deployment.ref,
+            stageName: 'v1',
+        })
+    }
+
+    private buildWebSocektApiKickApiGatewayAndLambda(settings: Context): RestApi {
+        const roleName = 'KickWebSocketApiGatewayRole';
+        const lambdaRole = new iam.Role(this, roleName,
+            {
+                roleName: roleName,
+                assumedBy: new iam.ServicePrincipal('lambda.amazonaws.com'),
+                inlinePolicies: {
+                    "ApiGatewayAndLambdaKickPolicy": iam.PolicyDocument.fromJson({
+                        "Version": "2012-10-17",
+                        "Statement": [
+                            {
+                                "Effect": "Allow",
+                                "Action": ["apigateway:*", "lambda:*"],
+                                "Resource": "*"
+                            }
+                        ]
+                    }),
+                    "WebSocketApiKickPolicy": iam.PolicyDocument.fromJson({
+                        "Version": "2012-10-17",
+                        "Statement": [
+                            {
+                                "Effect": "Allow",
+                                "Action": "execute-api:ManageConnections",
+                                "Resource": "*"
+                            }
+                        ]
+                    }), // FIXME これも、少々過剰な権限である。   
+                },
+                managedPolicies: [
+                    iam.ManagedPolicy.fromAwsManagedPolicyName(
+                        'service-role/AWSLambdaBasicExecutionRole'
+                    )
+                ]
+            }
+        );
+        const lambdaFunc = new NodejsFunction(this, settings.wpp('SendWebSocketInnerRouteLambda'), {
+            runtime: Runtime.NODEJS_14_X,
+            functionName: settings.wpk('send-websocket-inner-route-lambda'),
+            timeout: Duration.seconds(25),
+            logRetention: 30,
+            role: lambdaRole,
+            entry: 'lib/dummy/index.js',
+            environment: {
+                "DYNAMODB_WEBSOCKET_TABLE": settings.dynamoDbTableName(),
+                "WEBSOCKET_ENDPOINT": settings.websocketEndpointUrl(),
+            }
+        });
+
+        const innerApi = new RestApi(this, settings.wpp('SendWebSocketInnerRouteApi'), {
+            restApiName: settings.wpk('send-websocket-inner-route-api'),
+            deployOptions: {
+                stageName: 'v1',
+                loggingLevel: MethodLoggingLevel.ERROR,
+            },
+            description: `AWSの内側の通信経路を通ってWebSocketのAPIをたたき、Webクライアント(ブラウザ)に通信する。(${settings.currentStageId}用)`,
+        });
+        innerApi.root.addMethod('POST', new LambdaIntegration(lambdaFunc));
+        return innerApi;
+    }
+
+    private buildDynamoDbTableOfWebSocketConnection(settings: Context): dynamodb.Table {
+        return new dynamodb.Table(this, 'WebSocketConnectionDynamoDBTable', {
+            partitionKey: {
+                name: 'connectionId',
+                type: dynamodb.AttributeType.STRING,
+            },
+            tableName: settings.dynamoDbTableName(),
+            billingMode: dynamodb.BillingMode.PAY_PER_REQUEST,
+            removalPolicy: cdk.RemovalPolicy.DESTROY
+        });
+    }
+
 
     private setTag(key: string, value: string): void {
         cdk.Tags.of(this).add(key, value);

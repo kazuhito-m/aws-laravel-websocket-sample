@@ -131,3 +131,54 @@ const hostedZone = HostedZone.fromHostedZoneAttributes(this, "Zone", {
 - 末尾に `.` を書く
 
 が必要で、クセあんなと。
+
+### CDKでRambda & APIGatewayを作成する
+
+- https://confrage.jp/aws-cdk%E3%81%A7%E4%BD%9C%E6%88%90%E3%81%99%E3%82%8Blambdanode-js%E3%81%A8%E3%83%AD%E3%83%BC%E3%83%AB%E3%82%92%E3%83%87%E3%83%97%E3%83%AD%E3%82%A4%E3%81%99%E3%82%8B%E6%96%B9%E6%B3%95/
+- https://dev.classmethod.jp/articles/cdk-aws-ssm-api-gateway-url/
+- https://dev.classmethod.jp/articles/local-build-a-lambda-function-nodejs-without-docker-desktop-with-aws-cdk/
+- https://dev.classmethod.jp/articles/aws-cdk-api-gateway-lambda-rest-auth0-lambda-authorizer/
+
+### CDKでWebSocketのAPIGateway&Lambdaを作成する。
+
+- https://dev.classmethod.jp/articles/cdk-api-gateway-web-socket/
+
+Websocket用のAPIGatewayは、前述のような「専用のクラス」が無く(というより過去在ったのにCDKのライブラリのVerUpでなくなった)、原始的な「CloudFormationのオブジェクト」で編集しないと、作ることが出来ない。
+
+### CDKでebSocketのAPIGatewayを作る時、Routeを2つ付けた状態でDeployまで作るとエラー
+
+Websocket用のAPIGatewayには、公開するために以下の２つの要素を作る必要が在る。
+
+1. Route: `$connect`, `$disconnect` など、「この要求が来た時にはどうするのか」の定義
+0. Stage: URLの末尾につけるPathみたいなもの
+
+基本、Routeは上記の２つを指定しないと「接続・切断管理が出来ない」ため、必須と言える。
+
+が、Route2つとStage指定を、CDN実行で作成しようとすると、エラーが発生する。
+
+```
+At least one route is required before deploying the Api. 
+```
+
+意味的には「デプロイ前に指定できるRouteは一個だけですよ」で、実際「Route1つだけ」なら成功する。
+
+(確かに、何故かNet上の多くの例ではRouteを定義するとこまでで、StageをDeployするところは別で書いてある。)
+
+#### 解決
+
+`DependencyGroup` というクラスを使い、Deploymentに「依存の順序」を教えてあげれば良いよう。
+
+```typescript
+const group = new DependencyGroup();
+group.add(disconnect_route)
+group.add(message_route)
+const deployment = new apigatewayv2.CfnDeployment(this, 'x', {
+    apiId: api.ref,
+})
+deployment.node.addDependency(group);
+```
+
+この解決法は、古い記事に多くあり、その当時のSDKでは `ConcreteDependable` というクラスであるため、多くの場合たどり着くことが出来ない…と思うなぁ。
+
+- https://github.com/aws/aws-cdk/issues/2872
+- https://docs.aws.amazon.com/cdk/api/v2/docs/constructs.DependencyGroup.html
