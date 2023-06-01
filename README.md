@@ -32,8 +32,8 @@ XXX
 大きくは、インフラの構築作業が2つ、アプリケーションのデプロイ1つの、3つの作業を行う。
 
 1. AWSにGlobal(全体)に掛かる構成を構築
-2. AWSにStage(環境ごと)に掛かる構成を構築
-3. アプリケーションをビルド・デプロイ
+0. AWSにStage(環境ごと)に掛かる構成を構築
+0. アプリケーションをビルド・デプロイ
 
 作業は以下を前提とする。
 
@@ -43,14 +43,25 @@ XXX
 
 ## AWSにGlobal(全体)に掛かる構成を構築
 
-1. 「WebHookを登録出来る権限を持ったGitHubのAccessToken」を、AWSのSystemManergerのパラメータストアに `alws-github-access-token` という名前で登録
+1. `./aws-infra/global/cdk.json` の末尾、`grobal` , `stages` の情報を「自身が作りたいシステムの情報」に書き換える
+0. 「WebHookを登録出来る権限を持ったGitHubのAccessToken」を、AWSのSystemManergerのパラメータストアに `alws-github-access-token` という名前で登録
 0. コンソールから `cd ./aws-infra/global && npm run deploy` を実行
 0. 作成されたAWSの構成から、AWSのSystemManergerのパラメータストアに、以下の値を登録
    1. `alws-certification-arn` : Certificate Managerから作成された証明書のARN
    0. `alws-hostedzone-id` : Route53から作成されたホストゾーンのゾーンID
 
 ## AWSにStage(環境ごと)に掛かる構成を構築
+
+1. `./aws-infra/stage-of/cdk.json` の末尾、`grobal` , `stages` の情報を「自身が作りたいシステムの情報」に書き換え
+0. コンソールから `cd ./aws-infra/stage-of && npm run deploy` を実行
+0. 成功を確認した後、`./aws-infra/stage-of/cdk.json` の `context.stages.production.siteFqdn` にあるアドレスをブラウザで確認(テスト用にnginxの画面が出る)
+
 ## アプリケーションをビルド・デプロイ
+
+1. `git tag 0.0.1 && git push --tag` を実行し、gitのtagを作成・GitHubに登録
+0. AWSのElastic Container Registry(ECR)の `alws-app` にイメージが登録されていることを確認
+0. `git tag production && git push --tag` を実行し、gitのtagを作成・GitHubに登録
+1. `./aws-infra/stage-of/cdk.json` の `context.stages.production.siteFqdn` にあるアドレスをブラウザで確認(このリポジトリのアプリのログイン画面が出る)
 
 ## Author
 
