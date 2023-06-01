@@ -43,8 +43,6 @@ export class AlwsGlobalStack extends cdk.Stack {
             ttl: Duration.minutes(5),
             comment: 'All names that do not exist in the A record are treated as "."'
         });
-        // FXIME 苦肉の策。fromCertificateName()が実装されるか、HotedZoneのTagが取れるようになったらそれに置き換え。
-        cdk.Tags.of(hostedZone).add("CertificateArn", certificate.certificateArn);
     }
 
     private buildContainerRepository(settings: Context) {
