@@ -30,9 +30,9 @@ export class AlwsStageOfStack extends cdk.Stack {
 
         // const { appRds, rdsSecret } = this.buildRds(settings, vpc, rdsSecurityGroup);
 
-        // this.buildEcsCluster(settings, vpc, appRds, ecsSecurityGroup, rdsSecret);
+        const innerApi = this.buildApiGatewayAndLambda(settings);
 
-        this.buildApiGatewayAndLambda(settings);
+        // this.buildEcsCluster(settings, vpc, appRds, ecsSecurityGroup, rdsSecret, innerApi);
 
         this.setTag("Stage", settings.currentStageId);
         this.setTag("Version", settings.packageVersion());
@@ -123,7 +123,8 @@ export class AlwsStageOfStack extends cdk.Stack {
         vpc: ec2.Vpc,
         rds: rds.DatabaseInstance,
         ecsSecurityGroup: ec2.SecurityGroup,
-        rdsSecret: sm.Secret
+        rdsSecret: sm.Secret,
+        innerApi: RestApi
     ) {
         const ecsCluster = new ecs.Cluster(this, settings.wpp("EcsCluster"), {
             clusterName: settings.wpk('ecs-cluster'),
@@ -178,7 +179,7 @@ export class AlwsStageOfStack extends cdk.Stack {
                 DB_PORT: String(rds.instanceEndpoint.port),
                 DB_NAME: settings.systemName(),
                 DB_USER: rdsSecret.secretValueFromJson('username').unsafeUnwrap(),
-                APP_DATABASE_PASSWORD: rdsSecret.secretValueFromJson('password').unsafeUnwrap()
+                CLIENT_SEND_API_URL: innerApi.url,
             }
         }).addPortMappings({
             name: `${settings.systemName()}-app-80-tcp`,
