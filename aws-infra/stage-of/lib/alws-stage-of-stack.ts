@@ -254,6 +254,7 @@ export class AlwsStageOfStack extends cdk.Stack {
             name: settings.wpk('websocket-api'),
             protocolType: 'WEBSOCKET',
             routeSelectionExpression: '$request.body.action',
+            description: `WebSocketのサーバ(API)の本体。(${settings.currentStageId}用)`,
         })
 
         const websocketLambda = new NodejsFunction(this, settings.wpp('WebSocketLambda'), {
@@ -262,7 +263,7 @@ export class AlwsStageOfStack extends cdk.Stack {
             timeout: Duration.seconds(25),
             logRetention: 30,
             entry: 'lib/dummy/index.js',    // dummy
-            handler: 'webSocket/connect.handler',   // dummy
+            handler: 'index.handler',   // dummy
             environment: {
                 TABLE_NAME: dynamoDbTable.tableName,
                 TABLE_KEY: 'connectionId',
@@ -285,13 +286,26 @@ export class AlwsStageOfStack extends cdk.Stack {
             integrationType: 'AWS_PROXY',
             integrationUri: `arn:aws:apigateway:${this.region}:lambda:path/2015-03-31/functions/${websocketLambda.functionArn}/invocations`,
             credentialsArn: role.roleArn,
+        });
+
+        ['connect', 'disconnect'].forEach(route => {
+            new apigatewayv2.CfnRoute(this, `${route}-route`, {
+                apiId: webSocketApi.ref,
+                routeKey: `$${route}`,
+                authorizationType: 'NONE',
+                target: 'integrations/' + integration.ref,
+            });
+        });
+
+        const deployment = new apigatewayv2.CfnDeployment(this, 'WebSocketApiGatewayDeployment', {
+            apiId: webSocketApi.ref,
         })
 
-        const route = new apigatewayv2.CfnRoute(this, `connect-route`, {
+        const stage = new apigatewayv2.CfnStage(this, 'WebSocketApiGatewayStage', {
             apiId: webSocketApi.ref,
-            routeKey: "$connect", // ＊１
-            authorizationType: 'NONE',
-            target: 'integrations/' + integration.ref,
+            autoDeploy: true,
+            deploymentId: deployment.ref,
+            stageName: 'v1',
         })
     }
 
