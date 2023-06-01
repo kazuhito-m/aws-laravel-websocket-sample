@@ -218,9 +218,11 @@ export class AlwsStageOfStack extends cdk.Stack {
             certificates: [certificate]
         });
 
-        const hostedZone = HostedZone.fromLookup(this, "HostZone", {
-            domainName: settings.global.siteDomain
-        })
+        const hostedZoneId = StringParameter.valueFromLookup(this, settings.hostedZoneIdPraStoreName());
+        const hostedZone = HostedZone.fromHostedZoneAttributes(this, "HostZone", {
+            zoneName: settings.applicationDnsARecordName(),
+            hostedZoneId: hostedZoneId,
+        });
         new ARecord(this, "DnsAppAnameRecord", {
             zone: hostedZone,
             recordName: settings.applicationDnsARecordName(),
