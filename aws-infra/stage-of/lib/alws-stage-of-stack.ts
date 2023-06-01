@@ -158,7 +158,7 @@ export class AlwsStageOfStack extends cdk.Stack {
             logging: ecs.LogDriver.awsLogs({
                 streamPrefix: 'ecs',
                 logGroup: new logs.LogGroup(this, 'ContainerLogGroup', {
-                    logGroupName: `/ecs/${containerName}`,
+                    logGroupName: `/ecs/${settings.currentStageId}/${containerName}`,
                     retention: 30,
                 }),
             }),
