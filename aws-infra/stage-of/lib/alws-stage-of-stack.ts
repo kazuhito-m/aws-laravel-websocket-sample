@@ -256,19 +256,23 @@ export class AlwsStageOfStack extends cdk.Stack {
             routeSelectionExpression: '$request.body.action',
         })
 
-        const connectLambda = new Function(this, 'web-socket-connect', {
-            code: new AssetCode('lib/dummy'), // dummy
-            handler: 'webSocket/connect.handler',   // dummy
+        const websocketLambda = new NodejsFunction(this, settings.wpp('WebSocketLambda'), {
             runtime: Runtime.NODEJS_14_X,
+            functionName: settings.wpk('websocket-lambda'),
+            timeout: Duration.seconds(25),
+            logRetention: 30,
+            entry: 'lib/dummy/index.js',    // dummy
+            handler: 'webSocket/connect.handler',   // dummy
             environment: {
                 TABLE_NAME: dynamoDbTable.tableName,
                 TABLE_KEY: 'connectionId',
-            },
-        })
-        dynamoDbTable.grantWriteData(connectLambda)
+            }
+        });
+
+        dynamoDbTable.grantWriteData(websocketLambda)
         const policy = new iam.PolicyStatement({
             effect: iam.Effect.ALLOW,
-            resources: [connectLambda.functionArn],
+            resources: [websocketLambda.functionArn],
             actions: ['lambda:InvokeFunction'],
         })
         const role = new iam.Role(this, 'WebSocketApiGatewayIntegrationRole', {
@@ -279,7 +283,7 @@ export class AlwsStageOfStack extends cdk.Stack {
         const integration = new apigatewayv2.CfnIntegration(this, `connect-lambda-integration`, {
             apiId: webSocketApi.ref,
             integrationType: 'AWS_PROXY',
-            integrationUri: `arn:aws:apigateway:${this.region}:lambda:path/2015-03-31/functions/${connectLambda.functionArn}/invocations`,
+            integrationUri: `arn:aws:apigateway:${this.region}:lambda:path/2015-03-31/functions/${websocketLambda.functionArn}/invocations`,
             credentialsArn: role.roleArn,
         })
 
@@ -359,6 +363,7 @@ export class AlwsStageOfStack extends cdk.Stack {
             },
             tableName: settings.dynamoDbTableName(),
             billingMode: dynamodb.BillingMode.PAY_PER_REQUEST,
+            removalPolicy: cdk.RemovalPolicy.DESTROY
         });
     }
 
