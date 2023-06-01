@@ -32,64 +32,7 @@ export class AlwsStageOfStack extends cdk.Stack {
 
         // this.buildEcsCluster(settings, vpc, appRds, ecsSecurityGroup, rdsSecret);
 
-
-        const roleName = 'KickWebSocketApiGatewayRole';
-        const lambdaRole = new iam.Role(this, roleName,
-            {
-                roleName: roleName,
-                assumedBy: new iam.ServicePrincipal('lambda.amazonaws.com'),
-                inlinePolicies: {
-                    "ApiGatewayAndLambdaKickPolicy": iam.PolicyDocument.fromJson({
-                        "Version": "2012-10-17",
-                        "Statement": [
-                            {
-                                "Effect": "Allow",
-                                "Action": ["apigateway:*", "lambda:*"],
-                                "Resource": "*"
-                            }
-                        ]
-                    }),  // FIXME これはレンジ広すぎてひどい…
-                    "WebSocketApiKickPolicy": iam.PolicyDocument.fromJson({
-                        "Version": "2012-10-17",
-                        "Statement": [
-                            {
-                                "Effect": "Allow",
-                                "Action": "execute-api:ManageConnections",
-                                "Resource": "*"
-                            }
-                        ]
-                    }),  // FIXME これも、少々過剰な権限である。   
-                },
-                managedPolicies: [
-                    iam.ManagedPolicy.fromAwsManagedPolicyName(
-                        'service-role/AWSLambdaBasicExecutionRole'
-                    )
-                ]
-            }
-        );
-        const lambdaFunc = new NodejsFunction(this, settings.wpp('SendWebSocketInnerRouteLambda'), {
-            runtime: Runtime.NODEJS_14_X,
-            functionName: settings.wpk('send-websocket-inner-route-lambda'),
-            timeout: Duration.seconds(25),
-            logRetention: 30,
-            role: lambdaRole,
-            entry: 'lib/dummy/index.js',
-            environment: {
-                "DYNAMODB_WEBSOCKET_TABLE": `websocket_connections_${settings.currentStageId}`,
-                "WEBSOCKET_ENDPOINT": `https://${settings.currentStage().apiFqdn}`
-            }
-        });
-
-        const innerApi = new RestApi(this, settings.wpp('SendWebSocketInnerRouteApi'), {
-            restApiName: settings.wpk('send-websocket-inner-route-api'),
-            deployOptions: {
-                stageName: 'v1',
-                loggingLevel: MethodLoggingLevel.ERROR,
-
-            },
-            description: `AWSの内側の通信経路を通ってWebSocketのAPIをたたき、Webクライアント(ブラウザ)に通信する。(${settings.currentStageId}用)`,
-        });
-        innerApi.root.addMethod('POST', new LambdaIntegration(lambdaFunc));
+        this.buildApiGatewayAndLambda(settings);
 
         this.setTag("Stage", settings.currentStageId);
         this.setTag("Version", settings.packageVersion());
@@ -295,6 +238,71 @@ export class AlwsStageOfStack extends cdk.Stack {
 
         return ecsCluster;
     }
+
+    private buildApiGatewayAndLambda(settings: Context): RestApi {
+        return this.buildWebSocektApiKickApiGatewayAndLambda(settings);
+    }
+
+    private buildWebSocektApiKickApiGatewayAndLambda(settings: Context): RestApi {
+        const roleName = 'KickWebSocketApiGatewayRole';
+        const lambdaRole = new iam.Role(this, roleName,
+            {
+                roleName: roleName,
+                assumedBy: new iam.ServicePrincipal('lambda.amazonaws.com'),
+                inlinePolicies: {
+                    "ApiGatewayAndLambdaKickPolicy": iam.PolicyDocument.fromJson({
+                        "Version": "2012-10-17",
+                        "Statement": [
+                            {
+                                "Effect": "Allow",
+                                "Action": ["apigateway:*", "lambda:*"],
+                                "Resource": "*"
+                            }
+                        ]
+                    }),
+                    "WebSocketApiKickPolicy": iam.PolicyDocument.fromJson({
+                        "Version": "2012-10-17",
+                        "Statement": [
+                            {
+                                "Effect": "Allow",
+                                "Action": "execute-api:ManageConnections",
+                                "Resource": "*"
+                            }
+                        ]
+                    }), // FIXME これも、少々過剰な権限である。   
+                },
+                managedPolicies: [
+                    iam.ManagedPolicy.fromAwsManagedPolicyName(
+                        'service-role/AWSLambdaBasicExecutionRole'
+                    )
+                ]
+            }
+        );
+        const lambdaFunc = new NodejsFunction(this, settings.wpp('SendWebSocketInnerRouteLambda'), {
+            runtime: Runtime.NODEJS_14_X,
+            functionName: settings.wpk('send-websocket-inner-route-lambda'),
+            timeout: Duration.seconds(25),
+            logRetention: 30,
+            role: lambdaRole,
+            entry: 'lib/dummy/index.js',
+            environment: {
+                "DYNAMODB_WEBSOCKET_TABLE": `websocket_connections_${settings.currentStageId}`,
+                "WEBSOCKET_ENDPOINT": `https://${settings.currentStage().apiFqdn}`
+            }
+        });
+
+        const innerApi = new RestApi(this, settings.wpp('SendWebSocketInnerRouteApi'), {
+            restApiName: settings.wpk('send-websocket-inner-route-api'),
+            deployOptions: {
+                stageName: 'v1',
+                loggingLevel: MethodLoggingLevel.ERROR,
+            },
+            description: `AWSの内側の通信経路を通ってWebSocketのAPIをたたき、Webクライアント(ブラウザ)に通信する。(${settings.currentStageId}用)`,
+        });
+        innerApi.root.addMethod('POST', new LambdaIntegration(lambdaFunc));
+        return innerApi;
+    }
+
 
     private setTag(key: string, value: string): void {
         cdk.Tags.of(this).add(key, value);
