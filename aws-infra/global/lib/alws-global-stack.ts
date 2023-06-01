@@ -43,6 +43,9 @@ export class AlwsGlobalStack extends cdk.Stack {
             ttl: Duration.minutes(5),
             comment: 'All names that do not exist in the A record are treated as "."'
         });
+
+        this.savePrameterStore(`${settings.systemName()}-hostedzone-id`, hostedZone.hostedZoneId);
+        this.savePrameterStore(`${settings.systemName()}-certification-arn`, certificate.certificateArn);
     }
 
     private buildContainerRepository(settings: Context) {
@@ -86,6 +89,10 @@ export class AlwsGlobalStack extends cdk.Stack {
             }
         });
         containerRepository.grantPullPush(tagBuildOfSourceCIProject.grantPrincipal);
+    }
+
+    private savePrameterStore(key: string, value: string): StringParameter {
+        return new StringParameter(this, key, { stringValue: value });
     }
 
     private setTag(key: string, value: string): void {
