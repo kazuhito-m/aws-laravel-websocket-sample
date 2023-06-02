@@ -8,8 +8,10 @@ RUN apk add autoconf build-base imagemagick-dev \
   && docker-php-ext-enable imagick \
   && rm -rf /tmp/* /var/cache/apk/*
 
-COPY webapp /app
+COPY ./ /app
 WORKDIR /app
+
+RUN rm -rf ./container/
 
 RUN composer install --no-interaction --optimize-autoloader --no-dev
 RUN php artisan optimize
