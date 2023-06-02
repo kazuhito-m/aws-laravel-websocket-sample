@@ -6,19 +6,16 @@ phases:
       - echo "git-tag:${IMAGE_TAG}"
       - AWS_ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
       - ECR_HOST=${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com
-      - REPOSITORY_URI=${ECR_HOST}/${REPOSITORY_NAME}
-      - REPOSITORY_IMAGE_TAG=${REPOSITORY_URI}:${IMAGE_TAG}
+      - APP_REPOSITORY_URI=${ECR_HOST}/${APP_REPOSITORY_NAME}
+      - APP_REPOSITORY_IMAGE_TAG=${APP_REPOSITORY_URI}:${IMAGE_TAG}
+      - LAMBDA_REPOSITORY_URI=${ECR_HOST}/${LAMBDA_REPOSITORY_NAME}
+      - LAMBDA_REPOSITORY_IMAGE_TAG=${LAMBDA_REPOSITORY_URI}:${IMAGE_TAG}
       - aws ecr get-login-password --region ${AWS_DEFAULT_REGION} | docker login --username AWS --password-stdin ${ECR_HOST}
 
   build:
     commands:
-      - docker build -t ${REPOSITORY_IMAGE_TAG} .
+      - docker build -t ${APP_REPOSITORY_IMAGE_TAG} .
 
   post_build:
     commands:
-      - docker push ${REPOSITORY_IMAGE_TAG}
-      - printf '{"Version":"1.0","ImageURI":"%s"}' ${REPOSITORY_IMAGE_TAG} > imageDetail.json
-
-artifacts:
- files: imageDetail.json
-
+      - docker push ${APP_REPOSITORY_IMAGE_TAG}
