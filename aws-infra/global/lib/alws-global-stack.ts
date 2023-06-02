@@ -17,7 +17,9 @@ export class AlwsGlobalStack extends cdk.Stack {
         const settings = props?.context as Context;
         this.confimationOfPreconditions(settings);
 
-        this.buildContainerRepository(settings);
+        const repositories = this.buildContainerRepository(settings);
+
+        this.buildCiCdParts(settings, repositories);
 
         this.buildDnsAndCertificate(settings);
 
@@ -48,17 +50,24 @@ export class AlwsGlobalStack extends cdk.Stack {
         this.savePrameterStore(`${settings.systemName()}-certification-arn`, certificate.certificateArn);
     }
 
-    private buildContainerRepository(settings: Context) {
-        const containerRepository = new ecr.Repository(this, 'ContainerRepsitory', {
-            repositoryName: settings?.containerImageId(),
-            imageTagMutability: ecr.TagMutability.IMMUTABLE,
-            imageScanOnPush: false, // 脆弱性検査は Amazon Inspector に移譲する
+    private buildContainerRepository(settings: Context): ecr.Repository[] {
+        const repositories: ecr.Repository[] = [];
+        ['app', 'lambda'].forEach(type => {
+            const containerRepository = new ecr.Repository(this, 'ContainerRepsitory_' + type, {
+                repositoryName: `${settings.systemName()}-${type}`,
+                imageTagMutability: ecr.TagMutability.IMMUTABLE,
+                imageScanOnPush: false, // 脆弱性検査は Amazon Inspector に移譲する
+            });
+            // Stack削除時、連鎖削除設定だが、イメージが一つでも在れば削除せず、Stackから外れる。
+            containerRepository.addLifecycleRule({
+                maxImageCount: 500
+            });
+            repositories.push(containerRepository);
         });
-        // Stack削除時、連鎖削除設定だが、イメージが一つでも在れば削除せず、Stackから外れる。
-        containerRepository.addLifecycleRule({
-            maxImageCount: 500
-        });
+        return repositories;
+    }
 
+    private buildCiCdParts(settings: Context, repositories: ecr.Repository[]): void {
         const githubAccessToken = StringParameter.valueFromLookup(this, `${settings.systemName()}-github-access-token`);
         new codebuild.GitHubSourceCredentials(this, 'CodebuildGithubCredentials', {
             accessToken: cdk.SecretValue.unsafePlainText(githubAccessToken),
@@ -82,13 +91,12 @@ export class AlwsGlobalStack extends cdk.Stack {
                 buildImage: codebuild.LinuxBuildImage.AMAZON_LINUX_2_4,
                 privileged: true,
                 environmentVariables: {
-                    REPOSITORY_NAME: {
-                        value: containerRepository.repositoryName,
-                    }
+                    APP_REPOSITORY_NAME: { value: repositories[0].repositoryName },
+                    LAMBDA_REPOSITORY_NAME: { value: repositories[1].repositoryName },
                 }
             }
         });
-        containerRepository.grantPullPush(tagBuildOfSourceCIProject.grantPrincipal);
+        repositories.forEach(r => r.grantPullPush(tagBuildOfSourceCIProject.grantPrincipal));
     }
 
     private savePrameterStore(key: string, value: string): StringParameter {
