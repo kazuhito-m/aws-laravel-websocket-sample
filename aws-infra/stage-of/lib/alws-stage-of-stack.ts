@@ -269,7 +269,7 @@ export class AlwsStageOfStack extends cdk.Stack {
             functionName: settings.wpk('websocket-lambda'),
             timeout: Duration.seconds(25),
             logRetention: 30,
-            code: DockerImageCode.fromImageAsset(path.join(__dirname, '../../aws-lambda/websocket/'), {}),
+            code: DockerImageCode.fromImageAsset(path.join(__dirname, '../../../aws-lambda/websocket'), {}),
             environment: {
                 TABLE_NAME: dynamoDbTable.tableName,
                 TABLE_KEY: 'connectionId',
@@ -358,7 +358,7 @@ export class AlwsStageOfStack extends cdk.Stack {
             timeout: Duration.seconds(25),
             logRetention: 30,
             role: lambdaRole,
-            code: DockerImageCode.fromImageAsset(path.join(__dirname, '../../aws-lambda/websocket/'), {}),
+            code: DockerImageCode.fromImageAsset(path.join(__dirname, '../../../aws-lambda/websocket'), {}),
             environment: {
                 "DYNAMODB_WEBSOCKET_TABLE": settings.dynamoDbTableName(),
                 "WEBSOCKET_ENDPOINT": settings.websocketEndpointUrl(),
