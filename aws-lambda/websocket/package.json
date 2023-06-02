@@ -1,0 +1,16 @@
+{
+  "name": "alws-webcocket-lambda",
+  "version": "0.0.1",
+  "description": "OnConnect and OnDisconnect for WebSockets on API Gateway",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "esbuild index.ts --bundle --minify --sourcemap --platform=node --target=es2020 --outfile=dist/index.js"
+  },
+  "author": "kazuhito-m",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/aws-lambda": "^8.10.115",
+    "esbuild": "^0.17.19"
+  }
+}

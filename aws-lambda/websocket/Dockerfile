@@ -1,5 +1,10 @@
-FROM public.ecr.aws/lambda/nodejs:18-x86_64
+FROM public.ecr.aws/lambda/nodejs:18 as builder
+WORKDIR /usr/app
+COPY package.json index.ts  ./
+RUN npm install
+RUN npm run build
 
-COPY index.js ${LAMBDA_TASK_ROOT}
-  
-CMD [ "index.handler" ]
+FROM public.ecr.aws/lambda/nodejs:18
+WORKDIR ${LAMBDA_TASK_ROOT}
+COPY --from=builder /usr/app/dist/* ./
+CMD ["index.handler"]
