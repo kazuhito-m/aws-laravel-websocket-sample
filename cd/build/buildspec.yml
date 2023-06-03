@@ -1,23 +1,10 @@
 version: 0.2
 phases:
-  pre_build:
-    commands:
-      - IMAGE_TAG=$(git describe --tags)
-      - echo "git-tag:${IMAGE_TAG}"
-      - AWS_ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
-      - ECR_HOST=${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com
-      - APP_REPOSITORY_URI=${ECR_HOST}/${APP_REPOSITORY_NAME}
-      - APP_REPOSITORY_IMAGE_TAG=${APP_REPOSITORY_URI}:${IMAGE_TAG}
-      - LAMBDA_REPOSITORY_URI=${ECR_HOST}/${LAMBDA_REPOSITORY_NAME}
-      - LAMBDA_REPOSITORY_IMAGE_TAG=${LAMBDA_REPOSITORY_URI}:${IMAGE_TAG}
-      - aws ecr get-login-password --region ${AWS_DEFAULT_REGION} | docker login --username AWS --password-stdin ${ECR_HOST}
-
   build:
     commands:
-      - docker build -t ${APP_REPOSITORY_IMAGE_TAG} ./webapp
-      - docker build -t ${LAMBDA_REPOSITORY_IMAGE_TAG} ./aws-lambda/websocket
-
-  post_build:
-    commands:
-      - docker push ${APP_REPOSITORY_IMAGE_TAG}
-      - docker push ${LAMBDA_REPOSITORY_IMAGE_TAG}
+      - ehco 'env出力'
+      - env
+      - echo 'git describe --tags 出力'
+      - echo git describe --tags
+      - echo 'git status 出力'
+      - git status 出力
