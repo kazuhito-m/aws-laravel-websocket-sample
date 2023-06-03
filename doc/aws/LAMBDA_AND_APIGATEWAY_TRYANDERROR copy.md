@@ -89,3 +89,13 @@ Provide a valid source image. ..."
 
 - https://docs.aws.amazon.com/cdk/api/v1/docs/@aws-cdk_aws-lambda.DockerImageCode.html
 - https://dev.classmethod.jp/articles/cdk-bootstrap-modern-template/
+
+
+## CDKでAPIGatawayにドメイン名を貼り付ける
+
+- https://zenn.dev/tatsurom/articles/api-gateway-domain-mapping
+
+上記のオペレーションをCDKで行う。
+
+- https://dev.classmethod.jp/articles/aws-cdk-api-gateway-custom-domain/
+
