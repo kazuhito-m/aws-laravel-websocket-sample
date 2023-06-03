@@ -15,7 +15,9 @@ phases:
   build:
     commands:
       - docker build -t ${APP_REPOSITORY_IMAGE_TAG} ./webapp
+      - docker build -t ${LAMBDA_REPOSITORY_IMAGE_TAG} ./aws-lambda/websocket
 
   post_build:
     commands:
       - docker push ${APP_REPOSITORY_IMAGE_TAG}
+      - docker push ${LAMBDA_REPOSITORY_IMAGE_TAG}

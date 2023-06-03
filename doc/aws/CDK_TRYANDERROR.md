@@ -182,3 +182,22 @@ deployment.node.addDependency(group);
 
 - https://github.com/aws/aws-cdk/issues/2872
 - https://docs.aws.amazon.com/cdk/api/v2/docs/constructs.DependencyGroup.html
+
+### CDKで作ったCodeBuildのProjectでPush検出したら、2個以上のビルドが走る
+
+git tagの条件はおかしくないようだが、一度のtag pushで2個以上(観測上では最大4つ)ビルドが走る。
+
+#### 解決
+
+原因は「Github側にCDKから作られたWebHookが多量にあること」。
+
+CDKを繰り返し実行している間に、GitHub側にWebHookが多量に作られ、どうやらそれが「ランダムに」反応するように見える。
+
+対処法としては、
+
+1. 一度、GitHub側にある「CDKによって作られたと思しきWebHook」をすべて削除
+0. cdk destroy & cdk deploy
+
+Projectを手動で削除したとしても、差分として検出してくれない。
+
+なので「全部作り直し」が必要で…辛い。

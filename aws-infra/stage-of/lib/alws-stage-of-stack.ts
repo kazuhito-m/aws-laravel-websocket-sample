@@ -17,8 +17,8 @@ import { Duration, SecretValue } from 'aws-cdk-lib';
 import { HostedZone, ARecord, RecordTarget } from 'aws-cdk-lib/aws-route53';
 import { LoadBalancerTarget } from 'aws-cdk-lib/aws-route53-targets';
 import { StringParameter } from 'aws-cdk-lib/aws-ssm';
-import { Runtime } from 'aws-cdk-lib/aws-lambda';
-import { NodejsFunction } from 'aws-cdk-lib/aws-lambda-nodejs';
+import { DockerImageCode } from 'aws-cdk-lib/aws-lambda';
+import { DockerImageFunction } from 'aws-cdk-lib/aws-lambda';
 import { RestApi, LambdaIntegration, MethodLoggingLevel } from 'aws-cdk-lib/aws-apigateway';
 import { Table } from 'aws-cdk-lib/aws-dynamodb';
 
@@ -264,13 +264,11 @@ export class AlwsStageOfStack extends cdk.Stack {
             description: `WebSocketのサーバ(API)の本体。(${settings.currentStageId}用)`,
         })
 
-        const websocketLambda = new NodejsFunction(this, settings.wpp('WebSocketLambda'), {
-            runtime: Runtime.NODEJS_14_X,
+        const websocketLambda = new DockerImageFunction(this, settings.wpp('WebSocketLambda'), {
             functionName: settings.wpk('websocket-lambda'),
             timeout: Duration.seconds(25),
             logRetention: 30,
-            entry: 'lib/dummy/index.js',    // dummy
-            handler: 'index.handler',   // dummy
+            code: DockerImageCode.fromImageAsset('./dummy/lambda', {}),
             environment: {
                 TABLE_NAME: dynamoDbTable.tableName,
                 TABLE_KEY: 'connectionId',
@@ -354,13 +352,12 @@ export class AlwsStageOfStack extends cdk.Stack {
                 ]
             }
         );
-        const lambdaFunc = new NodejsFunction(this, settings.wpp('SendWebSocketInnerRouteLambda'), {
-            runtime: Runtime.NODEJS_14_X,
+        const lambdaFunc = new DockerImageFunction(this, settings.wpp('SendWebSocketInnerRouteLambda'), {
             functionName: settings.wpk('send-websocket-inner-route-lambda'),
             timeout: Duration.seconds(25),
             logRetention: 30,
             role: lambdaRole,
-            entry: 'lib/dummy/index.js',
+            code: DockerImageCode.fromImageAsset('./dummy/lambda', {}),
             environment: {
                 "DYNAMODB_WEBSOCKET_TABLE": settings.dynamoDbTableName(),
                 "WEBSOCKET_ENDPOINT": settings.websocketEndpointUrl(),

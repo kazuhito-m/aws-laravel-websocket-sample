@@ -37,6 +37,7 @@ XXX
 1. `./aws-infra/global/cdk.json` の末尾、`grobal` , `stages` の情報を「自身が作りたいシステムの情報」に書き換える
 0. 「WebHookを登録出来る権限を持ったGitHubのAccessToken」を、AWSのSystemManergerのパラメータストアに `alws-github-access-token` という名前で登録
 0. コンソールから `cd ./aws-infra/global && npm run deploy` を実行
+0. AWSのRoute53に元からある「このシステムのドメイン」のネームサーバを、cdkで作られたドメインのネームサバ−(4個)に入れ替える
 0. 作成されたAWSの構成から、AWSのSystemManergerのパラメータストアに、以下の値を登録
    1. `alws-certification-arn` : Certificate Managerから作成された証明書のARN
    0. `alws-hostedzone-id` : Route53から作成されたホストゾーンのゾーンID
