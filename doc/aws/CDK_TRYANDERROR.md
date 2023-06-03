@@ -196,9 +196,8 @@ CDKを繰り返し実行している間に、GitHub側にWebHookが多量に作�
 対処法としては、
 
 1. 一度、GitHub側にある「CDKによって作られたと思しきWebHook」をすべて削除
-0. 当該のCodeBuild Projectを削除
-0. CDKを再実行
+0. cdk destroy & cdk deploy
 
-CDKは差分を観て、CodeBuild Projectを再作成をしてくれる。
+Projectを手動で削除したとしても、差分として検出してくれない。
 
-その際、適宜WebHookをGitHub側に作るので「一つ」になる。
+なので「全部作り直し」が必要で…辛い。
