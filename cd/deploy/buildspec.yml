@@ -5,14 +5,17 @@ phases:
   install:
     commands:
       - echo Nothing to do in the install phase...
+
   pre_build:
     commands:
       - CD_DIR='./cd/deploy'
       - VERSION_TAG=$(${CD_DIR}/lookup_git_version_tag_from_stage_tag.sh ${STAGE_ID})
       - echo "STAGE_ID:${STAGE_ID}, VERSION_TAG:${VERSION_TAG}"
+
   build:
     commands:
       - ${CD_DIR}/deploy_ecs.sh ${VERSION_TAG}
+
   post_build:
     commands:
       - echo Nothing to do in the post_build phase...
