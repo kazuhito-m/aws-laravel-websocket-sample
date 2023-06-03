@@ -1,8 +1,8 @@
 import * as cdk from 'aws-cdk-lib';
 import * as ecr from 'aws-cdk-lib/aws-ecr';
-import * as codebuild from 'aws-cdk-lib/aws-codebuild';
 import * as cm from 'aws-cdk-lib/aws-certificatemanager';
 import * as route53 from 'aws-cdk-lib/aws-route53';
+import * as codebuild from 'aws-cdk-lib/aws-codebuild';
 
 import { Construct } from 'constructs';
 import { AlwsStackProps } from './alws-stack-props';
