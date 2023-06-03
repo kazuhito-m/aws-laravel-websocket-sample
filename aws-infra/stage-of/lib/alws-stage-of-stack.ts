@@ -21,7 +21,6 @@ import { DockerImageCode, Runtime } from 'aws-cdk-lib/aws-lambda';
 import { DockerImageFunction } from 'aws-cdk-lib/aws-lambda';
 import { RestApi, LambdaIntegration, MethodLoggingLevel } from 'aws-cdk-lib/aws-apigateway';
 import { Table } from 'aws-cdk-lib/aws-dynamodb';
-import * as path from 'path';
 
 export class AlwsStageOfStack extends cdk.Stack {
     constructor(scope: Construct, id: string, props?: AlwsStackProps) {
@@ -269,7 +268,7 @@ export class AlwsStageOfStack extends cdk.Stack {
             functionName: settings.wpk('websocket-lambda'),
             timeout: Duration.seconds(25),
             logRetention: 30,
-            code: DockerImageCode.fromImageAsset(path.join(__dirname, 'dummy', 'lambda'), {}),
+            code: DockerImageCode.fromImageAsset('./dummy/lambda', {}),
             environment: {
                 TABLE_NAME: dynamoDbTable.tableName,
                 TABLE_KEY: 'connectionId',
@@ -358,7 +357,7 @@ export class AlwsStageOfStack extends cdk.Stack {
             timeout: Duration.seconds(25),
             logRetention: 30,
             role: lambdaRole,
-            code: DockerImageCode.fromImageAsset(path.join(__dirname, 'dummy', 'lambda'), {}),
+            code: DockerImageCode.fromImageAsset('./dummy/lambda', {}),
             environment: {
                 "DYNAMODB_WEBSOCKET_TABLE": settings.dynamoDbTableName(),
                 "WEBSOCKET_ENDPOINT": settings.websocketEndpointUrl(),
