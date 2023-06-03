@@ -7,7 +7,10 @@ phases:
       - echo Nothing to do in the install phase...
   pre_build:
     commands:
-      - echo Nothing to do in the pre_build phase...
+      - CD_DIR='./cd/deploy'
+      - echo ${STAGE_ID}
+      - VERSION_TAG=$(${CD_DIR}/lookup_git_version_tag_from_stage_tag.sh ${STAGE_ID})
+      - echo ${VERSION_TAG}
   build:
     commands:
       - aws ecs describe-task-definition --task-definition LaravelWebAppTask
