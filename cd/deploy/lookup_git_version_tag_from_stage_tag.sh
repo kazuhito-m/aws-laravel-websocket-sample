@@ -5,9 +5,9 @@
 # 発見できなければ、異常ステータスを返す。
 #
 
-STAGE_TAG=${1}
+STAGE_ID=${1}
 
-version_tag=$(git tag -l --contains ${STAGE_TAG} | grep -E '^[0-9]+\.[0-9]+\..*$')
+version_tag=$(git tag -l --contains ${STAGE_ID} | grep -E '^[0-9]+\.[0-9]+\..*$')
 result=${?}
 
 if [ $result != 0 ]; then
