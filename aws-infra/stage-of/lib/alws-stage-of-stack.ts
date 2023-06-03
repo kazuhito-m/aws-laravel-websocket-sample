@@ -30,13 +30,13 @@ export class AlwsStageOfStack extends cdk.Stack {
         const settings = props?.context as Context;
         this.confimationOfPreconditions(props?.context);
 
-        const { vpc, rdsSecurityGroup, ecsSecurityGroup } = this.buildVpcAndNetwork(settings);
+        // const { vpc, rdsSecurityGroup, ecsSecurityGroup } = this.buildVpcAndNetwork(settings);
 
-        const { appRds, rdsSecret } = this.buildRds(settings, vpc, rdsSecurityGroup);
+        // const { appRds, rdsSecret } = this.buildRds(settings, vpc, rdsSecurityGroup);
 
-        const innerApi = this.buildApiGatewayAndLambda(settings);
+        // const innerApi = this.buildApiGatewayAndLambda(settings);
 
-        this.buildEcsCluster(settings, vpc, appRds, ecsSecurityGroup, rdsSecret, innerApi);
+        // this.buildEcsCluster(settings, vpc, appRds, ecsSecurityGroup, rdsSecret, innerApi);
 
         this.buildCodeBuildForCdDeploy(settings);
 
@@ -391,10 +391,6 @@ export class AlwsStageOfStack extends cdk.Stack {
     }
 
     private buildCodeBuildForCdDeploy(settings: Context): void {
-        const githubAccessToken = StringParameter.valueFromLookup(this, `${settings.systemName()}-github-access-token`);
-        new codebuild.GitHubSourceCredentials(this, 'CodebuildGithubCredentials', {
-            accessToken: cdk.SecretValue.unsafePlainText(githubAccessToken),
-        });
         const tagDeployOfSourceCDProject = new codebuild.Project(this, 'DeployByGitTagCodeBuild', {
             projectName: settings.wpk('deploy-by-github-tag'),
             description: 'GitHubでStageTag(文字列始まりの"production"等)が切られた場合、アプリ・Lambda・環境のデプロイを行う。',
