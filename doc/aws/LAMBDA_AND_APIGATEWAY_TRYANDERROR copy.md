@@ -59,8 +59,28 @@ SAMは「LambdaとAPIGatewayを一括管理する」仕組み。
 
 ## CDKで最初にLambdaを作る時「Dockerイメージをその場ビルドしよう」としても出来ない
 
+CDKで「”その場Dockerfileビルド”でLambda関数作成」する場合、コンテナリポジトリが定まらないため、「CDK備え付けのデフォルトECR」にPushし、その後Lambdaに適用される。
+
+CDKのLambda作成を実行した場合、時折以下のようなエラーメッセージが出て、えラーと成る。
 
 ```
 Resource handler returned message: "Source image 000000000000.dkr.ecr.ap-northeast-1.amazonaws.com/cdk-hnb659fds-container-assets-000000000000-ap-northeast-1:xxxxxx does not exist. 
 Provide a valid source image. ..."
 ```
+
+原因を特定できないが、おそらくは…
+
+- CDKが作る備え付けの「ユーザ一一人に対応するECR」を削除してしまっている
+- 最初に `cdk bootstrap` した時と権限が変わってしまっている(のでECRに接続できない)
+
+かと思われる。
+
+対処としては、
+
+- CloudFormationから `CDKToolkit` というスタックを削除する
+  - その際、コケ場合はs3やECRに「関連するモノ」があるかを確認し削除する
+- 再度 `cdk bootstrap` を行う
+
+をした後、対象のCDKを実行すれば行ける…場合がある。
+
+- https://qiita.com/wagasa2/items/882183e0360b76d79b5e
