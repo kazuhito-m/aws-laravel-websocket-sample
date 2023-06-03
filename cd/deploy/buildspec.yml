@@ -1,0 +1,23 @@
+version: 0.2
+env:
+  shell: bash
+phases:
+  install:
+    commands:
+      - echo Nothing to do in the install phase...
+      - ps -p $$
+  pre_build:
+    commands:
+      - echo Nothing to do in the pre_build phase...
+      - ps -p $$
+  build:
+    commands:
+      - pwd
+      - ls -l
+      - env
+      - echo Nothing to do in the build phase...
+      - ps -p $$
+  post_build:
+    commands:
+      - echo Nothing to do in the post_build phase...
+      - ps -p $$
