@@ -97,5 +97,4 @@ Provide a valid source image. ..."
 
 上記のオペレーションをCDKで行う。
 
-- https://dev.classmethod.jp/articles/aws-cdk-api-gateway-custom-domain/
-
+- https://nekoniki.com/20220517_aws-cdk-apigateway-custom-domain
