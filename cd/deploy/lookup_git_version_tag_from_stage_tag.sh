@@ -7,7 +7,7 @@
 
 STAGE_ID=${1}
 
-version_tag=$(git tag -l --contains ${STAGE_ID} | grep -E '^[0-9]+\.[0-9]+\..*$')
+version_tag=$(git tag -l --contains ${STAGE_ID} | grep -E '^[0-9]+\.[0-9]+\..*')
 result=${?}
 
 if [ $result != 0 ]; then
@@ -15,6 +15,6 @@ if [ $result != 0 ]; then
   exit 1
 fi
 
-echo ${tag}
+echo ${version_tag}
 
 exit 0
