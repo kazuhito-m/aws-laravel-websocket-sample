@@ -37,18 +37,18 @@ export class AlwsStageOfStack extends cdk.Stack {
         const certificateArn = StringParameter.valueFromLookup(this, settings.certArnPraStoreName());
         const certificate = Certificate.fromCertificateArn(this, 'LookUpCertification', certificateArn);
 
-        const apiDomain = settings.currentStage().apiFqdn;
+        const fqdn = settings.currentStage().apiFqdn;
 
-        console.log("ドメイン名: " + apiDomain);
+        console.log("ドメイン名: " + fqdn);
         console.log("現在のリージョン:" + this.region);
 
         // カスタムドメインの設定
         const domainName = new apigateway.DomainName(this, 'domain-name', {
-            domainName: apiDomain,
+            domainName: fqdn,
             certificate: certificate,
-            endpointType: apigateway.EndpointType.REGIONAL,
+            endpointType: apigateway.EndpointType.EDGE,
             securityPolicy: apigateway.SecurityPolicy.TLS_1_2,
-          });
+        });
 
 
         // const { vpc, rdsSecurityGroup, ecsSecurityGroup } = this.buildVpcAndNetwork(settings);
