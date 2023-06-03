@@ -17,7 +17,7 @@ import { Duration, SecretValue } from 'aws-cdk-lib';
 import { HostedZone, ARecord, RecordTarget } from 'aws-cdk-lib/aws-route53';
 import { LoadBalancerTarget } from 'aws-cdk-lib/aws-route53-targets';
 import { StringParameter } from 'aws-cdk-lib/aws-ssm';
-import { DockerImageCode, Runtime } from 'aws-cdk-lib/aws-lambda';
+import { DockerImageCode } from 'aws-cdk-lib/aws-lambda';
 import { DockerImageFunction } from 'aws-cdk-lib/aws-lambda';
 import { RestApi, LambdaIntegration, MethodLoggingLevel } from 'aws-cdk-lib/aws-apigateway';
 import { Table } from 'aws-cdk-lib/aws-dynamodb';
