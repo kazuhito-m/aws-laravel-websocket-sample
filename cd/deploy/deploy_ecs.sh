@@ -16,9 +16,12 @@ VERSION_TAG=${1}
 aws ecs describe-task-definition --task-definition ${ECS_TASK_FAMILY} | \
     jq '.taskDefinition | del (.taskDefinitionArn, .revision, .status, .requiresAttributes, .compatibilities, .registeredAt, .registeredBy)' \
     > ./taskdef.json
+
 sed -Ei "s/\"image\": (.*):(.*)\",/\"image\": \1:${VERSION_TAG}\",/g" ./taskdef.json
 
-cat ./taskdef.json
+# TDOO ECSにコンテナがあるかどうかをチェックして、なかったら殺す。
 
-# aws ecs register-task-definition --cli-input-json file://taskdef.json
-# aws ecs update-service --cluster ${ECS_CLUSTER} --service ${ECS_SERVICE} --task-definition ${ECS_TASK_FAMILY}
+aws ecs register-task-definition --cli-input-json file://taskdef.json
+aws ecs update-service --cluster ${ECS_CLUSTER} --service ${ECS_SERVICE} --task-definition ${ECS_TASK_FAMILY}
+
+exit 0
