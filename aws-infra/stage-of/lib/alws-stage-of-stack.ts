@@ -423,18 +423,15 @@ export class AlwsStageOfStack extends cdk.Stack {
         });
         tagDeployOfSourceCDProject.grantPrincipal
             .addToPrincipalPolicy(iam.PolicyStatement.fromJson({
-                "Version": "2012-10-17",
-                "Statement": [{
-                    "Effect": "Allow",
-                    "Action": [
-                        "ecs:RegisterTaskDefinition",
-                        "ecs:ListTaskDefinitions",
-                        "ecs:DescribeTaskDefinition"
-                    ],
-                    "Resource": [
-                        "*"
-                    ]
-                }]
+                "Effect": "Allow",
+                "Action": [
+                    "ecs:RegisterTaskDefinition",
+                    "ecs:ListTaskDefinitions",
+                    "ecs:DescribeTaskDefinition"
+                ],
+                "Resource": [
+                    "*"
+                ]
             }));
     }
 
