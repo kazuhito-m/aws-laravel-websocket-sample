@@ -13,7 +13,7 @@ phases:
       - echo ${VERSION_TAG}
   build:
     commands:
-      - aws ecs describe-task-definition --task-definition LaravelWebAppTask
+      - ${CD_DIR}/deploy_ecs.sh
   post_build:
     commands:
       - echo Nothing to do in the post_build phase...
