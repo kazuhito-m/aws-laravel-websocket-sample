@@ -82,7 +82,7 @@ export class AlwsGlobalStack extends cdk.Stack {
                 webhookFilters: [
                     codebuild.FilterGroup
                         .inEventOf(codebuild.EventAction.PUSH)
-                        .andTagIs('[0-9]+\\.[0-9]+\\.[0-9].*')
+                        .andTagIs('[0-9]+\\.[0-9]+\\.[0-9]+.*')
                 ],
             }),
             buildSpec: codebuild.BuildSpec.fromSourceFilename('cd/build/buildspec.yml'),
