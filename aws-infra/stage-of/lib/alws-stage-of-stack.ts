@@ -9,6 +9,7 @@ import * as logs from 'aws-cdk-lib/aws-logs';
 import * as iam from 'aws-cdk-lib/aws-iam';
 import * as dynamodb from 'aws-cdk-lib/aws-dynamodb';
 import * as apigatewayv2 from 'aws-cdk-lib/aws-apigatewayv2';
+import * as codebuild from 'aws-cdk-lib/aws-codebuild';
 import { SubnetType } from 'aws-cdk-lib/aws-ec2';
 import { Construct, DependencyGroup } from 'constructs';
 import { AlwsStackProps } from './alws-stack-props';
@@ -36,6 +37,8 @@ export class AlwsStageOfStack extends cdk.Stack {
         const innerApi = this.buildApiGatewayAndLambda(settings);
 
         this.buildEcsCluster(settings, vpc, appRds, ecsSecurityGroup, rdsSecret, innerApi);
+
+        this.buildCodeBuildForCdDeploy(settings);
 
         this.setTag("Stage", settings.currentStageId);
         this.setTag("Version", settings.packageVersion());
@@ -200,7 +203,7 @@ export class AlwsStageOfStack extends cdk.Stack {
         });
 
         const albFargateService = new ecsPatterns.ApplicationLoadBalancedFargateService(this, 'AppService', {
-            serviceName: `${settings.systemName()}-app-service`,
+            serviceName: settings.wpk('app-service'),
             taskDefinition: serviceTaskDefinition,
             securityGroups: [ecsSecurityGroup],
             healthCheckGracePeriod: Duration.seconds(240),
@@ -246,7 +249,6 @@ export class AlwsStageOfStack extends cdk.Stack {
             ttl: Duration.minutes(5),
             comment: 'Application LB Record.'
         });
-
         return ecsCluster;
     }
 
@@ -386,6 +388,40 @@ export class AlwsStageOfStack extends cdk.Stack {
             billingMode: dynamodb.BillingMode.PAY_PER_REQUEST,
             removalPolicy: cdk.RemovalPolicy.DESTROY
         });
+    }
+
+    private buildCodeBuildForCdDeploy(settings: Context): void {
+        const githubAccessToken = StringParameter.valueFromLookup(this, `${settings.systemName()}-github-access-token`);
+        new codebuild.GitHubSourceCredentials(this, 'CodebuildGithubCredentials', {
+            accessToken: cdk.SecretValue.unsafePlainText(githubAccessToken),
+        });
+        const tagDeployOfSourceCDProject = new codebuild.Project(this, 'DeployByGitTagCodeBuild', {
+            projectName: settings.wpk('deploy-by-github-tag'),
+            description: 'GitHubでStageTag(文字列始まりの"production"等)が切られた場合、アプリ・Lambda・環境のデプロイを行う。',
+            source: codebuild.Source.gitHub({
+                owner: 'kazuhito-m',
+                repo: 'aws-laravel-websocket-sample',
+                webhook: true,
+                webhookFilters: [
+                    codebuild.FilterGroup
+                        .inEventOf(codebuild.EventAction.PUSH)
+                        .andTagIs(settings.currentStageId)
+                ],
+            }),
+            buildSpec: codebuild.BuildSpec.fromSourceFilename('cd/deploy/buildspec.yml'),
+            badge: true,
+            environment: {
+                buildImage: codebuild.LinuxBuildImage.AMAZON_LINUX_2_4,
+                privileged: true,
+                environmentVariables: {
+                    STAGE_ID: { value: settings.currentStageId },
+                    ECS_CLUSTER: { value: settings.wpk('ecs-cluster') },
+                    ECS_SERVICE: { value: settings.wpk('app-service') },
+                    ECS_TASK_FAMILY: { value: settings.wpk('app-task-difinition-family') },
+                }
+            }
+        });
+        // tagDeployOfSourceCDProject.grantPrincipal.addToPrincipalPolicy();
     }
 
 
