@@ -5,13 +5,15 @@
 # 発見できなければ、異常ステータスを返す。
 #
 
+set -xu
+
 STAGE_ID=${1}
 
 version_tag=$(git tag -l --contains ${STAGE_ID} | grep -E '^[0-9]+\.[0-9]+\..*')
 result=${?}
 
 if [ $result != 0 ]; then
-  echo "${tag} に対応するVersionTagが見つかりません。"
+  echo "${STAGE_ID} に対応するVersionTagが見つかりません。"
   exit 1
 fi
 
