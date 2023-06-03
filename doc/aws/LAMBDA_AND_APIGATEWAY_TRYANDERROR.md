@@ -84,3 +84,17 @@ Provide a valid source image. ..."
 をした後、対象のCDKを実行すれば行ける…場合がある。
 
 - https://qiita.com/wagasa2/items/882183e0360b76d79b5e
+
+コケてるところが `DockerImageCode.fromImageAsset()` で、そこが目立つため「何かDockerfile等の設定がおかしいのではないか？」と思ってしまいガチだが、メッセージをちゃんと読みたい。
+
+- https://docs.aws.amazon.com/cdk/api/v1/docs/@aws-cdk_aws-lambda.DockerImageCode.html
+- https://dev.classmethod.jp/articles/cdk-bootstrap-modern-template/
+
+
+## CDKでAPIGatawayにドメイン名を貼り付ける
+
+- https://zenn.dev/tatsurom/articles/api-gateway-domain-mapping
+
+上記のオペレーションをCDKで行う。
+
+- https://nekoniki.com/20220517_aws-cdk-apigateway-custom-domain
