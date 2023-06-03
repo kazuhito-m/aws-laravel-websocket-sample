@@ -2,9 +2,6 @@ version: 0.2
 phases:
   build:
     commands:
-      - ehco 'env出力'
       - env
-      - echo 'git describe --tags 出力'
-      - echo git describe --tags
-      - echo 'git status 出力'
-      - git status 出力
+      - git describe --tags
+      - git status
