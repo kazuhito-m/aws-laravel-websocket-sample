@@ -14,6 +14,7 @@ phases:
     commands:
       - pwd
       - ls -l
+      - aws --version
       - env
       - echo Nothing to do in the build phase...
       - ps -p $$
