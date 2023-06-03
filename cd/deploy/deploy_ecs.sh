@@ -9,7 +9,7 @@
 #   STAGE_ID, ECS_CLUSTER, ECS_SERVICE, ECS_TASK_FAMILY
 #
 
-set -eu
+set -eux
 
 VERSION_TAG=${1}
 
@@ -17,6 +17,8 @@ aws ecs describe-task-definition --task-definition ${ECS_TASK_FAMILY} | \
     jq '.taskDefinition | del (.taskDefinitionArn, .revision, .status, .requiresAttributes, .compatibilities, .registeredAt, .registeredBy)' \
     > ./taskdef.json
 sed -Ei "s/\"image\": (.*):(.*)\",/\"image\": \1:${VERSION_TAG}\",/g" ./taskdef.json
+
+cat ./taskdef.json
 
 # aws ecs register-task-definition --cli-input-json file://taskdef.json
 # aws ecs update-service --cluster ${ECS_CLUSTER} --service ${ECS_SERVICE} --task-definition ${ECS_TASK_FAMILY}
