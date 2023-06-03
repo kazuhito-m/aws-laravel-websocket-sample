@@ -8,6 +8,7 @@ import * as elb from 'aws-cdk-lib/aws-elasticloadbalancingv2';
 import * as logs from 'aws-cdk-lib/aws-logs';
 import * as iam from 'aws-cdk-lib/aws-iam';
 import * as dynamodb from 'aws-cdk-lib/aws-dynamodb';
+import * as apigateway from 'aws-cdk-lib/aws-apigateway';
 import * as apigatewayv2 from 'aws-cdk-lib/aws-apigatewayv2';
 import { SubnetType } from 'aws-cdk-lib/aws-ec2';
 import { Construct, DependencyGroup } from 'constructs';
@@ -21,6 +22,7 @@ import { DockerImageCode } from 'aws-cdk-lib/aws-lambda';
 import { DockerImageFunction } from 'aws-cdk-lib/aws-lambda';
 import { RestApi, LambdaIntegration, MethodLoggingLevel } from 'aws-cdk-lib/aws-apigateway';
 import { Table } from 'aws-cdk-lib/aws-dynamodb';
+import { Certificate } from 'aws-cdk-lib/aws-certificatemanager';
 
 export class AlwsStageOfStack extends cdk.Stack {
     constructor(scope: Construct, id: string, props?: AlwsStackProps) {
@@ -29,13 +31,33 @@ export class AlwsStageOfStack extends cdk.Stack {
         const settings = props?.context as Context;
         this.confimationOfPreconditions(props?.context);
 
-        const { vpc, rdsSecurityGroup, ecsSecurityGroup } = this.buildVpcAndNetwork(settings);
 
-        const { appRds, rdsSecret } = this.buildRds(settings, vpc, rdsSecurityGroup);
+        // TODO ApiGatwayに独自ドメイン設定＆証明書貼り
+        const hostedZoneId = StringParameter.valueFromLookup(this, settings.hostedZoneIdPraStoreName());
+        const certificateArn = StringParameter.valueFromLookup(this, settings.certArnPraStoreName());
+        const certificate = Certificate.fromCertificateArn(this, 'LookUpCertification', certificateArn);
 
-        const innerApi = this.buildApiGatewayAndLambda(settings);
+        const apiDomain = settings.currentStage().apiFqdn;
 
-        this.buildEcsCluster(settings, vpc, appRds, ecsSecurityGroup, rdsSecret, innerApi);
+        console.log("ドメイン名: " + apiDomain);
+        console.log("現在のリージョン:" + this.region);
+
+        // カスタムドメインの設定
+        const domainName = new apigateway.DomainName(this, 'domain-name', {
+            domainName: apiDomain,
+            certificate: certificate,
+            endpointType: apigateway.EndpointType.REGIONAL,
+            securityPolicy: apigateway.SecurityPolicy.TLS_1_2,
+          });
+
+
+        // const { vpc, rdsSecurityGroup, ecsSecurityGroup } = this.buildVpcAndNetwork(settings);
+
+        // const { appRds, rdsSecret } = this.buildRds(settings, vpc, rdsSecurityGroup);
+
+        // const innerApi = this.buildApiGatewayAndLambda(settings);
+
+        // this.buildEcsCluster(settings, vpc, appRds, ecsSecurityGroup, rdsSecret, innerApi);
 
         this.setTag("Stage", settings.currentStageId);
         this.setTag("Version", settings.packageVersion());
@@ -316,9 +338,9 @@ export class AlwsStageOfStack extends cdk.Stack {
             stageName: 'v1',
         });
 
-        // TODO DNSにApiGatewayのARecord作成
-
         // TODO ApiGatwayに独自ドメイン設定＆証明書貼り
+
+        // TODO DNSにApiGatewayのARecord作成
     }
 
     private buildWebSocektApiKickApiGatewayAndLambda(settings: Context): RestApi {
