@@ -314,7 +314,11 @@ export class AlwsStageOfStack extends cdk.Stack {
             autoDeploy: true,
             deploymentId: deployment.ref,
             stageName: 'v1',
-        })
+        });
+
+        // TODO DNSにApiGatewayのARecord作成
+
+        // TODO ApiGatwayに独自ドメイン設定＆証明書貼り
     }
 
     private buildWebSocektApiKickApiGatewayAndLambda(settings: Context): RestApi {
