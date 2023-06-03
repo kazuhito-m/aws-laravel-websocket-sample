@@ -8,12 +8,11 @@ phases:
   pre_build:
     commands:
       - CD_DIR='./cd/deploy'
-      - echo ${STAGE_ID}
       - VERSION_TAG=$(${CD_DIR}/lookup_git_version_tag_from_stage_tag.sh ${STAGE_ID})
-      - echo ${VERSION_TAG}
+      - echo "STAGE_ID:${STAGE_ID}, VERSION_TAG:${VERSION_TAG}"
   build:
     commands:
-      - ${CD_DIR}/deploy_ecs.sh
+      - ${CD_DIR}/deploy_ecs.sh ${VERSION_TAG}
   post_build:
     commands:
       - echo Nothing to do in the post_build phase...
