@@ -20,3 +20,4 @@ phases:
   post_build:
     commands:
       - docker push ${APP_REPOSITORY_IMAGE_TAG}
+      - docker push ${LAMBDA_REPOSITORY_IMAGE_TAG}
