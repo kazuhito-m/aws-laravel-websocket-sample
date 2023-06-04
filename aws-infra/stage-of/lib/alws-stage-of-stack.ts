@@ -391,10 +391,6 @@ export class AlwsStageOfStack extends cdk.Stack {
     }
 
     private buildCodeBuildForCdDeploy(settings: Context): void {
-        const me = cdk.Stack.of(this).account;
-        const clusterName =  settings.wpk('ecs-cluster');
-        const taskFamilyName = settings.wpk('app-task-difinition-family');
-
         const tagDeployOfSourceCDProject = new codebuild.Project(this, 'DeployByGitTagCodeBuild', {
             projectName: settings.wpk('deploy-by-github-tag'),
             description: 'GitHubでStageTag(文字列始まりの"production"等)が切られた場合、アプリ・Lambda・環境のデプロイを行う。',
@@ -421,8 +417,17 @@ export class AlwsStageOfStack extends cdk.Stack {
                 }
             }
         });
-        tagDeployOfSourceCDProject.grantPrincipal
-            .addToPrincipalPolicy(iam.PolicyStatement.fromJson({
+
+        this.grantPolicyOfCodeBuildForCdDeploy(tagDeployOfSourceCDProject.grantPrincipal);
+    }
+    
+    private grantPolicyOfCodeBuildForCdDeploy(principal: any): void {
+        const me = cdk.Stack.of(this).account;
+        const clusterName =  settings.wpk('ecs-cluster');
+        const taskFamilyName = settings.wpk('app-task-difinition-family');
+        const armPrefix = `arn:aws:ecs:${this.region}:${me}`;
+
+        principal.addToPrincipalPolicy(iam.PolicyStatement.fromJson({
                 "Effect": "Allow",
                 "Action": [
                     "ecs:RegisterTaskDefinition",
@@ -433,22 +438,32 @@ export class AlwsStageOfStack extends cdk.Stack {
                     "*"
                 ]
             }));
-        tagDeployOfSourceCDProject.grantPrincipal
-            .addToPrincipalPolicy(iam.PolicyStatement.fromJson({
+        principal.addToPrincipalPolicy(iam.PolicyStatement.fromJson({
                 "Effect": "Allow",
                 "Action": [
-                  "ecs:RunTask"
+                "application-autoscaling:Describe*",
+                "application-autoscaling:PutScalingPolicy",
+                "application-autoscaling:DeleteScalingPolicy",
+                "application-autoscaling:RegisterScalableTarget",
+                "cloudwatch:DescribeAlarms",
+                "cloudwatch:PutMetricAlarm",
+                "ecs:List*",
+                "ecs:Describe*",
+                "ecs:UpdateService",
+                "iam:AttachRolePolicy",
+                "iam:CreateRole",
+                "iam:GetPolicy",
+                "iam:GetPolicyVersion",
+                "iam:GetRole",
+                "iam:ListAttachedRolePolicies",
+                "iam:ListRoles",
+                "iam:ListGroups",
+                "iam:ListUsers"
                 ],
-                "Condition": {
-                  "ArnEquals": {
-                    "ecs:cluster": `arn:aws:ecs:${this.region}:${me}:cluster/${clusterName}`,
-                  }
-                },
                 "Resource": [
-                    `arn:aws:ecs:${this.region}:${me}:task-definition/${taskFamilyName}:*`
+                "*"
                 ]
-            }))
-            ;
+        }));
     }
 
 
