@@ -414,6 +414,9 @@ export class AlwsStageOfStack extends cdk.Stack {
                     ECS_CLUSTER: { value: settings.wpk('ecs-cluster') },
                     ECS_SERVICE: { value: settings.wpk('app-service') },
                     ECS_TASK_FAMILY: { value: settings.wpk('app-task-difinition-family') },
+                    LAMBDA_FUNCTION_NAMES: { value: `${settings.wpk('websocket-lambda')},${settings.wpk('send-websocket-inner-route-lambda')}` },
+                    CONTAINER_REGISTRY_URI_APP: { value: settings.containerRegistryUriApp(this) },
+                    CONTAINER_REGISTRY_URI_LAMBDA: { value: settings.containerRegistryUriLambda(this) }
                 }
             }
         });
@@ -433,6 +436,7 @@ export class AlwsStageOfStack extends cdk.Stack {
                 "*"
             ]
         }));
+        const me = cdk.Stack.of(this).account;
         principal.addToPrincipalPolicy(iam.PolicyStatement.fromJson({
             "Effect": "Allow",
             "Action": [
@@ -459,7 +463,15 @@ export class AlwsStageOfStack extends cdk.Stack {
                 "*"
             ]
         }));
-        const me = cdk.Stack.of(this).account;
+        principal.addToPrincipalPolicy(iam.PolicyStatement.fromJson({
+            "Effect": "Allow",
+            "Action": [
+                "lambda:UpdateFunctionCode"
+            ],
+            "Resource": [
+                `arn:aws:lambda:${this.region}:${me}:function:${settings.wpk('*')}`
+            ]
+        }));
         principal.addToPrincipalPolicy(iam.PolicyStatement.fromJson({
             "Effect": "Allow",
             "Action": "iam:PassRole",
