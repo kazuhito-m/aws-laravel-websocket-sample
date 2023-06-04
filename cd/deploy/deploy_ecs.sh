@@ -22,6 +22,8 @@ sed -Ei "s/\"image\": (.*):(.*)\",/\"image\": \1:${VERSION_TAG}\",/g" ./taskdef.
 # TDOO ECSにコンテナがあるかどうかをチェックして、なかったら殺す。
 
 aws ecs register-task-definition --cli-input-json file://taskdef.json > ./register-result.json
-aws ecs update-service --cluster ${ECS_CLUSTER} --service ${ECS_SERVICE} --task-definition ${ECS_TASK_FAMILY}
+aws ecs update-service --cluster ${ECS_CLUSTER} \
+    --service ${ECS_SERVICE} \
+    --task-definition ${ECS_TASK_FAMILY}
 
 exit 0
