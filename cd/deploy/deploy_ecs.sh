@@ -6,18 +6,19 @@
 # 指定された `VERSION_TAG` に対応するコンテナイメージが、ECR内にない場合、エラーとなる。
 #
 # 前提として必要な環境変数
-#   STAGE_ID, ECS_CLUSTER, ECS_SERVICE, ECS_TASK_FAMILY
+#   STAGE_ID, CONTAINER_REGISTRY_URI_APP, ECS_CLUSTER, ECS_SERVICE, ECS_TASK_FAMILY
 #
 
 set -eux
 
 VERSION_TAG=${1}
+CONTAINER_REGISTRY_TAG_URI=${CONTAINER_REGISTRY_URI_APP}:${VERSION_TAG}
 
 aws ecs describe-task-definition --task-definition ${ECS_TASK_FAMILY} | \
     jq '.taskDefinition | del (.taskDefinitionArn, .revision, .status, .requiresAttributes, .compatibilities, .registeredAt, .registeredBy)' \
     > ./taskdef.json
 
-sed -Ei "s/\"image\": (.*):(.*)\",/\"image\": \1:${VERSION_TAG}\",/g" ./taskdef.json
+sed -Ei "s/\"image\": .*\",/\"image\": ${CONTAINER_REGISTRY_TAG_URI}\",/g" ./taskdef.json
 
 # TDOO ECSにコンテナがあるかどうかをチェックして、なかったら殺す。
 
