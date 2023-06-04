@@ -64,3 +64,44 @@ https://blog.serverworks.co.jp/tech/2020/06/29/codebuild-shell/
 
 - https://qiita.com/ipppppei/items/42cd6459cf383b9bc140
 - https://docs.aws.amazon.com/ja_jp/AmazonECS/latest/developerguide/security_iam_id-based-policy-examples.html#IAM_task_definition_policies
+
+
+## CludBuildでECSの「タスク定義の更新」をしようとした時に権限が足りなくてエラー
+
+CloudBuildの中で読んでいるスクリプトから、 `aws ecs register-task-definition` を実行した際、以下のようなエラーが発生した。
+
+```
+An error occurred (AccessDeniedException)
+when calling the RegisterTaskDefinition operation:
+
+User: arn:aws:sts::000....
+
+is not authorized to perform: iam:PassRole on resource:
+    arn:aws:iam::00000000000:role/ecsTaskExecutionRole
+
+because no identity-based policy allows the iam:PassRole action
+```
+
+ECSのTask/Service等を操作するのに `ecsTaskExecutionRole` ロールになりすませないといけないが、その権限はないよ、と言っている。(と思う)
+
+そのための権限が `iam:PassRole` であり、それを「足したら？」って提案してきている。
+
+CDKで以下のように追加し、適用した。
+
+```typescript
+const me = cdk.Stack.of(this).account;
+principal.addToPrincipalPolicy(iam.PolicyStatement.fromJson({
+    "Effect": "Allow",
+    "Action": "iam:PassRole",
+    "Resource": [`arn:aws:iam::${me}:role/ecsTaskExecutionRole`]
+}));
+
+```
+
+- https://dev.classmethod.jp/articles/iam-role-passrole-assumerole/
+    - 概念の理解、これを穴開くまで観ていきたい
+- https://docs.aws.amazon.com/ja_jp/codepipeline/latest/userguide/security-iam.html
+- https://docs.aws.amazon.com/ja_jp/IAM/latest/UserGuide/id_roles_use_passrole.html
+- https://dev.classmethod.jp/articles/tsnote-vpc-endpoint-cli-not-authorized-001/
+    - これが「出来なかった」ので、長くハマった
+- https://docs.aws.amazon.com/ja_jp/AmazonECS/latest/developerguide/security_iam_id-based-policy-examples.html#IAM_task_definition_policies
