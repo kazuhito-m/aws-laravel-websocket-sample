@@ -6,7 +6,7 @@ export class OnConnectWebSocket extends WebSocketEvent {
     protected async inHandler(event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> {
         if (!event.requestContext.connectionId
             || !event.queryStringParameters?.userId
-            || !process.env?.TABLE_NAME) return this.resOf(400, 'Parameter missing');
+            || !process.env?.TABLE_NAME) return this.res(400, 'Parameter missing');
 
         const command = this.buildWriteCommand(
             event.requestContext.connectionId,
@@ -16,7 +16,7 @@ export class OnConnectWebSocket extends WebSocketEvent {
 
         await this.dynamoDB.send(command);
 
-        return this.resOf(200, 'Connected');
+        return this.res(200, 'Connected');
     }
 
     private buildWriteCommand(connectionId: string, userId: string, tableName: string): BatchWriteItemCommand {

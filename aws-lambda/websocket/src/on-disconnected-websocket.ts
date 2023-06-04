@@ -5,7 +5,7 @@ import { WebSocketEvent } from './websocket-event';
 export class OnDisconnectedWebSocket extends WebSocketEvent {
   protected async inHandler(event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> {
     if (!event.requestContext.connectionId || !process.env?.TABLE_NAME)
-      return this.resOf(400, 'Parameter missing');
+      return this.res(400, 'Parameter missing');
 
     const command = new DeleteItemCommand({
       TableName: process.env.TABLE_NAME,
@@ -14,6 +14,6 @@ export class OnDisconnectedWebSocket extends WebSocketEvent {
 
     await this.dynamoDB.send(command);
 
-    return this.resOf(200, 'Connected');
+    return this.res(200, 'Connected');
   }
 }

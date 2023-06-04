@@ -11,11 +11,11 @@ export abstract class WebSocketEvent implements DelegeteLambda {
         try {
             return await this.inHandler(event);
         } catch (err) {
-            return this.resOf(500, `Failed: ${JSON.stringify(err)}`);
+            return this.res(500, `Failed: ${JSON.stringify(err)}`);
         }
     }
 
-    protected resOf(status: number, message: string): APIGatewayProxyResult {
+    protected res(status: number, message: string): APIGatewayProxyResult {
         return {
             statusCode: status,
             body: JSON.stringify({ message: message })
