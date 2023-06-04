@@ -1,5 +1,5 @@
 import { Node } from 'constructs';
-import { Environment } from 'aws-cdk-lib';
+import { Environment, Stack } from 'aws-cdk-lib';
 import { InstanceClass, InstanceSize } from 'aws-cdk-lib/aws-ec2';
 
 export interface GlobalContext {
@@ -136,6 +136,29 @@ export class Context {
 
     public websocketEndpointUrl(): string {
         return `https://${this.currentStage().apiFqdn}`;
+    }
+
+    public containerRegistoryNameApp(): string {
+        return `${this.systemName()}-app`;
+    }
+
+    public containerRegistoryNameLambda(): string {
+        return `${this.systemName()}-lambda`;
+    }
+
+    public containerRegistoryUriApp(stack: Stack): string {
+        return this.buildContainerRegistoryUri(this.containerRegistoryNameApp(), stack);
+    }
+
+    public containerRegistoryUriLambda(stack: Stack): string {
+        return this.buildContainerRegistoryUri(this.containerRegistoryNameLambda(), stack);
+    }
+
+
+    private buildContainerRegistoryUri(name: string, stack: Stack): string {
+        const me = Stack.of(stack).account;
+        const region = stack.region;
+        return `${me}.dkr.${region}.amazonaws.com/${name}`;
     }
 
     private toPascalCase(text: string): string {
