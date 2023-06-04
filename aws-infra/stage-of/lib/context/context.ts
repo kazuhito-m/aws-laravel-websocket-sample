@@ -158,7 +158,7 @@ export class Context {
     private buildContainerRegistryUri(name: string, stack: Stack): string {
         const me = Stack.of(stack).account;
         const region = stack.region;
-        return `${me}.dkr.${region}.amazonaws.com/${name}`;
+        return `${me}.dkr.ecr.${region}.amazonaws.com/${name}`;
     }
 
     private toPascalCase(text: string): string {
