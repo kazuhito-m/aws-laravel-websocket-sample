@@ -460,20 +460,11 @@ export class AlwsStageOfStack extends cdk.Stack {
             ]
         }));
         const me = cdk.Stack.of(this).account;
-
-        // principal.addToPrincipalPolicy(iam.PolicyStatement.fromJson({
-        //     "Action": [
-        //         "iam:PassRole",
-        //         "iam:GetRole"
-        //     ],
-        //     "Resource": `arn:aws:iam::${me}:role/ecsTaskExecutionRole`,
-        //     "Effect": "Allow",
-        //     "Principal": "*"
-        // }));
-        const role = new iam.Role(this, "CreateRoleForExsExecute", {
-            assumedBy: new iam.ArnPrincipal(`arn:aws:iam::${me}:role/ecsTaskExecutionRole`),
-        });
-        role.addManagedPolicy(iam.ManagedPolicy.fromAwsManagedPolicyName("AmazonChimeFullAccess"));
+        principal.addToPrincipalPolicy(iam.PolicyStatement.fromJson({
+            "Effect": "Allow",
+            "Action": "iam:PassRole",
+            "Resource": [`arn:aws:iam::${me}:role/ecsTaskExecutionRole`]
+        }));
     }
 
     private setTag(key: string, value: string): void {
