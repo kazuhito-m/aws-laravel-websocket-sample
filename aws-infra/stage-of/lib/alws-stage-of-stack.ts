@@ -460,7 +460,7 @@ export class AlwsStageOfStack extends cdk.Stack {
                 "iam:ListUsers"
             ],
             "Resource": [
-                `arn:aws:lambda:${this.region}:${me}:function:${settings.wpk('*')}`
+                "*"
             ]
         }));
         principal.addToPrincipalPolicy(iam.PolicyStatement.fromJson({
@@ -469,7 +469,7 @@ export class AlwsStageOfStack extends cdk.Stack {
                 "lambda:UpdateFunctionCode"
             ],
             "Resource": [
-                "*"
+                `arn:aws:lambda:${this.region}:${me}:function:${settings.wpk('*')}`
             ]
         }));
         principal.addToPrincipalPolicy(iam.PolicyStatement.fromJson({
