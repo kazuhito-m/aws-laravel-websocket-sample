@@ -413,14 +413,14 @@ export class AlwsStageOfStack extends cdk.Stack {
                     STAGE_ID: { value: settings.currentStageId },
                     ECS_CLUSTER: { value: settings.wpk('ecs-cluster') },
                     ECS_SERVICE: { value: settings.wpk('app-service') },
-                    ECS_TASK_FAMILY: { value: settings.wpk('app-task-difinition-family')},
+                    ECS_TASK_FAMILY: { value: settings.wpk('app-task-difinition-family') },
                 }
             }
         });
 
         this.grantPolicyOfCodeBuildForCdDeploy(tagDeployOfSourceCDProject.grantPrincipal, settings);
     }
-    
+
     private grantPolicyOfCodeBuildForCdDeploy(principal: any, settings: Context): void {
         principal.addToPrincipalPolicy(iam.PolicyStatement.fromJson({
             "Effect": "Allow",
@@ -436,36 +436,44 @@ export class AlwsStageOfStack extends cdk.Stack {
         principal.addToPrincipalPolicy(iam.PolicyStatement.fromJson({
             "Effect": "Allow",
             "Action": [
-            "application-autoscaling:Describe*",
-            "application-autoscaling:PutScalingPolicy",
-            "application-autoscaling:DeleteScalingPolicy",
-            "application-autoscaling:RegisterScalableTarget",
-            "cloudwatch:DescribeAlarms",
-            "cloudwatch:PutMetricAlarm",
-            "ecs:List*",
-            "ecs:Describe*",
-            "ecs:UpdateService",
-            "iam:AttachRolePolicy",
-            "iam:CreateRole",
-            "iam:GetPolicy",
-            "iam:GetPolicyVersion",
-            "iam:GetRole",
-            "iam:ListAttachedRolePolicies",
-            "iam:ListRoles",
-            "iam:ListGroups",
-            "iam:ListUsers"
+                "application-autoscaling:Describe*",
+                "application-autoscaling:PutScalingPolicy",
+                "application-autoscaling:DeleteScalingPolicy",
+                "application-autoscaling:RegisterScalableTarget",
+                "cloudwatch:DescribeAlarms",
+                "cloudwatch:PutMetricAlarm",
+                "ecs:List*",
+                "ecs:Describe*",
+                "ecs:UpdateService",
+                "iam:AttachRolePolicy",
+                "iam:CreateRole",
+                "iam:GetPolicy",
+                "iam:GetPolicyVersion",
+                "iam:GetRole",
+                "iam:ListAttachedRolePolicies",
+                "iam:ListRoles",
+                "iam:ListGroups",
+                "iam:ListUsers"
             ],
             "Resource": [
-            "*"
+                "*"
             ]
         }));
         const me = cdk.Stack.of(this).account;
-        principal.addToPrincipalPolicy(iam.PolicyStatement.fromJson({
-            "Action": "iam:PassRole",
-            "Resource": `arn:aws:iam::${me}:role/ecsTaskExecutionRole`,
-            "Effect": "Allow",
-            "Principal": "*"
-        }));
+
+        // principal.addToPrincipalPolicy(iam.PolicyStatement.fromJson({
+        //     "Action": [
+        //         "iam:PassRole",
+        //         "iam:GetRole"
+        //     ],
+        //     "Resource": `arn:aws:iam::${me}:role/ecsTaskExecutionRole`,
+        //     "Effect": "Allow",
+        //     "Principal": "*"
+        // }));
+        const role = new iam.Role(this, "CreateRoleForExsExecute", {
+            assumedBy: new iam.ArnPrincipal(`arn:aws:iam::${me}:role/ecsTaskExecutionRole`),
+        });
+        role.addManagedPolicy(iam.ManagedPolicy.fromAwsManagedPolicyName("AmazonChimeFullAccess"));
     }
 
     private setTag(key: string, value: string): void {
