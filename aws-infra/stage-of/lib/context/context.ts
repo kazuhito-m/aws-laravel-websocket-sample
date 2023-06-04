@@ -138,24 +138,24 @@ export class Context {
         return `https://${this.currentStage().apiFqdn}`;
     }
 
-    public containerRegistoryNameApp(): string {
+    public containerRegistryNameApp(): string {
         return `${this.systemName()}-app`;
     }
 
-    public containerRegistoryNameLambda(): string {
+    public containerRegistryNameLambda(): string {
         return `${this.systemName()}-lambda`;
     }
 
-    public containerRegistoryUriApp(stack: Stack): string {
-        return this.buildContainerRegistoryUri(this.containerRegistoryNameApp(), stack);
+    public containerRegistryUriApp(stack: Stack): string {
+        return this.buildContainerRegistryUri(this.containerRegistryNameApp(), stack);
     }
 
-    public containerRegistoryUriLambda(stack: Stack): string {
-        return this.buildContainerRegistoryUri(this.containerRegistoryNameLambda(), stack);
+    public containerRegistryUriLambda(stack: Stack): string {
+        return this.buildContainerRegistryUri(this.containerRegistryNameLambda(), stack);
     }
 
 
-    private buildContainerRegistoryUri(name: string, stack: Stack): string {
+    private buildContainerRegistryUri(name: string, stack: Stack): string {
         const me = Stack.of(stack).account;
         const region = stack.region;
         return `${me}.dkr.${region}.amazonaws.com/${name}`;

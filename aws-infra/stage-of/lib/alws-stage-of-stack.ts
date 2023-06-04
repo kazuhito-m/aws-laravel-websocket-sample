@@ -415,7 +415,7 @@ export class AlwsStageOfStack extends cdk.Stack {
                     ECS_SERVICE: { value: settings.wpk('app-service') },
                     ECS_TASK_FAMILY: { value: settings.wpk('app-task-difinition-family') },
                     LAMBDA_FUNCTION_NAMES: { value: `${settings.wpk('websocket-lambda')},${settings.wpk('send-websocket-inner-route-lambda')}` },
-                    CONTAINER_REGISTRY_URI: { value: settings.containerRegistoryUriLambda(this) }
+                    CONTAINER_REGISTRY_URI: { value: settings.containerRegistryUriLambda(this) }
                 }
             }
         });

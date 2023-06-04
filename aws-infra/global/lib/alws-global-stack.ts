@@ -52,7 +52,7 @@ export class AlwsGlobalStack extends cdk.Stack {
 
     private buildContainerRepository(settings: Context): ecr.Repository[] {
         const repositories: ecr.Repository[] = [];
-        [settings.containerRegistoryNameApp(), settings.containerRegistoryNameLambda()].forEach(name => {
+        [settings.containerRegistryNameApp(), settings.containerRegistryNameLambda()].forEach(name => {
             const containerRepository = new ecr.Repository(this, 'ContainerRepsitory_' + name, {
                 repositoryName: name,
                 imageTagMutability: ecr.TagMutability.IMMUTABLE,
