@@ -391,6 +391,10 @@ export class AlwsStageOfStack extends cdk.Stack {
     }
 
     private buildCodeBuildForCdDeploy(settings: Context): void {
+        const me = cdk.Stack.of(this).account;
+        const clusterName =  settings.wpk('ecs-cluster');
+        const taskFamilyName = settings.wpk('app-task-difinition-family');
+
         const tagDeployOfSourceCDProject = new codebuild.Project(this, 'DeployByGitTagCodeBuild', {
             projectName: settings.wpk('deploy-by-github-tag'),
             description: 'GitHubでStageTag(文字列始まりの"production"等)が切られた場合、アプリ・Lambda・環境のデプロイを行う。',
@@ -411,9 +415,9 @@ export class AlwsStageOfStack extends cdk.Stack {
                 privileged: true,
                 environmentVariables: {
                     STAGE_ID: { value: settings.currentStageId },
-                    ECS_CLUSTER: { value: settings.wpk('ecs-cluster') },
+                    ECS_CLUSTER: { value: clusterName },
                     ECS_SERVICE: { value: settings.wpk('app-service') },
-                    ECS_TASK_FAMILY: { value: settings.wpk('app-task-difinition-family') },
+                    ECS_TASK_FAMILY: { value: taskFamilyName },
                 }
             }
         });
@@ -428,7 +432,22 @@ export class AlwsStageOfStack extends cdk.Stack {
                 "Resource": [
                     "*"
                 ]
-            }));
+            }))
+            .addToPrincipalPolicy(iam.PolicyStatement.fromJson({
+                "Effect": "Allow",
+                "Action": [
+                  "ecs:RunTask"
+                ],
+                "Condition": {
+                  "ArnEquals": {
+                    "ecs:cluster": `arn:aws:ecs:${this.region}:${me}:cluster/${clusterName}`,
+                  }
+                },
+                "Resource": [
+                    `arn:aws:ecs:${this.region}:${me}:task-definition/${taskFamilyName}:*`
+                ]
+            }))
+            ;
     }
 
 
