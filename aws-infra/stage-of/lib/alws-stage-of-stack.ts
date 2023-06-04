@@ -436,6 +436,7 @@ export class AlwsStageOfStack extends cdk.Stack {
                 "*"
             ]
         }));
+        const me = cdk.Stack.of(this).account;
         principal.addToPrincipalPolicy(iam.PolicyStatement.fromJson({
             "Effect": "Allow",
             "Action": [
@@ -459,10 +460,18 @@ export class AlwsStageOfStack extends cdk.Stack {
                 "iam:ListUsers"
             ],
             "Resource": [
+                `arn:aws:lambda:${this.region}:${me}:function:${settings.wpk('*')}`
+            ]
+        }));
+        principal.addToPrincipalPolicy(iam.PolicyStatement.fromJson({
+            "Effect": "Allow",
+            "Action": [
+                "lambda:UpdateFunctionCode"
+            ],
+            "Resource": [
                 "*"
             ]
         }));
-        const me = cdk.Stack.of(this).account;
         principal.addToPrincipalPolicy(iam.PolicyStatement.fromJson({
             "Effect": "Allow",
             "Action": "iam:PassRole",
