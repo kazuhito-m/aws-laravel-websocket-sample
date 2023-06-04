@@ -98,3 +98,18 @@ Provide a valid source image. ..."
 上記のオペレーションをCDKで行う。
 
 - https://nekoniki.com/20220517_aws-cdk-apigateway-custom-domain
+
+
+## ApiGatewayと裏のLambdaから、WebSocketのApiGatewayを叩く
+
+`ApiGatewayManagementApiClinet` クラスを使う
+
+- https://github.com/aws/aws-sdk-js-v3/issues/999
+- https://docs.aws.amazon.com/AWSJavaScriptSDK/v3/latest/clients/client-apigatewaymanagementapi/#getting-started
+
+## LambdaからDynamoDBを検索/更新する(v3)
+
+- https://dev.classmethod.jp/articles/node-js-aws-sdk-v3/
+- https://docs.aws.amazon.com/ja_jp/amazondynamodb/latest/developerguide/GettingStarted.DeleteItem.html
+- https://dev.classmethod.jp/articles/node-js-aws-sdk-v3/
+- 
