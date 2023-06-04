@@ -15,7 +15,10 @@ export abstract class WebSocketEvent implements DelegeteLambda {
         }
     }
 
-    protected resOf(status: number, body: string): APIGatewayProxyResult {
-        return { statusCode: status, body: body };
+    protected resOf(status: number, message: string): APIGatewayProxyResult {
+        return {
+            statusCode: status,
+            body: JSON.stringify({ message: message })
+        };
     }
 }
