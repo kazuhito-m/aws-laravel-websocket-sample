@@ -5,10 +5,15 @@ import { WebSocketEvent } from './websocket-event';
 
 export class WebSocketInnterRoute extends WebSocketEvent {
     protected async inHandler(event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> {
+        console.log('WebSocketInnterRoute.inHandler()が呼ばれた。');
+        console.log(event);
+
         if (!process.env.DYNAMODB_WEBSOCKET_TABLE
             || !process.env.WEBSOCKET_ENDPOINT
             || !event.toUserId
             || !event.message) return this.res(400, 'Parameter missing');
+
+        console.log('バリデーション脱出。');
 
         const sendJson = this.buildSendJson(event);
 

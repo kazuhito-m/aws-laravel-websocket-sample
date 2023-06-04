@@ -14,6 +14,9 @@ export const handler = async (event: APIGatewayEvent, context: Context): Promise
     const handlerId = context.functionName.includes('send-websocket-inner-route-lambda')
         ? 'INNER_ROUTE'
         : event.requestContext.eventType as string;
+
+    console.log('handlerId:' + handlerId);
+
     const handle = handlers[handlerId];
     if (!handle) return { statusCode: 400, body: 'Handler not found.' };
 
