@@ -432,7 +432,8 @@ export class AlwsStageOfStack extends cdk.Stack {
                 "Resource": [
                     "*"
                 ]
-            }))
+            }));
+        tagDeployOfSourceCDProject.grantPrincipal
             .addToPrincipalPolicy(iam.PolicyStatement.fromJson({
                 "Effect": "Allow",
                 "Action": [
