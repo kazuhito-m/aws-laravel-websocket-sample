@@ -11,11 +11,22 @@ const handlers: { [key: string]: DelegeteLambda; } = {
 };
 
 export const handler = async (event: APIGatewayEvent, context: Context): Promise<APIGatewayProxyResult> => {
+    console.log('event:', event);
+    console.log('context:', context);
+
     const handlerId = context.functionName.includes('send-websocket-inner-route-lambda')
         ? 'INNER_ROUTE'
         : event.requestContext.eventType as string;
+
+    console.log('handlerId:', handlerId);
+
     const handle = handlers[handlerId];
+
+    console.log('handle:' + handle);
+
     if (!handle) return { statusCode: 400, body: 'Handler not found.' };
+
+    console.log('ハンドラ見つかった！');
 
     return await handle.handler(event, context);
 }
