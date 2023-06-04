@@ -15,9 +15,9 @@ VERSION_TAG=${1}
 CONTAINER_REGISTRY_TAG_URI=${CONTAINER_REGISTRY_URI_LAMBDA}:${VERSION_TAG}
 
 for function_name in ${LAMBDA_FUNCTION_NAMES/,/ }; do
-    echo aws lambda update-function-code --region ${AWS_DEFAULT_REGION} \
+    aws lambda update-function-code --region ${AWS_DEFAULT_REGION} \
         --image-uri ${CONTAINER_REGISTRY_TAG_URI} \
-        --function-name ${function_name}
+        --function-name ${function_name} > "result_${function_name}.json"
 done
 
 exit 0
