@@ -15,6 +15,7 @@
     "esbuild": "^0.17.19"
   },
   "dependencies": {
+    "@aws-sdk/client-apigatewaymanagementapi": "^3.345.0",
     "@aws-sdk/client-dynamodb": "^3.345.0"
   }
 }
