@@ -14,7 +14,7 @@ phases:
 
   build:
     commands:
-      - ${CD_DIR}/deploy_ecs.sh ${VERSION_TAG}
+      # - ${CD_DIR}/deploy_ecs.sh ${VERSION_TAG}
       - ${CD_DIR}/deploy_lambda.sh ${VERSION_TAG}
 
   post_build:
