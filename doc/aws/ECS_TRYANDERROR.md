@@ -51,10 +51,6 @@
   - CodeBuildの「作成したProject」のPolicyに権限が無いようだ
   - 直後に与えることによって出来た
 
-## コンテナデプロイの仕組みを考える
-
-- x
-
 ## CDKでECS/Fargeteを作成する
 
 - https://zenn.dev/akira_abe/articles/20220220-aws-cdk-fargate
