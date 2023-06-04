@@ -428,44 +428,50 @@ export class AlwsStageOfStack extends cdk.Stack {
     
     private grantPolicyOfCodeBuildForCdDeploy(principal: any, settings: Context): void {
         principal.addToPrincipalPolicy(iam.PolicyStatement.fromJson({
-                "Effect": "Allow",
-                "Action": [
-                    "ecs:RegisterTaskDefinition",
-                    "ecs:ListTaskDefinitions",
-                    "ecs:DescribeTaskDefinition"
-                ],
-                "Resource": [
-                    "*"
-                ]
-            }));
-        principal.addToPrincipalPolicy(iam.PolicyStatement.fromJson({
-                "Effect": "Allow",
-                "Action": [
-                "application-autoscaling:Describe*",
-                "application-autoscaling:PutScalingPolicy",
-                "application-autoscaling:DeleteScalingPolicy",
-                "application-autoscaling:RegisterScalableTarget",
-                "cloudwatch:DescribeAlarms",
-                "cloudwatch:PutMetricAlarm",
-                "ecs:List*",
-                "ecs:Describe*",
-                "ecs:UpdateService",
-                "iam:AttachRolePolicy",
-                "iam:CreateRole",
-                "iam:GetPolicy",
-                "iam:GetPolicyVersion",
-                "iam:GetRole",
-                "iam:ListAttachedRolePolicies",
-                "iam:ListRoles",
-                "iam:ListGroups",
-                "iam:ListUsers"
-                ],
-                "Resource": [
+            "Effect": "Allow",
+            "Action": [
+                "ecs:RegisterTaskDefinition",
+                "ecs:ListTaskDefinitions",
+                "ecs:DescribeTaskDefinition"
+            ],
+            "Resource": [
                 "*"
-                ]
+            ]
+        }));
+        principal.addToPrincipalPolicy(iam.PolicyStatement.fromJson({
+            "Effect": "Allow",
+            "Action": [
+            "application-autoscaling:Describe*",
+            "application-autoscaling:PutScalingPolicy",
+            "application-autoscaling:DeleteScalingPolicy",
+            "application-autoscaling:RegisterScalableTarget",
+            "cloudwatch:DescribeAlarms",
+            "cloudwatch:PutMetricAlarm",
+            "ecs:List*",
+            "ecs:Describe*",
+            "ecs:UpdateService",
+            "iam:AttachRolePolicy",
+            "iam:CreateRole",
+            "iam:GetPolicy",
+            "iam:GetPolicyVersion",
+            "iam:GetRole",
+            "iam:ListAttachedRolePolicies",
+            "iam:ListRoles",
+            "iam:ListGroups",
+            "iam:ListUsers"
+            ],
+            "Resource": [
+            "*"
+            ]
+        }));
+        const me = cdk.Stack.of(this).account;
+        principal.addToPrincipalPolicy(iam.PolicyStatement.fromJson({
+            "Action": "iam:PassRole",
+            "Resource": `arn:aws:iam::${me}:role/ecsTaskExecutionRole`,
+            "Effect": "Allow",
+            "Principal": "*"
         }));
     }
-
 
     private setTag(key: string, value: string): void {
         cdk.Tags.of(this).add(key, value);
