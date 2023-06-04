@@ -52,9 +52,9 @@ export class AlwsGlobalStack extends cdk.Stack {
 
     private buildContainerRepository(settings: Context): ecr.Repository[] {
         const repositories: ecr.Repository[] = [];
-        ['app', 'lambda'].forEach(type => {
-            const containerRepository = new ecr.Repository(this, 'ContainerRepsitory_' + type, {
-                repositoryName: `${settings.systemName()}-${type}`,
+        [settings.containerRegistoryNameApp(), settings.containerRegistoryNameLambda()].forEach(name => {
+            const containerRepository = new ecr.Repository(this, 'ContainerRepsitory_' + name, {
+                repositoryName: name,
                 imageTagMutability: ecr.TagMutability.IMMUTABLE,
                 imageScanOnPush: false, // 脆弱性検査は Amazon Inspector に移譲する
             });
