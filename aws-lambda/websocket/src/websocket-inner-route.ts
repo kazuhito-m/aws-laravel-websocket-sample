@@ -12,30 +12,24 @@ export class WebSocketInnterRoute extends WebSocketEvent {
         const records = await this.findAllDynamoDB(receiveBody, process.env.DYNAMODB_WEBSOCKET_TABLE);
 
         console.log('見つかったレコード数:' + records.Items?.length);
+        records.Items?.forEach(i => console.log('単品でループを回してみる. connectionId:' + i.connectionId));
 
         const sendJson = this.buildSendJson(receiveBody);
         const client = this.buildManagementApiClient();
-        const postCalls = records.Items?.filter(i => i.userId === receiveBody.toUserId)
-            .map(async ({ connectionId }) => {
-                
-                console.log('見つかったconnectionId:' + connectionId);
+        const postCalls = records.Items?.map(async ({ connectionId }) => {
 
-                await client.send(
-                    new PostToConnectionCommand({
-                        Data: new TextEncoder().encode(sendJson),
-                        ConnectionId: connectionId.S
-                    })
-                );
-            });
+            console.log('見つかったconnectionId:' + connectionId);
+
+            await client.send(
+                new PostToConnectionCommand({
+                    Data: new TextEncoder().encode(sendJson),
+                    ConnectionId: connectionId.S
+                })
+            );
+        });
         if (postCalls) await Promise.all(postCalls);
 
         console.log('メソッドの終盤、このまま終わってしまうのか…一度固定値で投げてみる。');
-        await client.send(
-            new PostToConnectionCommand({
-                Data: new TextEncoder().encode(sendJson),
-                ConnectionId: 'GBpAdeB2tjMCEnQ='
-            })
-        );
 
         return this.res(200, 'Send WebSocket successed.');
     }
