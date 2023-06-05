@@ -363,8 +363,18 @@ export class AlwsStageOfStack extends cdk.Stack {
             environment: {
                 "DYNAMODB_WEBSOCKET_TABLE": settings.dynamoDbTableName(),
                 "WEBSOCKET_ENDPOINT": settings.websocketEndpointUrl(),
-            }
+            },
         });
+        const me = cdk.Stack.of(this).account;
+        lambdaFunc.addToRolePolicy(iam.PolicyStatement.fromJson({
+            "Effect": "Allow",
+            "Action": [
+                "dynamodb:Query",
+                "dynamodb:Scan"],
+            "Resource": [
+                `arn:aws:dynamodb:a${this.region}:${me}:table/alws_websocket_connections_*`
+            ]
+        }));
 
         const innerApi = new RestApi(this, settings.wpp('SendWebSocketInnerRouteApi'), {
             restApiName: settings.wpk('send-websocket-inner-route-api'),
