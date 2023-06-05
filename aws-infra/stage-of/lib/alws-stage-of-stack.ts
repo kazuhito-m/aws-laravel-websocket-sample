@@ -372,7 +372,7 @@ export class AlwsStageOfStack extends cdk.Stack {
                 "dynamodb:Query",
                 "dynamodb:Scan"],
             "Resource": [
-                `arn:aws:dynamodb:${this.region}:${me}:table/alws_websocket_connections_*`
+                `arn:aws:dynamodb:${this.region}:${me}:table/${settings.dynamoDbTableName()}`
             ]
         }));
 
