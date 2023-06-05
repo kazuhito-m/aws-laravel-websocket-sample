@@ -2,9 +2,9 @@ import { APIGatewayProxyResult, APIGatewayProxyEvent } from 'aws-lambda';
 import { ApiGatewayManagementApiClient, PostToConnectionCommand } from '@aws-sdk/client-apigatewaymanagementapi'
 import { ScanCommand, ScanCommandInput, ScanCommandOutput } from '@aws-sdk/client-dynamodb';
 import { DynamoDBDocumentClient } from "@aws-sdk/lib-dynamodb";
-import { WebSocketEvent } from './websocket-event';
+import { WithDynamoDbLambda } from '../with-dynamodb-lambda';
 
-export class WebSocketInnterRoute extends WebSocketEvent {
+export class WebSocketInnterRoute extends WithDynamoDbLambda {
     protected async inHandler(event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> {
         if (this.invalidateParameters(event)) return this.res(400, 'Parameter missing');
         const receiveBody = JSON.parse(event.body as string);

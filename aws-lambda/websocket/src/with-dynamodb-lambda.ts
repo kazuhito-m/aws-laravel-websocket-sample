@@ -1,9 +1,8 @@
 import { Context, APIGatewayProxyResult, APIGatewayEvent } from 'aws-lambda';
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
 import { DelegeteLambda } from './delegete-lambda'
-import { stat } from 'fs';
 
-export abstract class WebSocketEvent implements DelegeteLambda {
+export abstract class WithDynamoDbLambda implements DelegeteLambda {
     protected readonly dynamoDB = new DynamoDBClient({});
 
     protected abstract inHandler(event: APIGatewayEvent): Promise<APIGatewayProxyResult>;

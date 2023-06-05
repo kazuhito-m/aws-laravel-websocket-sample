@@ -1,8 +1,8 @@
 import { Context, APIGatewayProxyResult, APIGatewayEvent } from 'aws-lambda';
-import { OnConnectWebSocket } from './on-connected-websocket';
-import { OnDisconnectedWebSocket } from './on-disconnected-websocket';
 import { DelegeteLambda } from './delegete-lambda';
-import { WebSocketInnterRoute } from './websocket-inner-route';
+import { OnConnectWebSocket } from './websocket/on-connected-websocket';
+import { OnDisconnectedWebSocket } from './websocket/on-disconnected-websocket';
+import { WebSocketInnterRoute } from './other/websocket-inner-route';
 
 const handlers: { [key: string]: DelegeteLambda; } = {
     'CONNECT': new OnConnectWebSocket(),

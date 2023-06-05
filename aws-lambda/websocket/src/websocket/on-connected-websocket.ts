@@ -1,8 +1,8 @@
 import { APIGatewayProxyResult, APIGatewayProxyEvent } from 'aws-lambda';
 import { BatchWriteItemCommand, WriteRequest } from '@aws-sdk/client-dynamodb';
-import { WebSocketEvent } from './websocket-event';
+import { WithDynamoDbLambda } from '../with-dynamodb-lambda';
 
-export class OnConnectWebSocket extends WebSocketEvent {
+export class OnConnectWebSocket extends WithDynamoDbLambda {
     protected async inHandler(event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> {
         if (!event.requestContext.connectionId
             || !event.queryStringParameters?.userId
