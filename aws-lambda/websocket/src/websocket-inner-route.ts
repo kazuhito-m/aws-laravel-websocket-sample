@@ -1,6 +1,6 @@
 import { APIGatewayProxyResult, APIGatewayProxyEvent } from 'aws-lambda';
 import { ApiGatewayManagementApiClient, PostToConnectionCommand } from '@aws-sdk/client-apigatewaymanagementapi'
-import { QueryCommand, QueryCommandInput, QueryCommandOutput, ScanCommand, ScanCommandInput } from '@aws-sdk/client-dynamodb';
+import { ScanCommand, ScanCommandInput, ScanCommandOutput } from '@aws-sdk/client-dynamodb';
 import { DynamoDBDocumentClient } from "@aws-sdk/lib-dynamodb";
 import { WebSocketEvent } from './websocket-event';
 
@@ -11,10 +11,15 @@ export class WebSocketInnterRoute extends WebSocketEvent {
 
         const records = await this.findAllDynamoDB(receiveBody, process.env.DYNAMODB_WEBSOCKET_TABLE);
 
+        console.log('見つかったレコード数:' + records.Items?.length);
+
         const sendJson = this.buildSendJson(receiveBody);
         const client = this.buildManagementApiClient();
         const postCalls = records.Items?.filter(i => i.userId === receiveBody.toUserId)
             .map(async ({ connectionId }) => {
+                
+                console.log('見つかったconnectionId:' + connectionId);
+
                 await client.send(
                     new PostToConnectionCommand({
                         Data: new TextEncoder().encode(sendJson),
@@ -24,10 +29,18 @@ export class WebSocketInnterRoute extends WebSocketEvent {
             });
         if (postCalls) await Promise.all(postCalls);
 
+        console.log('メソッドの終盤、このまま終わってしまうのか…一度固定値で投げてみる。');
+        await client.send(
+            new PostToConnectionCommand({
+                Data: new TextEncoder().encode(sendJson),
+                ConnectionId: 'GBpAdeB2tjMCEnQ='
+            })
+        );
+
         return this.res(200, 'Send WebSocket successed.');
     }
 
-    private async findAllDynamoDB(receiveBody: any, tableName: string): Promise<QueryCommandOutput> {
+    private async findAllDynamoDB(receiveBody: any, tableName: string): Promise<ScanCommandOutput> {
         const docClient = DynamoDBDocumentClient.from(this.dynamoDB, {});
 
         const scan: ScanCommandInput = {
