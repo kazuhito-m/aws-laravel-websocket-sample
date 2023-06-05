@@ -1,6 +1,7 @@
 import { APIGatewayProxyResult, APIGatewayProxyEvent } from 'aws-lambda';
-import { QueryCommand, QueryCommandInput, QueryCommandOutput } from '@aws-sdk/client-dynamodb';
 import { ApiGatewayManagementApiClient, PostToConnectionCommand } from '@aws-sdk/client-apigatewaymanagementapi'
+import { QueryCommand, QueryCommandInput, QueryCommandOutput } from '@aws-sdk/client-dynamodb';
+import { DynamoDBDocumentClient } from "@aws-sdk/lib-dynamodb";
 import { WebSocketEvent } from './websocket-event';
 
 export class WebSocketInnterRoute extends WebSocketEvent {
@@ -8,7 +9,7 @@ export class WebSocketInnterRoute extends WebSocketEvent {
         if (this.invalidateParameters(event)) return this.res(400, 'Parameter missing');
         const receiveBody = JSON.parse(event.body as string);
 
-        const records = await this.findAllDynamoDB(process.env.DYNAMODB_WEBSOCKET_TABLE);
+        const records = await this.findAllDynamoDB(receiveBody, process.env.DYNAMODB_WEBSOCKET_TABLE);
 
         const sendJson = this.buildSendJson(receiveBody);
         const client = this.buildManagementApiClient();
@@ -26,11 +27,20 @@ export class WebSocketInnterRoute extends WebSocketEvent {
         return this.res(200, 'Send WebSocket successed.');
     }
 
-    private async findAllDynamoDB(tableName: string): Promise<QueryCommandOutput> {
-        const query: QueryCommandInput = { TableName: tableName };
+    private async findAllDynamoDB(receiveBody: any, tableName: string): Promise<QueryCommandOutput> {
+        const docClient = DynamoDBDocumentClient.from(this.dynamoDB, {});
+
+        const query: QueryCommandInput = {
+            TableName: tableName,
+            ProjectionExpression: "connectionId, userId",
+            ExpressionAttributeValues: {
+                ":id": { S: receiveBody.fromUserId },
+            },
+            KeyConditionExpression: "userId = :id",
+        };
         const command = new QueryCommand(query);
 
-        return await this.dynamoDB.send(command);
+        return await docClient.send(command);
     }
 
     private buildSendJson(body: any): string {
