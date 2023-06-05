@@ -9,7 +9,7 @@ export class WebSocketInnterRoute extends WebSocketEvent {
         if (this.invalidateParameters(event)) return this.res(400, 'Parameter missing');
         const receiveBody = JSON.parse(event.body as string);
 
-        const records = await this.findAllDynamoDB(receiveBody, process.env.DYNAMODB_WEBSOCKET_TABLE);
+        const records = await this.findAllDynamoDB(receiveBody.toUserId, process.env.DYNAMODB_WEBSOCKET_TABLE);
 
         console.log('found DynamoDB record count:' + records.Items?.length);
 
@@ -29,7 +29,7 @@ export class WebSocketInnterRoute extends WebSocketEvent {
         return this.res(200, 'Send WebSocket successed.');
     }
 
-    private async findAllDynamoDB(receiveBody: any, tableName: string): Promise<ScanCommandOutput> {
+    private async findAllDynamoDB(userId: string, tableName: string): Promise<ScanCommandOutput> {
         const docClient = DynamoDBDocumentClient.from(this.dynamoDB, {});
 
         const scan: ScanCommandInput = {
@@ -37,12 +37,11 @@ export class WebSocketInnterRoute extends WebSocketEvent {
             ProjectionExpression: "connectionId, userId",
             FilterExpression: "userId = :uid",
             ExpressionAttributeValues: {
-                ":uid": { S: receiveBody.toUserId },
+                ":uid": { S: userId },
             },
         };
-        const command = new ScanCommand(scan);
 
-        return await docClient.send(command);
+        return await docClient.send(new ScanCommand(scan));
     }
 
     private buildSendJson(body: any): string {
