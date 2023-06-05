@@ -1,6 +1,7 @@
 import { Context, APIGatewayProxyResult, APIGatewayEvent } from 'aws-lambda';
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
 import { DelegeteLambda } from './delegete-lambda'
+import { stat } from 'fs';
 
 export abstract class WebSocketEvent implements DelegeteLambda {
     protected readonly dynamoDB = new DynamoDBClient({});
@@ -19,6 +20,7 @@ export abstract class WebSocketEvent implements DelegeteLambda {
     }
 
     protected res(status: number, message: string): APIGatewayProxyResult {
+        console.log(`Lambda end. response|httpStatus:${status}, message:${message}`);
         return {
             statusCode: status,
             body: JSON.stringify({ message: message })

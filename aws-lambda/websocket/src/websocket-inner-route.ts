@@ -11,15 +11,12 @@ export class WebSocketInnterRoute extends WebSocketEvent {
 
         const records = await this.findAllDynamoDB(receiveBody, process.env.DYNAMODB_WEBSOCKET_TABLE);
 
-        console.log('見つかったレコード数:' + records.Items?.length);
-        records.Items?.forEach(i => console.log('単品でループを回してみる. connectionId:' + i.connectionId));
+        console.log('found DynamoDB record count:' + records.Items?.length);
 
         const sendJson = this.buildSendJson(receiveBody);
         const client = this.buildManagementApiClient();
         const postCalls = records.Items?.map(async ({ connectionId }) => {
-
-            console.log('見つかったconnectionId:' + connectionId);
-
+            console.log('send target connectionId:' + connectionId.S);
             await client.send(
                 new PostToConnectionCommand({
                     Data: new TextEncoder().encode(sendJson),
@@ -28,8 +25,6 @@ export class WebSocketInnterRoute extends WebSocketEvent {
             );
         });
         if (postCalls) await Promise.all(postCalls);
-
-        console.log('メソッドの終盤、このまま終わってしまうのか…一度固定値で投げてみる。');
 
         return this.res(200, 'Send WebSocket successed.');
     }
