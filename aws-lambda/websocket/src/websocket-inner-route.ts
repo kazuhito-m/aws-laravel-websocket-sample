@@ -1,5 +1,5 @@
 import { APIGatewayProxyResult, APIGatewayProxyEvent } from 'aws-lambda';
-import { QueryCommand, QueryCommandInput } from '@aws-sdk/client-dynamodb';
+import { QueryCommand, QueryCommandInput, QueryCommandOutput } from '@aws-sdk/client-dynamodb';
 import { ApiGatewayManagementApiClient, PostToConnectionCommand } from '@aws-sdk/client-apigatewaymanagementapi'
 import { WebSocketEvent } from './websocket-event';
 
@@ -7,34 +7,30 @@ export class WebSocketInnterRoute extends WebSocketEvent {
     protected async inHandler(event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> {
         if (this.invalidateParameters(event)) return this.res(400, 'Parameter missing');
         const receiveBody = JSON.parse(event.body as string);
-        const env = process.env;
 
-        const command = this.buildQueryCommand(env.DYNAMODB_WEBSOCKET_TABLE);
-        const records = await this.dynamoDB.send(command);
+        const records = await this.findAllDynamoDB(process.env.DYNAMODB_WEBSOCKET_TABLE);
 
         const sendJson = this.buildSendJson(receiveBody);
-        const managementApiClient = new ApiGatewayManagementApiClient({
-            apiVersion: '2018-11-29',
-            endpoint: env.WEBSOCKET_ENDPOINT
-        });
+        const client = this.buildManagementApiClient();
         const postCalls = records.Items?.filter(i => i.userId === receiveBody.toUserId)
             .map(async ({ connectionId }) => {
-                await managementApiClient.send(
+                await client.send(
                     new PostToConnectionCommand({
                         Data: new TextEncoder().encode(sendJson),
                         ConnectionId: connectionId.S
                     })
                 );
             });
-
         if (postCalls) await Promise.all(postCalls);
 
         return this.res(200, 'Send WebSocket successed.');
     }
 
-    private buildQueryCommand(tableName: string): QueryCommand {
+    private async findAllDynamoDB(tableName: string): Promise<QueryCommandOutput> {
         const query: QueryCommandInput = { TableName: tableName };
-        return new QueryCommand(query);
+        const command = new QueryCommand(query);
+
+        return await this.dynamoDB.send(command);
     }
 
     private buildSendJson(body: any): string {
@@ -56,5 +52,12 @@ export class WebSocketInnterRoute extends WebSocketEvent {
             || !process.env.WEBSOCKET_ENDPOINT
             || !jsonBody.toUserId
             || !jsonBody.message;
+    }
+
+    private buildManagementApiClient(): ApiGatewayManagementApiClient {
+        return new ApiGatewayManagementApiClient({
+            apiVersion: '2018-11-29',
+            endpoint: process.env.WEBSOCKET_ENDPOINT
+        });
     }
 }
