@@ -5,21 +5,19 @@ import { WebSocketEvent } from './websocket-event';
 
 export class WebSocketInnterRoute extends WebSocketEvent {
     protected async inHandler(event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> {
-        if (!process.env.DYNAMODB_WEBSOCKET_TABLE
-            || !process.env.WEBSOCKET_ENDPOINT
-            || !event.toUserId
-            || !event.message) return this.res(400, 'Parameter missing');
+        if (this.invalidateParameters(event)) return this.res(400, 'Parameter missing');
+        const receiveBody = JSON.parse(event.body as string);
+        const env = process.env;
 
-        const sendJson = this.buildSendJson(event);
-
-        const command = this.buildQueryCommand(event, process.env.DYNAMODB_WEBSOCKET_TABLE);
+        const command = this.buildQueryCommand(env.DYNAMODB_WEBSOCKET_TABLE);
         const records = await this.dynamoDB.send(command);
 
+        const sendJson = this.buildSendJson(receiveBody);
         const managementApiClient = new ApiGatewayManagementApiClient({
             apiVersion: '2018-11-29',
-            endpoint: process.env.WEBSOCKET_ENDPOINT
+            endpoint: env.WEBSOCKET_ENDPOINT
         });
-        const postCalls = records.Items?.filter(i => i.userId === event.toUserId)
+        const postCalls = records.Items?.filter(i => i.userId === receiveBody.toUserId)
             .map(async ({ connectionId }) => {
                 await managementApiClient.send(
                     new PostToConnectionCommand({
@@ -34,21 +32,29 @@ export class WebSocketInnterRoute extends WebSocketEvent {
         return this.res(200, 'Send WebSocket successed.');
     }
 
-    private buildQueryCommand(event: any, tableName: string): QueryCommand {
-        const query: QueryCommandInput = {
-            TableName: tableName,
-        }
+    private buildQueryCommand(tableName: string): QueryCommand {
+        const query: QueryCommandInput = { TableName: tableName };
         return new QueryCommand(query);
     }
 
-    private buildSendJson(event: any): string {
+    private buildSendJson(body: any): string {
         return JSON.stringify({
-            toUserId: event.toUserId,
-            message: event.message,
-            fromUserId: event.fromUserId,
-            fromUserName: event.fromUserName,
-            fromServerTime: event.fromServerTime,
+            toUserId: body.toUserId,
+            message: body.message,
+            fromUserId: body.fromUserId,
+            fromUserName: body.fromUserName,
+            fromServerTime: body.fromServerTime,
             apiSendTime: new Date().toISOString()
         });
+    }
+
+    private invalidateParameters(event: APIGatewayProxyEvent): boolean {
+        if (!event.body) return true;
+        const jsonBody = JSON.parse(event.body);
+
+        return !process.env.DYNAMODB_WEBSOCKET_TABLE
+            || !process.env.WEBSOCKET_ENDPOINT
+            || !jsonBody.toUserId
+            || !jsonBody.message;
     }
 }
