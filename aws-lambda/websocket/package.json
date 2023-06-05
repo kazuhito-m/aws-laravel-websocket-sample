@@ -5,12 +5,18 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "esbuild index.ts --bundle --minify --sourcemap --platform=node --target=es2020 --outfile=dist/index.js"
+    "build": "esbuild src/index.ts --bundle --minify --sourcemap --platform=node --target=es2020 --outfile=dist/index.js"
   },
   "author": "kazuhito-m",
   "license": "ISC",
   "devDependencies": {
     "@types/aws-lambda": "^8.10.115",
+    "@types/node": "^20.2.5",
     "esbuild": "^0.17.19"
+  },
+  "dependencies": {
+    "@aws-sdk/client-apigatewaymanagementapi": "^3.345.0",
+    "@aws-sdk/client-dynamodb": "^3.345.0",
+    "@aws-sdk/lib-dynamodb": "^3.345.0"
   }
 }

@@ -30,13 +30,13 @@ export class AlwsStageOfStack extends cdk.Stack {
         const settings = props?.context as Context;
         this.confimationOfPreconditions(props?.context);
 
-        const { vpc, rdsSecurityGroup, ecsSecurityGroup } = this.buildVpcAndNetwork(settings);
+        // const { vpc, rdsSecurityGroup, ecsSecurityGroup } = this.buildVpcAndNetwork(settings);
 
-        const { appRds, rdsSecret } = this.buildRds(settings, vpc, rdsSecurityGroup);
+        // const { appRds, rdsSecret } = this.buildRds(settings, vpc, rdsSecurityGroup);
 
         const innerApi = this.buildApiGatewayAndLambda(settings);
 
-        this.buildEcsCluster(settings, vpc, appRds, ecsSecurityGroup, rdsSecret, innerApi);
+        // this.buildEcsCluster(settings, vpc, appRds, ecsSecurityGroup, rdsSecret, innerApi);
 
         this.buildCodeBuildForCdDeploy(settings);
 
@@ -363,8 +363,18 @@ export class AlwsStageOfStack extends cdk.Stack {
             environment: {
                 "DYNAMODB_WEBSOCKET_TABLE": settings.dynamoDbTableName(),
                 "WEBSOCKET_ENDPOINT": settings.websocketEndpointUrl(),
-            }
+            },
         });
+        const me = cdk.Stack.of(this).account;
+        lambdaFunc.addToRolePolicy(iam.PolicyStatement.fromJson({
+            "Effect": "Allow",
+            "Action": [
+                "dynamodb:Query",
+                "dynamodb:Scan"],
+            "Resource": [
+                `arn:aws:dynamodb:${this.region}:${me}:table/${settings.dynamoDbTableName()}`
+            ]
+        }));
 
         const innerApi = new RestApi(this, settings.wpp('SendWebSocketInnerRouteApi'), {
             restApiName: settings.wpk('send-websocket-inner-route-api'),
