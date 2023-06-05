@@ -1,6 +1,6 @@
 import { APIGatewayProxyResult, APIGatewayProxyEvent } from 'aws-lambda';
 import { ApiGatewayManagementApiClient, PostToConnectionCommand } from '@aws-sdk/client-apigatewaymanagementapi'
-import { QueryCommand, QueryCommandInput, QueryCommandOutput } from '@aws-sdk/client-dynamodb';
+import { QueryCommand, QueryCommandInput, QueryCommandOutput, ScanCommand, ScanCommandInput } from '@aws-sdk/client-dynamodb';
 import { DynamoDBDocumentClient } from "@aws-sdk/lib-dynamodb";
 import { WebSocketEvent } from './websocket-event';
 
@@ -30,15 +30,15 @@ export class WebSocketInnterRoute extends WebSocketEvent {
     private async findAllDynamoDB(receiveBody: any, tableName: string): Promise<QueryCommandOutput> {
         const docClient = DynamoDBDocumentClient.from(this.dynamoDB, {});
 
-        const query: QueryCommandInput = {
+        const scan: ScanCommandInput = {
             TableName: tableName,
             ProjectionExpression: "connectionId, userId",
+            FilterExpression: "userId = :uid",
             ExpressionAttributeValues: {
                 ":uid": { S: receiveBody.toUserId },
             },
-            KeyConditionExpression: "userId = :uid",
         };
-        const command = new QueryCommand(query);
+        const command = new ScanCommand(scan);
 
         return await docClient.send(command);
     }
