@@ -34,9 +34,10 @@ export class WebSocketInnterRoute extends WebSocketEvent {
             TableName: tableName,
             ProjectionExpression: "connectionId, userId",
             ExpressionAttributeValues: {
-                ":id": { S: receiveBody.fromUserId },
+                ":cid": { S: '' },
+                ":uid": { S: receiveBody.toUserId },
             },
-            KeyConditionExpression: "userId = :id",
+            KeyConditionExpression: "connectionId <> :cid AND userId = :uid",
         };
         const command = new QueryCommand(query);
 
