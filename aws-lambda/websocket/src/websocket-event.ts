@@ -11,7 +11,10 @@ export abstract class WebSocketEvent implements DelegeteLambda {
         try {
             return await this.inHandler(event);
         } catch (err) {
-            return this.res(500, `Failed: ${JSON.stringify(err)}`);
+            console.log('WebSocketEvent.handler() catch Exception.');
+            console.log(err);
+            console.log(err.Stack);
+            return this.res(500, `{"Failed": ${JSON.stringify(err)}}`);
         }
     }
 
