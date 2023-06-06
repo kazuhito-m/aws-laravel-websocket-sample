@@ -19,6 +19,9 @@ RUN php artisan optimize
 # Ensure all of our files are owned by the same user and group.
 RUN chown -R application:application .
 
+# Refalence setting file ".env.production"
+ENV APP_ENV=production 
+
 COPY container/script/bootup.sh /usr/bin/
 RUN chmod +x /usr/bin/bootup.sh
 CMD ["/usr/bin/bootup.sh"]
