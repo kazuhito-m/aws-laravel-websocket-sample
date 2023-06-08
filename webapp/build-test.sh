@@ -8,7 +8,7 @@ exit 0
 
 # docker build -t laravel-test:latest . \
 docker build --no-cache -t laravel-test:latest .
-docker run -p 80:80 --name la-test laravel-test:latest
+docker run -p 80:80 --name la-test --env TEST_VERBOSE='docker runの環境変数に書くだけで上書き出来た。' laravel-test:latest
  
 docker rm -f la-test
 docker rmi laravel-test:latest
