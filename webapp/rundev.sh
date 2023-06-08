@@ -16,4 +16,3 @@ php artisan event:clear
 php artisan clear-compiled
 
 php artisan serve
-
