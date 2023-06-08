@@ -18,4 +18,4 @@ fi
 VERSION=${1}
 
 
-sed -iE "s/VERSION.*/VERSION='${VERSION}';/g" ${APP_VERSION_FILE}
+sed -i "s/VERSION.*/VERSION='${VERSION}';/g" ${APP_VERSION_FILE}
