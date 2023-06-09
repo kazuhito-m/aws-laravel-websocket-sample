@@ -105,6 +105,10 @@ npm run dev
 - https://github.com/webdevops/Dockerfile/blob/master/docker/php-official/8.2-alpine/Dockerfile
   - 元になってるイメージの、また元になっているDockerfile
 
+## .envまわり「設定を書き換える手段」のバリエーション
+
+- https://kaki-engine.com/laravel-env-file-referenced/
+
 ## トラブルシュート:APサーバの冗長化構成でページを遷移するたび「419:PAGE EXPIRED」になる問題
 
 デフォルトが「サーバのファイルをセッションファイルにしている」になっているから、当然ちゃぁ当然なんだが…。

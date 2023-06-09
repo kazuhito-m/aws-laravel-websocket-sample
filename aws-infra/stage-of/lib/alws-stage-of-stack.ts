@@ -30,13 +30,13 @@ export class AlwsStageOfStack extends cdk.Stack {
         const settings = props?.context as Context;
         this.confimationOfPreconditions(props?.context);
 
-        // const { vpc, rdsSecurityGroup, ecsSecurityGroup } = this.buildVpcAndNetwork(settings);
+        const { vpc, rdsSecurityGroup, ecsSecurityGroup } = this.buildVpcAndNetwork(settings);
 
-        // const { appRds, rdsSecret } = this.buildRds(settings, vpc, rdsSecurityGroup);
+        const { appRds, rdsSecret } = this.buildRds(settings, vpc, rdsSecurityGroup);
 
         const innerApi = this.buildApiGatewayAndLambda(settings);
 
-        // this.buildEcsCluster(settings, vpc, appRds, ecsSecurityGroup, rdsSecret, innerApi);
+        this.buildEcsCluster(settings, vpc, appRds, ecsSecurityGroup, rdsSecret, innerApi);
 
         this.buildCodeBuildForCdDeploy(settings);
 

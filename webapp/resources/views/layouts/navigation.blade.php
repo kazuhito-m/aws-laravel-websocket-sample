@@ -21,6 +21,7 @@
             <!-- Settings Dropdown -->
             <div class="hidden sm:flex sm:items-center sm:ml-6">
                 <div class="ml-4 text-center text-sm text-gray-500 sm:text-right sm:ml-0">
+                    test-verbose: {{ config('custom.test-verbose') }} |
                     host: {{ getHostName() }} |
                     version: {{ config('app.version') }} |
                     Laravel v{{ Illuminate\Foundation\Application::VERSION }}

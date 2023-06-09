@@ -41,6 +41,19 @@ $app->singleton(
     App\Exceptions\Handler::class
 );
 
+// echo "起動時、これが表示されるのであれば、色々仕込めると思います。\n";
+// echo "-------- 環境変数一覧(Start) --------\n";
+// ksort($_SERVER);
+// print_r($_SERVER);
+// echo "-------- 環境変数一覧(Ended) --------\n";
+
+// echo "-------- env()関数を使った出力 --------\n";
+// echo "env('DB_HOST') : " . env('DB_HOST', '[未設定]') . "\n";
+// echo "env('DB_PASSWORD') : " . env('DB_PASSWORD', '[未設定]') . "\n";
+// echo "env('DB_USERNAME') : " . env('DB_USERNAME', '[未設定]') . "\n";
+// echo "env('TEST_VERBOSE') : " . env('TEST_VERBOSE', '[未設定]') . "\n";
+
+
 /*
 |--------------------------------------------------------------------------
 | Return The Application

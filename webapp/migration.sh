@@ -4,4 +4,6 @@
 SCRIPT_DIR=$(cd $(dirname $(readlink -f $0 || echo $0));pwd -P)
 cd ${SCRIPT_DIR}
 
-php artisan migrate
+php artisan config:clear
+
+php artisan migrate --force

@@ -11,7 +11,7 @@ RUN apk add autoconf build-base imagemagick-dev \
 COPY ./ /app
 WORKDIR /app
 
-RUN rm -rf ./container/
+RUN rm -rf ./container/ && mv .env.production .env
 
 RUN composer install --no-interaction --optimize-autoloader --no-dev
 RUN php artisan optimize
@@ -19,6 +19,6 @@ RUN php artisan optimize
 # Ensure all of our files are owned by the same user and group.
 RUN chown -R application:application .
 
-COPY container/script/bootup.sh /usr/bin/
-RUN chmod +x /usr/bin/bootup.sh
+COPY container/script/*.sh /usr/bin/
+RUN chmod +x /usr/bin/*.sh
 CMD ["/usr/bin/bootup.sh"]

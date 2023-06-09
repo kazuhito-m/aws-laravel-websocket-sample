@@ -7,9 +7,11 @@ set -eu
 SCRIPT_DIR=$(cd $(dirname $(readlink -f $0 || echo $0));pwd -P)
 cd ${SCRIPT_DIR}
 
-# Laravelのマイグレーションを起動時に必ず行う。
+overwrite_env.sh '/app/.env'
+
+echo '---- Laravelのマイグレーションを起動時に必ず行う。 ----'
 /app/migration.sh
 
-# nginx始め、各種サービス立ち上げ。
+echo '---- nginx, php-fpm, 各種サービス立ち上げ。 ----'
 supervisord
 
