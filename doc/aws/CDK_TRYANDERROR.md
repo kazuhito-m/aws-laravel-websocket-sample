@@ -201,3 +201,7 @@ CDKを繰り返し実行している間に、GitHub側にWebHookが多量に作�
 Projectを手動で削除したとしても、差分として検出してくれない。
 
 なので「全部作り直し」が必要で…辛い。
+
+## CDKの構造化
+
+- https://tmokmss.hatenablog.com/entry/20221212/1670804620
