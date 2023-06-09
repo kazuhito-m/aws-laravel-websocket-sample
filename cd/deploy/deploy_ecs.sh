@@ -18,7 +18,7 @@ aws ecs describe-task-definition --task-definition ${ECS_TASK_FAMILY} | \
     jq '.taskDefinition | del (.taskDefinitionArn, .revision, .status, .requiresAttributes, .compatibilities, .registeredAt, .registeredBy)' \
     > ./taskdef.json
 
-sed -Ei "s/\"image\": .*\",/\"image\": ${CONTAINER_REGISTRY_TAG_URI}\",/g" ./taskdef.json
+sed -i "s/\"image\": .*\",/\"image\": ${CONTAINER_REGISTRY_TAG_URI}\",/g" ./taskdef.json
 
 # TDOO ECSにコンテナがあるかどうかをチェックして、なかったら殺す。
 
