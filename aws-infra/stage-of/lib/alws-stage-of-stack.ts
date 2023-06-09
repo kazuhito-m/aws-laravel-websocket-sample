@@ -10,7 +10,6 @@ import * as iam from 'aws-cdk-lib/aws-iam';
 import * as dynamodb from 'aws-cdk-lib/aws-dynamodb';
 import * as apigatewayv2 from 'aws-cdk-lib/aws-apigatewayv2';
 import * as codebuild from 'aws-cdk-lib/aws-codebuild';
-import { SubnetType } from 'aws-cdk-lib/aws-ec2';
 import { Construct, DependencyGroup } from 'constructs';
 import { AlwsStackProps } from './alws-stack-props';
 import { Context } from './context/context';
@@ -23,6 +22,7 @@ import { DockerImageFunction } from 'aws-cdk-lib/aws-lambda';
 import { RestApi, LambdaIntegration, MethodLoggingLevel } from 'aws-cdk-lib/aws-apigateway';
 import { Table } from 'aws-cdk-lib/aws-dynamodb';
 import { VpcAndNetwork } from './construct/vpc-and-network';
+import { ApplicationRds } from './construct/application-rds';
 
 export class AlwsStageOfStack extends cdk.Stack {
     constructor(scope: Construct, id: string, props?: AlwsStackProps) {
@@ -32,99 +32,17 @@ export class AlwsStageOfStack extends cdk.Stack {
         this.confimationOfPreconditions(props?.context);
 
         const vpc = new VpcAndNetwork(this, 'VpcAndNetwork', { context: settings });
-        // const { vpc, rdsSecurityGroup, ecsSecurityGroup } = this.buildVpcAndNetwork(settings);
 
-        const { appRds, rdsSecret } = this.buildRds(settings, vpc.vpc, vpc.rdsSecurityGroup);
+        const rds = new ApplicationRds(this, 'ApplicationRds', vpc);
 
         const innerApi = this.buildApiGatewayAndLambda(settings);
 
-        this.buildEcsCluster(settings, vpc.vpc, appRds, vpc.ecsSecurityGroup, rdsSecret, innerApi);
+        this.buildEcsCluster(settings, vpc.vpc, rds.appRds, vpc.ecsSecurityGroup, rds.rdsSecret, innerApi);
 
         this.buildCodeBuildForCdDeploy(settings);
 
         this.setTag("Stage", settings.currentStageId);
         this.setTag("Version", settings.packageVersion());
-    }
-
-    private buildVpcAndNetwork(settings: Context) {
-        const vpc = new ec2.Vpc(this, settings.wpp('Vpc'), {
-            vpcName: settings.wpk('vpc'),
-            ipAddresses: ec2.IpAddresses.cidr('10.0.0.0/16'),
-            maxAzs: 2,
-            subnetConfiguration: [
-                {
-                    name: 'Public',
-                    subnetType: SubnetType.PUBLIC,
-                },
-                {
-                    name: 'PrivateEcs',
-                    subnetType: SubnetType.PRIVATE_WITH_EGRESS,
-                },
-                {
-                    name: 'PrivateRds',
-                    subnetType: SubnetType.PRIVATE_ISOLATED,
-                }
-            ]
-        });
-        const ecsSecurityGroup = new ec2.SecurityGroup(this, 'SecurityGroupEcs', {
-            vpc: vpc,
-            securityGroupName: settings.wpk('ecs-sg')
-        });
-        const rdsSecurityGroup = new ec2.SecurityGroup(this, 'SecurityGroupRds', {
-            vpc: vpc,
-            securityGroupName: settings.wpk('rds-sg'),
-        });
-        rdsSecurityGroup.addIngressRule(
-            ec2.Peer.securityGroupId(ecsSecurityGroup.securityGroupId),
-            ec2.Port.tcp(3306),
-            'from ECS(container) to RDS access.'
-        );
-        return { vpc, rdsSecurityGroup, ecsSecurityGroup };
-    }
-
-    private buildRds(settings: Context, vpc: ec2.Vpc, rdsSecurityGroup: ec2.SecurityGroup) {
-        const rdsSecret = new sm.Secret(this, settings.wpp("RdsAppSecret"), {
-            secretName: settings.wpk("rds-app-secret"),
-            generateSecretString: {
-                excludePunctuation: true,
-                includeSpace: false,
-                secretStringTemplate: JSON.stringify({ username: 'user' }),
-                generateStringKey: 'password',
-            },
-        });
-        const rdsCredential = rds.Credentials.fromPassword(
-            rdsSecret.secretValueFromJson('username').unsafeUnwrap(),
-            SecretValue.unsafePlainText(
-                rdsSecret.secretValueFromJson('password').unsafeUnwrap()
-            )
-        );
-
-        const rdsSettings = settings.currentStage().rds;
-
-        const appRds = new rds.DatabaseInstance(this, settings.wpp("AppRds"), {
-            instanceIdentifier: settings.wpk('app-rds'),
-            engine: rds.DatabaseInstanceEngine.mysql({ version: rds.MysqlEngineVersion.VER_8_0_32 }),
-            instanceType: ec2.InstanceType.of(
-                rdsSettings.class,
-                rdsSettings.size
-            ),
-            multiAz: rdsSettings.multiAz,
-            databaseName: settings.systemName(),
-            credentials: rdsCredential,
-            vpc,
-            vpcSubnets: vpc.selectSubnets(),
-            securityGroups: [rdsSecurityGroup],
-            subnetGroup: new rds.SubnetGroup(this, settings.wpp("AppRdsSubnetGroup"), {
-                subnetGroupName: settings.wpk('app-rds-sg'),
-                description: 'for App RDS Subnets(only Private and Isolated)',
-                vpc: vpc,
-                vpcSubnets: vpc.selectSubnets({
-                    subnetType: SubnetType.PRIVATE_ISOLATED
-                }),
-            })
-        });
-
-        return { appRds, rdsSecret };
     }
 
     private buildEcsCluster(settings: Context,

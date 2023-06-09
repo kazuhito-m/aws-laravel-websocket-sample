@@ -10,6 +10,7 @@ export class VpcAndNetwork extends Construct {
     public vpc: Vpc;
     public rdsSecurityGroup: SecurityGroup;
     public ecsSecurityGroup: SecurityGroup;
+    public context: Context;
 
     constructor(scope: Construct, id: string, props: VpcAndNetworkProps) {
         super(scope, id);
@@ -41,5 +42,6 @@ export class VpcAndNetwork extends Construct {
         this.vpc = vpc;
         this.rdsSecurityGroup = rdsSecurityGroup;
         this.ecsSecurityGroup = ecsSecurityGroup;
+        this.context = props.context;
     }
 }
