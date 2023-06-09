@@ -24,6 +24,8 @@ export interface EcsClusterProps {
 }
 
 export class EcsCluster extends Construct {
+    public readonly taskDefinition: FargateTaskDefinition;
+
     constructor(scope: Construct, id: string, props: EcsClusterProps) {
         super(scope, id);
 
@@ -40,6 +42,8 @@ export class EcsCluster extends Construct {
         const albService = this.buildAlbFargeteService(taskDef, ecsCluster, props);
 
         this.buildDnsRecord(albService.loadBalancer, context);
+
+        this.taskDefinition = taskDef;
     }
 
     private buildTaskDefinition(props: EcsClusterProps, stack: Stack): FargateTaskDefinition {

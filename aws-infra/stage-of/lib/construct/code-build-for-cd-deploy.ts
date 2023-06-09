@@ -2,10 +2,12 @@ import { Construct } from 'constructs';
 import { Context } from '../context/context';
 import { Project, Source, FilterGroup, EventAction, BuildSpec, LinuxBuildImage } from 'aws-cdk-lib/aws-codebuild';
 import { Stack } from 'aws-cdk-lib';
-import { PolicyStatement } from 'aws-cdk-lib/aws-iam';
+import { IPrincipal, PolicyStatement } from 'aws-cdk-lib/aws-iam';
+import { FargateTaskDefinition } from 'aws-cdk-lib/aws-ecs';
 
 export interface CodeBuildForCdDeployProps {
     readonly context: Context;
+    readonly ecsTaskDefinition: FargateTaskDefinition;
 }
 
 export class CodeBuildForCdDeploy extends Construct {
@@ -45,10 +47,16 @@ export class CodeBuildForCdDeploy extends Construct {
             }
         });
 
-        this.grantPolicyOfCodeBuildForCdDeploy(tagDeployOfSourceCDProject.grantPrincipal, context, stack);
+        this.grantPolicyOfCodeBuildForCdDeploy(tagDeployOfSourceCDProject.grantPrincipal, props, stack);
     }
 
-    private grantPolicyOfCodeBuildForCdDeploy(principal: any, settings: Context, stack: Stack): void {
+    private grantPolicyOfCodeBuildForCdDeploy(
+        principal: IPrincipal,
+        props: CodeBuildForCdDeployProps,
+        stack: Stack
+    ): void {
+        const context = props.context;
+
         principal.addToPrincipalPolicy(PolicyStatement.fromJson({
             "Effect": "Allow",
             "Action": [
@@ -93,13 +101,16 @@ export class CodeBuildForCdDeploy extends Construct {
                 "lambda:UpdateFunctionCode"
             ],
             "Resource": [
-                `arn:aws:lambda:${stack.region}:${me}:function:${settings.wpk('*')}`
+                `arn:aws:lambda:${stack.region}:${me}:function:${context.wpk('*')}`
             ]
         }));
         principal.addToPrincipalPolicy(PolicyStatement.fromJson({
             "Effect": "Allow",
             "Action": "iam:PassRole",
-            "Resource": [`arn:aws:iam::${me}:role/ecsTaskExecutionRole`]
+            "Resource": [
+                `arn:aws:iam::${me}:role/ecsTaskExecutionRole`,
+                props.ecsTaskDefinition.taskRole.roleArn
+            ]
         }));
     }
 }

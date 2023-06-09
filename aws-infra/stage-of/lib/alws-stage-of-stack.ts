@@ -21,7 +21,7 @@ export class AlwsStageOfStack extends cdk.Stack {
 
         const apiAndLambda = new ApiGatewayAndLambda(this, 'ApiGatewayAndLambda', { context: context });
 
-        new EcsCluster(this, 'EcsCluster', {
+        const ecs = new EcsCluster(this, 'EcsCluster', {
             context: context,
             vpc: vpc.vpc,
             rds: rds.appRds,
@@ -30,7 +30,7 @@ export class AlwsStageOfStack extends cdk.Stack {
             innerApi: apiAndLambda.innerApi
         });
 
-        new CodeBuildForCdDeploy(this, 'CodeBuildForCdDeploy', { context: context })
+        new CodeBuildForCdDeploy(this, 'CodeBuildForCdDeploy', { context: context, ecsTaskDefinition: ecs.taskDefinition })
 
         this.setTag("Stage", context.currentStageId);
         this.setTag("Version", context.packageVersion());
