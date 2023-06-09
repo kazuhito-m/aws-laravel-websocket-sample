@@ -104,12 +104,14 @@ export class CodeBuildForCdDeploy extends Construct {
                 `arn:aws:lambda:${stack.region}:${me}:function:${context.wpk('*')}`
             ]
         }));
+        const taskDef = props.ecsTaskDefinition;
         principal.addToPrincipalPolicy(PolicyStatement.fromJson({
             "Effect": "Allow",
             "Action": "iam:PassRole",
             "Resource": [
                 `arn:aws:iam::${me}:role/ecsTaskExecutionRole`,
-                props.ecsTaskDefinition.taskRole.roleArn
+                taskDef.taskRole.roleArn,
+                taskDef.executionRole?.roleArn
             ]
         }));
     }
