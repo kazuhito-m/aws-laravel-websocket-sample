@@ -132,20 +132,20 @@ const hostedZone = HostedZone.fromHostedZoneAttributes(this, "Zone", {
 
 が必要で、クセあんなと。
 
-### CDKでRambda & APIGatewayを作成する
+## CDKでRambda & APIGatewayを作成する
 
 - https://confrage.jp/aws-cdk%E3%81%A7%E4%BD%9C%E6%88%90%E3%81%99%E3%82%8Blambdanode-js%E3%81%A8%E3%83%AD%E3%83%BC%E3%83%AB%E3%82%92%E3%83%87%E3%83%97%E3%83%AD%E3%82%A4%E3%81%99%E3%82%8B%E6%96%B9%E6%B3%95/
 - https://dev.classmethod.jp/articles/cdk-aws-ssm-api-gateway-url/
 - https://dev.classmethod.jp/articles/local-build-a-lambda-function-nodejs-without-docker-desktop-with-aws-cdk/
 - https://dev.classmethod.jp/articles/aws-cdk-api-gateway-lambda-rest-auth0-lambda-authorizer/
 
-### CDKでWebSocketのAPIGateway&Lambdaを作成する。
+## CDKでWebSocketのAPIGateway&Lambdaを作成する。
 
 - https://dev.classmethod.jp/articles/cdk-api-gateway-web-socket/
 
 Websocket用のAPIGatewayは、前述のような「専用のクラス」が無く(というより過去在ったのにCDKのライブラリのVerUpでなくなった)、原始的な「CloudFormationのオブジェクト」で編集しないと、作ることが出来ない。
 
-### CDKでebSocketのAPIGatewayを作る時、Routeを2つ付けた状態でDeployまで作るとエラー
+## CDKでebSocketのAPIGatewayを作る時、Routeを2つ付けた状態でDeployまで作るとエラー
 
 Websocket用のAPIGatewayには、公開するために以下の２つの要素を作る必要が在る。
 
@@ -164,7 +164,7 @@ At least one route is required before deploying the Api.
 
 (確かに、何故かNet上の多くの例ではRouteを定義するとこまでで、StageをDeployするところは別で書いてある。)
 
-#### 解決
+### 解決
 
 `DependencyGroup` というクラスを使い、Deploymentに「依存の順序」を教えてあげれば良いよう。
 
@@ -183,11 +183,11 @@ deployment.node.addDependency(group);
 - https://github.com/aws/aws-cdk/issues/2872
 - https://docs.aws.amazon.com/cdk/api/v2/docs/constructs.DependencyGroup.html
 
-### CDKで作ったCodeBuildのProjectでPush検出したら、2個以上のビルドが走る
+## CDKで作ったCodeBuildのProjectでPush検出したら、2個以上のビルドが走る
 
 git tagの条件はおかしくないようだが、一度のtag pushで2個以上(観測上では最大4つ)ビルドが走る。
 
-#### 解決
+### 解決
 
 原因は「Github側にCDKから作られたWebHookが多量にあること」。
 
