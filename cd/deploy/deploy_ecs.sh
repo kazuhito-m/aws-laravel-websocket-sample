@@ -12,7 +12,8 @@
 set -eux
 
 VERSION_TAG=${1}
-CONTAINER_REGISTRY_TAG_URI=${CONTAINER_REGISTRY_URI_APP}:${VERSION_TAG}
+ESCAPED_URI=$(echo ${CONTAINER_REGISTRY_URI_APP} | sed 's/\//\\\//g')
+CONTAINER_REGISTRY_TAG_URI=${ESCAPED_URI}:${VERSION_TAG}
 
 aws ecs describe-task-definition --task-definition ${ECS_TASK_FAMILY} | \
     jq '.taskDefinition | del (.taskDefinitionArn, .revision, .status, .requiresAttributes, .compatibilities, .registeredAt, .registeredBy)' \
