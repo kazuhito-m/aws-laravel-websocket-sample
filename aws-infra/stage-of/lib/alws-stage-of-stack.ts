@@ -7,7 +7,6 @@ import * as sm from "aws-cdk-lib/aws-secretsmanager";
 import * as elb from 'aws-cdk-lib/aws-elasticloadbalancingv2';
 import * as logs from 'aws-cdk-lib/aws-logs';
 import * as iam from 'aws-cdk-lib/aws-iam';
-import * as codebuild from 'aws-cdk-lib/aws-codebuild';
 import { Construct } from 'constructs';
 import { AlwsStackProps } from './alws-stack-props';
 import { Context } from './context/context';
@@ -19,6 +18,7 @@ import { RestApi } from 'aws-cdk-lib/aws-apigateway';
 import { VpcAndNetwork } from './construct/vpc-and-network';
 import { ApplicationRds } from './construct/application-rds';
 import { ApiGatewayAndLambda } from './construct/apigateway-and-lambda';
+import { CodeBuildForCdDeploy } from './construct/code-build-for-cd-deploy';
 
 export class AlwsStageOfStack extends cdk.Stack {
     constructor(scope: Construct, id: string, props?: AlwsStackProps) {
@@ -35,7 +35,7 @@ export class AlwsStageOfStack extends cdk.Stack {
 
         this.buildEcsCluster(context, vpc.vpc, rds.appRds, vpc.ecsSecurityGroup, rds.rdsSecret, apiAndLambda.innerApi);
 
-        this.buildCodeBuildForCdDeploy(context);
+        new CodeBuildForCdDeploy(this, 'CodeBuildForCdDeploy', { context: context })
 
         this.setTag("Stage", context.currentStageId);
         this.setTag("Version", context.packageVersion());
@@ -166,95 +166,6 @@ export class AlwsStageOfStack extends cdk.Stack {
             comment: 'Application LB Record.'
         });
         return ecsCluster;
-    }
-
-    private buildCodeBuildForCdDeploy(settings: Context): void {
-        const tagDeployOfSourceCDProject = new codebuild.Project(this, 'DeployByGitTagCodeBuild', {
-            projectName: settings.wpk('deploy-by-github-tag'),
-            description: 'GitHubでStageTag(文字列始まりの"production"等)が切られた場合、アプリ・Lambda・環境のデプロイを行う。',
-            source: codebuild.Source.gitHub({
-                owner: 'kazuhito-m',
-                repo: 'aws-laravel-websocket-sample',
-                webhook: true,
-                webhookFilters: [
-                    codebuild.FilterGroup
-                        .inEventOf(codebuild.EventAction.PUSH)
-                        .andTagIs(settings.currentStageId)
-                ],
-            }),
-            buildSpec: codebuild.BuildSpec.fromSourceFilename('cd/deploy/buildspec.yml'),
-            badge: true,
-            environment: {
-                buildImage: codebuild.LinuxBuildImage.AMAZON_LINUX_2_4,
-                privileged: true,
-                environmentVariables: {
-                    STAGE_ID: { value: settings.currentStageId },
-                    ECS_CLUSTER: { value: settings.wpk('ecs-cluster') },
-                    ECS_SERVICE: { value: settings.wpk('app-service') },
-                    ECS_TASK_FAMILY: { value: settings.wpk('app-task-difinition-family') },
-                    LAMBDA_FUNCTION_NAMES: { value: `${settings.wpk('websocket-lambda')},${settings.wpk('send-websocket-inner-route-lambda')}` },
-                    CONTAINER_REGISTRY_URI_APP: { value: settings.containerRegistryUriApp(this) },
-                    CONTAINER_REGISTRY_URI_LAMBDA: { value: settings.containerRegistryUriLambda(this) }
-                }
-            }
-        });
-
-        this.grantPolicyOfCodeBuildForCdDeploy(tagDeployOfSourceCDProject.grantPrincipal, settings);
-    }
-
-    private grantPolicyOfCodeBuildForCdDeploy(principal: any, settings: Context): void {
-        principal.addToPrincipalPolicy(iam.PolicyStatement.fromJson({
-            "Effect": "Allow",
-            "Action": [
-                "ecs:RegisterTaskDefinition",
-                "ecs:ListTaskDefinitions",
-                "ecs:DescribeTaskDefinition"
-            ],
-            "Resource": [
-                "*"
-            ]
-        }));
-        const me = cdk.Stack.of(this).account;
-        principal.addToPrincipalPolicy(iam.PolicyStatement.fromJson({
-            "Effect": "Allow",
-            "Action": [
-                "application-autoscaling:Describe*",
-                "application-autoscaling:PutScalingPolicy",
-                "application-autoscaling:DeleteScalingPolicy",
-                "application-autoscaling:RegisterScalableTarget",
-                "cloudwatch:DescribeAlarms",
-                "cloudwatch:PutMetricAlarm",
-                "ecs:List*",
-                "ecs:Describe*",
-                "ecs:UpdateService",
-                "iam:AttachRolePolicy",
-                "iam:CreateRole",
-                "iam:GetPolicy",
-                "iam:GetPolicyVersion",
-                "iam:GetRole",
-                "iam:ListAttachedRolePolicies",
-                "iam:ListRoles",
-                "iam:ListGroups",
-                "iam:ListUsers"
-            ],
-            "Resource": [
-                "*"
-            ]
-        }));
-        principal.addToPrincipalPolicy(iam.PolicyStatement.fromJson({
-            "Effect": "Allow",
-            "Action": [
-                "lambda:UpdateFunctionCode"
-            ],
-            "Resource": [
-                `arn:aws:lambda:${this.region}:${me}:function:${settings.wpk('*')}`
-            ]
-        }));
-        principal.addToPrincipalPolicy(iam.PolicyStatement.fromJson({
-            "Effect": "Allow",
-            "Action": "iam:PassRole",
-            "Resource": [`arn:aws:iam::${me}:role/ecsTaskExecutionRole`]
-        }));
     }
 
     private setTag(key: string, value: string): void {
