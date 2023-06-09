@@ -22,6 +22,7 @@ import { DockerImageCode } from 'aws-cdk-lib/aws-lambda';
 import { DockerImageFunction } from 'aws-cdk-lib/aws-lambda';
 import { RestApi, LambdaIntegration, MethodLoggingLevel } from 'aws-cdk-lib/aws-apigateway';
 import { Table } from 'aws-cdk-lib/aws-dynamodb';
+import { VpcAndNetwork } from './construct/vpc-and-network';
 
 export class AlwsStageOfStack extends cdk.Stack {
     constructor(scope: Construct, id: string, props?: AlwsStackProps) {
@@ -30,13 +31,14 @@ export class AlwsStageOfStack extends cdk.Stack {
         const settings = props?.context as Context;
         this.confimationOfPreconditions(props?.context);
 
-        const { vpc, rdsSecurityGroup, ecsSecurityGroup } = this.buildVpcAndNetwork(settings);
+        const vpc = new VpcAndNetwork(this, 'VpcAndNetwork', { context: settings });
+        // const { vpc, rdsSecurityGroup, ecsSecurityGroup } = this.buildVpcAndNetwork(settings);
 
-        const { appRds, rdsSecret } = this.buildRds(settings, vpc, rdsSecurityGroup);
+        const { appRds, rdsSecret } = this.buildRds(settings, vpc.vpc, vpc.rdsSecurityGroup);
 
         const innerApi = this.buildApiGatewayAndLambda(settings);
 
-        this.buildEcsCluster(settings, vpc, appRds, ecsSecurityGroup, rdsSecret, innerApi);
+        this.buildEcsCluster(settings, vpc.vpc, appRds, vpc.ecsSecurityGroup, rdsSecret, innerApi);
 
         this.buildCodeBuildForCdDeploy(settings);
 
