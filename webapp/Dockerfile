@@ -11,7 +11,7 @@ RUN apk add autoconf build-base imagemagick-dev \
 COPY ./ /app
 WORKDIR /app
 
-RUN rm -rf ./container/
+RUN rm -rf ./container/ && mv .env.production .env
 
 RUN composer install --no-interaction --optimize-autoloader --no-dev
 RUN php artisan optimize
