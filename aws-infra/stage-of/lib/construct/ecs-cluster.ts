@@ -10,7 +10,7 @@ import { LogGroup } from 'aws-cdk-lib/aws-logs';
 import { Duration, Stack } from 'aws-cdk-lib';
 import { ApplicationLoadBalancedFargateService } from 'aws-cdk-lib/aws-ecs-patterns';
 import { StringParameter } from 'aws-cdk-lib/aws-ssm';
-import { ApplicationProtocol, ListenerAction, ListenerCertificate, SslPolicy } from 'aws-cdk-lib/aws-elasticloadbalancingv2';
+import { ApplicationLoadBalancer, ApplicationProtocol, ListenerAction, ListenerCertificate, SslPolicy } from 'aws-cdk-lib/aws-elasticloadbalancingv2';
 import { ARecord, HostedZone, RecordTarget } from 'aws-cdk-lib/aws-route53';
 import { LoadBalancerTarget } from 'aws-cdk-lib/aws-route53-targets';
 
@@ -35,7 +35,17 @@ export class EcsCluster extends Construct {
             vpc: props.vpc,
         });
 
-        const serviceTaskDefinition = new FargateTaskDefinition(this, `${context.systemNameOfPascalCase()}AppTaskDefinition`, {
+        const taskDefinition = this.buildTaskDefinition(props, stack);
+
+        const albFargateService = this.buildAlbFargeteService(taskDefinition, ecsCluster, props);
+
+        this.buildDnsRecord(albFargateService.loadBalancer, context);
+    }
+
+    private buildTaskDefinition(props: EcsClusterProps, stack: Stack): FargateTaskDefinition {
+        const context = props.context;
+
+        const taskDefinition = new FargateTaskDefinition(this, `${context.systemNameOfPascalCase()}AppTaskDefinition`, {
             family: context.wpk('app-task-difinition-family'),
             cpu: 256,
             memoryLimitMiB: 512,
@@ -43,25 +53,10 @@ export class EcsCluster extends Construct {
                 cpuArchitecture: CpuArchitecture.X86_64,
                 operatingSystemFamily: OperatingSystemFamily.LINUX
             },
-            // TODO 実行時ロールの作り込み
-            executionRole: new Role(this, 'TaskExecutionRole', {
-                assumedBy: new ServicePrincipal('ecs-tasks.amazonaws.com'),
-                inlinePolicies: {
-                    "ApiGatewayManagementForWebSocketRequestPolicy": PolicyDocument.fromJson({
-                        "Version": "2012-10-17",
-                        "Statement": [
-                            {
-                                "Effect": "Allow",
-                                "Action": "execute-api:ManageConnections",
-                                "Resource": "arn:aws:execute-api:*:*:*/*/*/*"
-                            }
-                        ]
-                    })  // FIXME これはレンジ広すぎてひどい…
-                }
-            })
+            executionRole: this.buildTaskRole()
         });
         const containerName = `${context.systemName()}-app`;
-        serviceTaskDefinition.addContainer(`${context.systemNameOfPascalCase()}AppContainer`, {
+        taskDefinition.addContainer(`${context.systemNameOfPascalCase()}AppContainer`, {
             containerName: containerName,
             image: ContainerImage.fromRegistry("nginx:mainline-alpine"),
             memoryReservationMiB: 256,
@@ -78,20 +73,7 @@ export class EcsCluster extends Construct {
                 timeout: Duration.seconds(5),
                 retries: 3
             },
-            environment: {
-                DB_HOST: props.rds.instanceEndpoint.hostname,
-                DB_PORT: String(props.rds.instanceEndpoint.port),
-                DB_DATABASE: context.systemName(),
-                DB_USERNAME: props.rdsSecret.secretValueFromJson('username').unsafeUnwrap(),
-                DB_PASSWORD: props.rdsSecret.secretValueFromJson('password').unsafeUnwrap(),
-                CLIENT_SEND_API_URL: props.innerApi.url,
-                WEBSOCKET_URL: context.currentStage().apiFqdn,
-                WEBSOCKET_API_URL: context.websocketEndpointUrl(),
-                WEBSOCKET_API_REGION: stack.region,
-                // TODO 以下は「何をどうやって仕込むか」を要検討
-                // WSDDB_AWS_ACCESS_KEY_ID: '',
-                // WSDDB_AWS_SECRET_ACCESS_KEY: ''
-            }
+            environment: this.buildContainerEnvironmentVariables(props, stack)
         }).addPortMappings({
             name: `${context.systemName()}-app-80-tcp`,
             containerPort: 80,
@@ -99,10 +81,56 @@ export class EcsCluster extends Construct {
             protocol: Protocol.TCP,
             appProtocol: AppProtocol.http
         });
+        return taskDefinition;
+    }
+
+    private buildContainerEnvironmentVariables(props: EcsClusterProps, stack: Stack): { [key: string]: string; } {
+        const context = props.context;
+        return {
+            DB_HOST: props.rds.instanceEndpoint.hostname,
+            DB_PORT: String(props.rds.instanceEndpoint.port),
+            DB_DATABASE: context.systemName(),
+            DB_USERNAME: props.rdsSecret.secretValueFromJson('username').unsafeUnwrap(),
+            DB_PASSWORD: props.rdsSecret.secretValueFromJson('password').unsafeUnwrap(),
+            CLIENT_SEND_API_URL: props.innerApi.url,
+            WEBSOCKET_URL: context.currentStage().apiFqdn,
+            WEBSOCKET_API_URL: context.websocketEndpointUrl(),
+            WEBSOCKET_API_REGION: stack.region,
+            // TODO 以下は「何をどうやって仕込むか」を要検討
+            // WSDDB_AWS_ACCESS_KEY_ID: '',
+            // WSDDB_AWS_SECRET_ACCESS_KEY: ''
+        }
+    }
+
+    private buildTaskRole(): Role {
+        // TODO 実行時ロールの作り込み
+        return new Role(this, 'TaskExecutionRole', {
+            assumedBy: new ServicePrincipal('ecs-tasks.amazonaws.com'),
+            inlinePolicies: {
+                "ApiGatewayManagementForWebSocketRequestPolicy": PolicyDocument.fromJson({
+                    "Version": "2012-10-17",
+                    "Statement": [
+                        {
+                            "Effect": "Allow",
+                            "Action": "execute-api:ManageConnections",
+                            "Resource": "arn:aws:execute-api:*:*:*/*/*/*"
+                        }
+                    ]
+                })  // FIXME これはレンジ広すぎてひどい…
+            }
+        });
+    }
+
+    private buildAlbFargeteService(
+        taskDifinition: FargateTaskDefinition,
+        ecsCluster: Cluster,
+        props: EcsClusterProps
+    ): ApplicationLoadBalancedFargateService {
+        const context = props.context;
 
         const albFargateService = new ApplicationLoadBalancedFargateService(this, 'AppService', {
             serviceName: context.wpk('app-service'),
-            taskDefinition: serviceTaskDefinition,
+            taskDefinition: taskDifinition,
             securityGroups: [props.ecsSecurityGroup],
             healthCheckGracePeriod: Duration.seconds(240),
             loadBalancerName: context.wpk('app-alb'),
@@ -135,6 +163,10 @@ export class EcsCluster extends Construct {
             certificates: [certificate]
         });
 
+        return albFargateService;
+    }
+
+    private buildDnsRecord(alb: ApplicationLoadBalancer, context: Context): void {
         const hostedZoneId = StringParameter.valueFromLookup(this, context.hostedZoneIdPraStoreName());
         const hostedZone = HostedZone.fromHostedZoneAttributes(this, "HostZone", {
             zoneName: context.applicationDnsARecordName(),
@@ -143,7 +175,7 @@ export class EcsCluster extends Construct {
         new ARecord(this, "DnsAppAnameRecord", {
             zone: hostedZone,
             recordName: context.applicationDnsARecordName(),
-            target: RecordTarget.fromAlias(new LoadBalancerTarget(albFargateService.loadBalancer)),
+            target: RecordTarget.fromAlias(new LoadBalancerTarget(alb)),
             ttl: Duration.minutes(5),
             comment: 'Application LB Record.'
         });
