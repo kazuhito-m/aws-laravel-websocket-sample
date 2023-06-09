@@ -147,6 +147,5 @@ export class EcsCluster extends Construct {
             ttl: Duration.minutes(5),
             comment: 'Application LB Record.'
         });
-        return ecsCluster;
     }
 }
