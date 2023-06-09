@@ -57,15 +57,11 @@ export class EcsCluster extends Construct {
                 cpuArchitecture: CpuArchitecture.X86_64,
                 operatingSystemFamily: OperatingSystemFamily.LINUX
             },
-            taskRole: new Role(this, "EcsTaskRole", {
-                roleName: 'ecs-task-execution-role',
-                assumedBy: new ServicePrincipal('ecs-tasks.amazonaws.com'),
-                managedPolicies: [
-                    ManagedPolicy.fromAwsManagedPolicyName('service-role/AmazonECSTaskExecutionRolePolicy')
-                ],
-            }),
             executionRole: this.buildTaskRole()
         });
+        taskDefinition.taskRole.addManagedPolicy(ManagedPolicy.fromAwsManagedPolicyName('service-role/AmazonECSTaskExecutionRolePolicy'));
+        taskDefinition.executionRole?.addManagedPolicy(ManagedPolicy.fromAwsManagedPolicyName('service-role/AmazonECSTaskExecutionRolePolicy'));
+
         const containerName = `${context.systemName()}-app`;
         taskDefinition.addContainer(`${context.systemNameOfPascalCase()}AppContainer`, {
             containerName: containerName,
@@ -149,7 +145,7 @@ export class EcsCluster extends Construct {
             cluster: ecsCluster,
         });
         albFargateService.targetGroup.configureHealthCheck({
-            path: "/",
+            path: "/login",
             healthyThresholdCount: 2,
             interval: Duration.seconds(15),
         });
