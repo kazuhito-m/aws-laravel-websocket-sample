@@ -35,11 +35,11 @@ export class EcsCluster extends Construct {
             vpc: props.vpc,
         });
 
-        const taskDefinition = this.buildTaskDefinition(props, stack);
+        const taskDef = this.buildTaskDefinition(props, stack);
 
-        const albFargateService = this.buildAlbFargeteService(taskDefinition, ecsCluster, props);
+        const albService = this.buildAlbFargeteService(taskDef, ecsCluster, props);
 
-        this.buildDnsRecord(albFargateService.loadBalancer, context);
+        this.buildDnsRecord(albService.loadBalancer, context);
     }
 
     private buildTaskDefinition(props: EcsClusterProps, stack: Stack): FargateTaskDefinition {
