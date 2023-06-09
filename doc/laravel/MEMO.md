@@ -108,6 +108,20 @@ npm run dev
 ## .envまわり「設定を書き換える手段」のバリエーション
 
 - https://kaki-engine.com/laravel-env-file-referenced/
+- https://readouble.com/laravel/8.x/ja/configuration.html
+- https://tektektech.com/laravel-environment-variable/
+
+
+[こうした。](https://github.com/kazuhito-m/aws-laravel-websocket-sample/pull/19)
+
+## LaravelアプリケーションをDockerizeするベストプラクティス
+
+- https://blog.potproject.net/2018/09/17/php-web-docker-production
+- https://zenn.dev/ppputtyo/articles/laravel9-render
+
+今使っているコンテナは `webdevops/php-nginx` なのだが、上記のリンクの記事のほうが良いのかもしれない。
+
+TODO 書き換えテスト
 
 ## トラブルシュート:APサーバの冗長化構成でページを遷移するたび「419:PAGE EXPIRED」になる問題
 
@@ -141,6 +155,14 @@ public function boot()
 - https://liginc.co.jp/490895
 - https://o-84.com/article/laravel-url-generator-cloudfront-alb-https/
 - https://egatech.net/laravel-https/
+
+## トラブルシュート: .env変えたのに反映されない問題
+
+- https://zenn.dev/ikeo/articles/627b042ffb6796b0a507
+
+`php artisan config:clear` する必要が在る。
+
+それがわからない場合、わけわからない時間を溶かすことになる。
 
 ## その他、トラブルシュートに使った周辺知識
 
