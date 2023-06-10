@@ -15,6 +15,7 @@ import { ARecord, HostedZone, RecordTarget } from 'aws-cdk-lib/aws-route53';
 import { LoadBalancerTarget } from 'aws-cdk-lib/aws-route53-targets';
 import { CfnStage } from 'aws-cdk-lib/aws-apigatewayv2';
 import { ApiGatewayEndpoint } from './apigateway-endpoint';
+import { ParameterStore } from '../parameterstore/parameter-store';
 
 export interface EcsClusterProps {
     readonly context: Context;
@@ -168,7 +169,7 @@ export class EcsCluster extends Construct {
             })
         }
 
-        const certificateArn = StringParameter.valueFromLookup(this, context.certArnPraStoreName());
+        const certificateArn = new ParameterStore(props.context, this).cerificationArn();
         const certificate = ListenerCertificate.fromArn(certificateArn);
 
         albFargateService.loadBalancer.addListener('AlbListenerHTTPS', {
@@ -182,7 +183,7 @@ export class EcsCluster extends Construct {
     }
 
     private buildDnsRecord(alb: ApplicationLoadBalancer, context: Context): void {
-        const hostedZoneId = StringParameter.valueFromLookup(this, context.hostedZoneIdPraStoreName());
+        const hostedZoneId = new ParameterStore(context, this).hostedZoneId();
         const hostedZone = HostedZone.fromHostedZoneAttributes(this, "HostZone", {
             zoneName: context.applicationDnsARecordName(),
             hostedZoneId: hostedZoneId,
