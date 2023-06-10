@@ -5,7 +5,7 @@ import { RestApi } from 'aws-cdk-lib/aws-apigateway';
 import { Secret } from 'aws-cdk-lib/aws-secretsmanager';
 import { DatabaseInstance } from 'aws-cdk-lib/aws-rds';
 import { AppProtocol, Cluster, ContainerImage, CpuArchitecture, FargateTaskDefinition, LogDriver, OperatingSystemFamily, Protocol } from 'aws-cdk-lib/aws-ecs';
-import { ManagedPolicy, PolicyDocument, Role, ServicePrincipal } from 'aws-cdk-lib/aws-iam';
+import { ManagedPolicy, PolicyDocument, PolicyStatement, Role, ServicePrincipal } from 'aws-cdk-lib/aws-iam';
 import { LogGroup } from 'aws-cdk-lib/aws-logs';
 import { Duration, Stack } from 'aws-cdk-lib';
 import { ApplicationLoadBalancedFargateService } from 'aws-cdk-lib/aws-ecs-patterns';
@@ -63,8 +63,14 @@ export class EcsCluster extends Construct {
             },
             executionRole: this.buildTaskRole()
         });
+        const me = Stack.of(stack).account;
         taskDefinition.taskRole.addManagedPolicy(ManagedPolicy.fromAwsManagedPolicyName('service-role/AmazonECSTaskExecutionRolePolicy'));
         taskDefinition.executionRole?.addManagedPolicy(ManagedPolicy.fromAwsManagedPolicyName('service-role/AmazonECSTaskExecutionRolePolicy'));
+        taskDefinition.executionRole?.addToPrincipalPolicy(PolicyStatement.fromJson({
+            "Effect": "Allow",
+            "Action": "dynamodb:Scan",
+            "Resource": `arn:aws:dynamodb:${stack.region}:${me}:table/${context.dynamoDbTableName()}`,
+        }));
 
         const containerName = `${context.systemName()}-app`;
         taskDefinition.addContainer(`${context.systemNameOfPascalCase()}AppContainer`, {
