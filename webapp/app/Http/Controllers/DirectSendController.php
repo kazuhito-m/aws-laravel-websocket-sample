@@ -102,7 +102,7 @@ class DirectSendController extends Controller
 
         $accessKey = config('custom.wsddb-aws-access-key-id');
         $secretKey = config('custom.wsddb-aws-secret-access-key');
-        if (isset($accessKey) || isset($secretKey)) {
+        if (!(empty($accessKey) && empty($secretKey))) {
             $config['credentials'] = [
                 'key' => $accessKey,
                 'secret' => $secretKey
