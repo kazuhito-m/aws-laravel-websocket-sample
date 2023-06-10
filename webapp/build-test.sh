@@ -2,6 +2,9 @@
 
 ./container/rewrite_version.sh '0.0.9999'
 
+echo '-------- clear resources --------'
+rm -rf ./public/build/ ./node_modules/
+
 echo '-------- docker build --------'
 # docker build -t laravel-test:latest . \
 docker build --no-cache -t laravel-test:latest .
