@@ -12,7 +12,8 @@ export interface ApiGatewayAndLambdaProps {
 }
 
 export class ApiGatewayAndLambda extends Construct {
-    public innerApi: RestApi;
+    public readonly webSocketApiStage: CfnStage;
+    public readonly innerApi: RestApi;
 
     constructor(scope: Construct, id: string, props: ApiGatewayAndLambdaProps) {
         super(scope, id);
@@ -34,7 +35,7 @@ export class ApiGatewayAndLambda extends Construct {
         });
     }
 
-    private buildWebSocektApiGatewayAndLambda(settings: Context, dynamoDbTable: Table, stack: Stack): void {
+    private buildWebSocektApiGatewayAndLambda(settings: Context, dynamoDbTable: Table, stack: Stack): CfnStage {
         const webSocketApi = new CfnApi(this, settings.wpp('WebSocketApi'), {
             name: settings.wpk('websocket-api'),
             protocolType: 'WEBSOCKET',
@@ -92,7 +93,9 @@ export class ApiGatewayAndLambda extends Construct {
             autoDeploy: true,
             deploymentId: deployment.ref,
             stageName: 'v1',
-        })
+        });
+
+        return stage;
     }
 
     private buildWebSocektApiKickApiGatewayAndLambda(settings: Context, stack: Stack): RestApi {
