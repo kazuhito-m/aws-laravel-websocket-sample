@@ -112,9 +112,7 @@ export class EcsCluster extends Construct {
             WEBSOCKET_URL: apiEp.path(),
             WEBSOCKET_API_URL: apiEp.httpUrl(),
             WEBSOCKET_API_REGION: stack.region,
-            // TODO 以下は「何をどうやって仕込むか」を要検討
-            // WSDDB_AWS_ACCESS_KEY_ID: '',
-            // WSDDB_AWS_SECRET_ACCESS_KEY: ''
+            WSDDB_TABLE_NAME: context.dynamoDbTableName(),
         }
     }
 
