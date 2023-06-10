@@ -63,9 +63,9 @@
                     "multiAz": false
                 },
                 "container": {
-                    "minCapacity": 1,
-                    "maxCapacity": 1,
-                    "cpuUtilizationPercent": 0
+                    "minCapacity": 2,
+                    "maxCapacity": 10,
+                    "cpuUtilizationPercent": 80
                 }
             },
             "staging": {
@@ -77,9 +77,9 @@
                     "multiAz": false
                 },
                 "container": {
-                    "minCapacity": 2,
-                    "maxCapacity": 10,
-                    "cpuUtilizationPercent": 80
+                    "minCapacity": 1,
+                    "maxCapacity": 1,
+                    "cpuUtilizationPercent": 0
                 }
             }
         }
