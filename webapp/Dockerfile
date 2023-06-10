@@ -11,10 +11,15 @@ RUN apk add autoconf build-base imagemagick-dev \
 COPY ./ /app
 WORKDIR /app
 
-RUN rm -rf ./container/ && mv .env.production .env
+RUN rm -rf ./container/ ./tests/ \
+  && mv .env.production .env
 
-RUN composer install --no-interaction --optimize-autoloader --no-dev
-RUN php artisan optimize
+RUN npm install \
+  && npm run build \
+  && rm -rf ./node_modules/
+
+RUN composer install --no-interaction --optimize-autoloader --no-dev \
+  && php artisan optimize
 
 # Ensure all of our files are owned by the same user and group.
 RUN chown -R application:application .
