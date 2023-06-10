@@ -19,7 +19,7 @@ export class ApiGatewayAndLambda extends Construct {
         super(scope, id);
 
         const dynamoDbTable = this.buildDynamoDbTableOfWebSocketConnection(props.context);
-        this.buildWebSocektApiGatewayAndLambda(props.context, dynamoDbTable, scope as Stack);
+        this.webSocketApiStage = this.buildWebSocektApiGatewayAndLambda(props.context, dynamoDbTable, scope as Stack);
         this.innerApi = this.buildWebSocektApiKickApiGatewayAndLambda(props.context, scope as Stack);
     }
 
