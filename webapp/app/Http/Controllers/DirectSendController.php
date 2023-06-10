@@ -36,10 +36,14 @@ class DirectSendController extends Controller
 
     private function sendMessageOf(string $id, string $message)
     {
-        Log::debug('ID:' . $id . ', message:' . $message);
+        Log::info('ID:' . $id . ', message:' . $message);
+
         $client = $this->createDynamoDBClient();
 
-        $records = $client->scan(['TableName' => 'simplechat_connections']);
+        $tableName = config('custom.wsddb-table-name');
+        Log::info('検索対象のDynamoDBのテーブル名:' . $tableName);
+
+        $records = $client->scan(['TableName' => $tableName]);
 
         $websocketConnections = array();
         foreach ($records['Items'] as $record) {
@@ -68,8 +72,10 @@ class DirectSendController extends Controller
 
     private function sendDirectEndPointOfWebSocket(ClientPushSignalForWebSocketEndpoint $signal, $connectionIds)
     {
-        $endpoint = config('custom.websocket-api-url');
-        Log::debug('endpoint: ' . $endpoint);
+        $apiUrl = config('custom.websocket-api-url');
+        $endpoint = $this->completingTrailingSlashesOf($apiUrl);
+        Log::info('endpoint: ' . $endpoint);
+
         $client = new ApiGatewayManagementApiClient([
             'version' => '2018-11-29',
             'endpoint' => $endpoint,
@@ -107,5 +113,10 @@ class DirectSendController extends Controller
         }
 
         return new DynamoDbClient($config);
+    }
+
+    private function completingTrailingSlashesOf(string $text)
+    {
+        return preg_replace('/\/*$/', '', $text) . '/';
     }
 }
