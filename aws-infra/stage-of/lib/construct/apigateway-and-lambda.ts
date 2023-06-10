@@ -23,13 +23,13 @@ export class ApiGatewayAndLambda extends Construct {
         this.innerApi = this.buildWebSocektApiKickApiGatewayAndLambda(props.context, scope as Stack);
     }
 
-    private buildDynamoDbTableOfWebSocketConnection(settings: Context): Table {
+    private buildDynamoDbTableOfWebSocketConnection(context: Context): Table {
         return new Table(this, 'WebSocketConnectionDynamoDBTable', {
             partitionKey: {
                 name: 'connectionId',
                 type: AttributeType.STRING,
             },
-            tableName: settings.dynamoDbTableName(),
+            tableName: context.dynamoDbTableName(),
             billingMode: BillingMode.PAY_PER_REQUEST,
             removalPolicy: RemovalPolicy.DESTROY
         });
