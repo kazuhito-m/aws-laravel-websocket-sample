@@ -9,6 +9,7 @@ import { AlwsStackProps } from './alws-stack-props';
 import { Context } from './context/context';
 import { Duration } from 'aws-cdk-lib';
 import { StringParameter } from 'aws-cdk-lib/aws-ssm';
+import { ParameterStore } from './parameterstore/parameter-store';
 
 export class AlwsGlobalStack extends cdk.Stack {
     constructor(scope: Construct, id: string, props?: AlwsStackProps) {
@@ -46,8 +47,9 @@ export class AlwsGlobalStack extends cdk.Stack {
             comment: 'All names that do not exist in the A record are treated as "."'
         });
 
-        this.savePrameterStore(`${settings.systemName()}-hostedzone-id`, hostedZone.hostedZoneId);
-        this.savePrameterStore(`${settings.systemName()}-certification-arn`, certificate.certificateArn);
+        const parameterStore = new ParameterStore(settings, this);
+        parameterStore.registerHostedZoneId(hostedZone.hostedZoneId);
+        parameterStore.registerCerificationArn(certificate.certificateArn);
     }
 
     private buildContainerRepository(settings: Context): ecr.Repository[] {
@@ -97,10 +99,6 @@ export class AlwsGlobalStack extends cdk.Stack {
             }
         });
         repositories.forEach(r => r.grantPullPush(tagBuildOfSourceCIProject.grantPrincipal));
-    }
-
-    private savePrameterStore(key: string, value: string): StringParameter {
-        return new StringParameter(this, key, { stringValue: value });
     }
 
     private setTag(key: string, value: string): void {
