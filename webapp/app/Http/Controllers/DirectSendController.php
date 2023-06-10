@@ -86,16 +86,26 @@ class DirectSendController extends Controller
 
     private function createDynamoDBClient()
     {
-        return new DynamoDbClient([
+        $config = [
             'region' => config('custom.websocket-api-region'),
             'version' => 'latest',
-            'credentials' => [
-                'key' =>  config('custom.wsddb-aws-access-key-id'),
-                'secret' => config('custom.wsddb-aws-secret-access-key'),
-            ],
             'http' => [
                 'timeout' => 5,
             ],
-        ]);
+        ];
+
+        $accessKey = config('custom.wsddb-aws-access-key-id');
+        $secretKey = config('custom.wsddb-aws-secret-access-key');
+        if (isset($accessKey) || isset($secretKey)) {
+            $config['credentials'] = [
+                'key' => $accessKey,
+                'secret' => $secretKey
+            ];
+            Log::info('Credential情報在りでDynamoDbClient生成。accessKey:' . $accessKey . ', $secretKey:' . $secretKey);
+        } else {
+            Log::info('Credential情報無しでDynamoDbClient生成。');
+        }
+
+        return new DynamoDbClient($config);
     }
 }
