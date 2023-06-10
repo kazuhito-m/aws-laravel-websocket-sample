@@ -1,3 +1,16 @@
+# ---- pre build (node/npm) ----
+
+FROM node:18-alpine as builder
+COPY ./ /app
+WORKDIR /app
+RUN npm install
+RUN npm run build
+RUN rm -rf ./node_modules/
+RUN rm -rf ./container/ ./tests/
+RUN mv .env.production .env
+
+# ---- main ----
+
 FROM webdevops/php-nginx:8.2-alpine
 
 ENV WEB_DOCUMENT_ROOT=/app/public
@@ -8,13 +21,11 @@ RUN apk add autoconf build-base imagemagick-dev \
   && docker-php-ext-enable imagick \
   && rm -rf /tmp/* /var/cache/apk/*
 
-COPY ./ /app
+COPY --from=builder /app /app
 WORKDIR /app
 
-RUN rm -rf ./container/ && mv .env.production .env
-
-RUN composer install --no-interaction --optimize-autoloader --no-dev
-RUN php artisan optimize
+RUN composer install --no-interaction --optimize-autoloader --no-dev \
+  && php artisan optimize
 
 # Ensure all of our files are owned by the same user and group.
 RUN chown -R application:application .
