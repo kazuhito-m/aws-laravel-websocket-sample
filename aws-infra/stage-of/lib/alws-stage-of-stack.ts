@@ -27,6 +27,7 @@ export class AlwsStageOfStack extends cdk.Stack {
             rds: rds.appRds,
             rdsSecret: rds.rdsSecret,
             ecsSecurityGroup: vpc.ecsSecurityGroup,
+            webSocketApiStage: apiAndLambda.webSocketApiStage,
             innerApi: apiAndLambda.innerApi
         });
 

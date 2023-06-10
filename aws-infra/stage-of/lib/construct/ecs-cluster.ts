@@ -13,6 +13,9 @@ import { StringParameter } from 'aws-cdk-lib/aws-ssm';
 import { ApplicationLoadBalancer, ApplicationProtocol, ListenerAction, ListenerCertificate, SslPolicy } from 'aws-cdk-lib/aws-elasticloadbalancingv2';
 import { ARecord, HostedZone, RecordTarget } from 'aws-cdk-lib/aws-route53';
 import { LoadBalancerTarget } from 'aws-cdk-lib/aws-route53-targets';
+import { CfnStage } from 'aws-cdk-lib/aws-apigatewayv2';
+import { ApiGatewayEndpoint } from './apigateway-endpoint';
+import { ParameterStore } from '../parameterstore/parameter-store';
 
 export interface EcsClusterProps {
     readonly context: Context;
@@ -20,6 +23,7 @@ export interface EcsClusterProps {
     readonly ecsSecurityGroup: SecurityGroup;
     readonly rds: DatabaseInstance;
     readonly rdsSecret: Secret;
+    readonly webSocketApiStage: CfnStage
     readonly innerApi: RestApi;
 }
 
@@ -92,6 +96,8 @@ export class EcsCluster extends Construct {
     }
 
     private buildContainerEnvironmentVariables(props: EcsClusterProps, stack: Stack): { [key: string]: string; } {
+        const apiEp = new ApiGatewayEndpoint(props.webSocketApiStage);
+
         const context = props.context;
         return {
             DB_HOST: props.rds.instanceEndpoint.hostname,
@@ -100,8 +106,11 @@ export class EcsCluster extends Construct {
             DB_USERNAME: props.rdsSecret.secretValueFromJson('username').unsafeUnwrap(),
             DB_PASSWORD: props.rdsSecret.secretValueFromJson('password').unsafeUnwrap(),
             CLIENT_SEND_API_URL: props.innerApi.url,
-            WEBSOCKET_URL: context.currentStage().apiFqdn,
-            WEBSOCKET_API_URL: context.websocketEndpointUrl(),
+            // WEBSOCKET_URL: context.currentStage().apiFqdn,
+            // WEBSOCKET_API_URL: context.websocketEndpointUrl(),
+            // FIXME 上記の通り…でありたいのだが、今「カスタムドメインとCredentialを仕込めない」という問題があるので、生のAPIエンドポイントを仕込む
+            WEBSOCKET_URL: apiEp.path(),
+            WEBSOCKET_API_URL: apiEp.httpUrl(),
             WEBSOCKET_API_REGION: stack.region,
             // TODO 以下は「何をどうやって仕込むか」を要検討
             // WSDDB_AWS_ACCESS_KEY_ID: '',
@@ -160,7 +169,7 @@ export class EcsCluster extends Construct {
             })
         }
 
-        const certificateArn = StringParameter.valueFromLookup(this, context.certArnPraStoreName());
+        const certificateArn = new ParameterStore(props.context, this).cerificationArn();
         const certificate = ListenerCertificate.fromArn(certificateArn);
 
         albFargateService.loadBalancer.addListener('AlbListenerHTTPS', {
@@ -174,7 +183,7 @@ export class EcsCluster extends Construct {
     }
 
     private buildDnsRecord(alb: ApplicationLoadBalancer, context: Context): void {
-        const hostedZoneId = StringParameter.valueFromLookup(this, context.hostedZoneIdPraStoreName());
+        const hostedZoneId = new ParameterStore(context, this).hostedZoneId();
         const hostedZone = HostedZone.fromHostedZoneAttributes(this, "HostZone", {
             zoneName: context.applicationDnsARecordName(),
             hostedZoneId: hostedZoneId,

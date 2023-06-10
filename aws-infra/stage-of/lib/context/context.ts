@@ -122,14 +122,6 @@ export class Context {
         return this.currentStage().apiFqdn + '.';
     }
 
-    public certArnPraStoreName(): string {
-        return `${this.systemName()}-certification-arn`;
-    }
-
-    public hostedZoneIdPraStoreName(): string {
-        return `${this.systemName()}-hostedzone-id`;
-    }
-
     public dynamoDbTableName(): string {
         return `${this.systemName()}_websocket_connections_${this.currentStageId}`;
     }
