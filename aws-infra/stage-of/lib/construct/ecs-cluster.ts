@@ -66,11 +66,6 @@ export class EcsCluster extends Construct {
         const me = Stack.of(stack).account;
         taskDefinition.taskRole.addManagedPolicy(ManagedPolicy.fromAwsManagedPolicyName('service-role/AmazonECSTaskExecutionRolePolicy'));
         taskDefinition.executionRole?.addManagedPolicy(ManagedPolicy.fromAwsManagedPolicyName('service-role/AmazonECSTaskExecutionRolePolicy'));
-        taskDefinition.executionRole?.addToPrincipalPolicy(PolicyStatement.fromJson({
-            "Effect": "Allow",
-            "Action": "dynamodb:Scan",
-            "Resource": `arn:aws:dynamodb:${stack.region}:${me}:table/${context.dynamoDbTableName()}`,
-        }));
 
         const containerName = `${context.systemName()}-app`;
         taskDefinition.addContainer(`${context.systemNameOfPascalCase()}AppContainer`, {
