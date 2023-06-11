@@ -5,11 +5,10 @@ import { RestApi } from 'aws-cdk-lib/aws-apigateway';
 import { Secret } from 'aws-cdk-lib/aws-secretsmanager';
 import { DatabaseInstance } from 'aws-cdk-lib/aws-rds';
 import { AppProtocol, Cluster, ContainerImage, CpuArchitecture, FargateTaskDefinition, LogDriver, OperatingSystemFamily, Protocol } from 'aws-cdk-lib/aws-ecs';
-import { ManagedPolicy, PolicyDocument, Role, ServicePrincipal } from 'aws-cdk-lib/aws-iam';
+import { IRole, ManagedPolicy, PolicyStatement } from 'aws-cdk-lib/aws-iam';
 import { LogGroup } from 'aws-cdk-lib/aws-logs';
 import { Duration, Stack } from 'aws-cdk-lib';
 import { ApplicationLoadBalancedFargateService } from 'aws-cdk-lib/aws-ecs-patterns';
-import { StringParameter } from 'aws-cdk-lib/aws-ssm';
 import { ApplicationLoadBalancer, ApplicationProtocol, ListenerAction, ListenerCertificate, SslPolicy } from 'aws-cdk-lib/aws-elasticloadbalancingv2';
 import { ARecord, HostedZone, RecordTarget } from 'aws-cdk-lib/aws-route53';
 import { LoadBalancerTarget } from 'aws-cdk-lib/aws-route53-targets';
@@ -61,10 +60,8 @@ export class EcsCluster extends Construct {
                 cpuArchitecture: CpuArchitecture.X86_64,
                 operatingSystemFamily: OperatingSystemFamily.LINUX
             },
-            executionRole: this.buildTaskRole()
         });
-        taskDefinition.taskRole.addManagedPolicy(ManagedPolicy.fromAwsManagedPolicyName('service-role/AmazonECSTaskExecutionRolePolicy'));
-        taskDefinition.executionRole?.addManagedPolicy(ManagedPolicy.fromAwsManagedPolicyName('service-role/AmazonECSTaskExecutionRolePolicy'));
+        this.addPolicyOf(taskDefinition, props, stack);
 
         const containerName = `${context.systemName()}-app`;
         taskDefinition.addContainer(`${context.systemNameOfPascalCase()}AppContainer`, {
@@ -95,6 +92,30 @@ export class EcsCluster extends Construct {
         return taskDefinition;
     }
 
+    private addPolicyOf(taskDefinition: FargateTaskDefinition, props: EcsClusterProps, stack: Stack) {
+        const me = Stack.of(stack).account;
+        const context = props.context;
+
+        taskDefinition.addToExecutionRolePolicy(PolicyStatement.fromJson({
+            "Effect": "Allow",
+            "Action": ["ecr:GetAuthorizationToken", "ecr:BatchGetImage", "ecr:GetDownloadUrlForLayer"],
+            "Resource": "*",
+        }));
+
+        const taskRole = taskDefinition.taskRole;
+        taskRole.addManagedPolicy(ManagedPolicy.fromAwsManagedPolicyName('service-role/AmazonECSTaskExecutionRolePolicy')); // XXX 必要無いかも？
+        taskRole.addToPrincipalPolicy(PolicyStatement.fromJson({
+            "Effect": "Allow",
+            "Action": "dynamodb:Scan",
+            "Resource": `arn:aws:dynamodb:${stack.region}:${me}:table/${context.dynamoDbTableName()}`,
+        }));
+        taskRole.addToPrincipalPolicy(PolicyStatement.fromJson({
+            "Effect": "Allow",
+            "Action": "execute-api:ManageConnections",
+            "Resource": `arn:aws:execute-api:${stack.region}:${me}:${props.webSocketApiStage.apiId}/*/POST/@connections/*`,
+        }));
+    }
+
     private buildContainerEnvironmentVariables(props: EcsClusterProps, stack: Stack): { [key: string]: string; } {
         const apiEp = new ApiGatewayEndpoint(props.webSocketApiStage);
 
@@ -112,29 +133,8 @@ export class EcsCluster extends Construct {
             WEBSOCKET_URL: apiEp.path(),
             WEBSOCKET_API_URL: apiEp.httpUrl(),
             WEBSOCKET_API_REGION: stack.region,
-            // TODO 以下は「何をどうやって仕込むか」を要検討
-            // WSDDB_AWS_ACCESS_KEY_ID: '',
-            // WSDDB_AWS_SECRET_ACCESS_KEY: ''
+            WSDDB_TABLE_NAME: context.dynamoDbTableName(),
         }
-    }
-
-    private buildTaskRole(): Role {
-        // TODO 実行時ロールの作り込み
-        return new Role(this, 'TaskExecutionRole', {
-            assumedBy: new ServicePrincipal('ecs-tasks.amazonaws.com'),
-            inlinePolicies: {
-                "ApiGatewayManagementForWebSocketRequestPolicy": PolicyDocument.fromJson({
-                    "Version": "2012-10-17",
-                    "Statement": [
-                        {
-                            "Effect": "Allow",
-                            "Action": "execute-api:ManageConnections",
-                            "Resource": "arn:aws:execute-api:*:*:*/*/*/*"
-                        }
-                    ]
-                })  // FIXME これはレンジ広すぎてひどい…
-            }
-        });
     }
 
     private buildAlbFargeteService(

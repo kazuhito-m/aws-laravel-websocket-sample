@@ -67,3 +67,29 @@
   - 試行錯誤の結果は、本ソースから参照されたし
 - https://dev.classmethod.jp/articles/alb-vpc-lambda-sample-cdk/
   - これはLambdaの例だが、ALB周りの知識として
+
+## トラブルシュート:ECSからDynamoDBにアクセスするのに、IAMだけでよく、SecretKeyは要らない
+
+ローカルでテストするために、php+AWS-SDK+DynamoDBClientを使い「AccessKey/SecretKey」でアクセスしていた。
+
+が「Credentialsを指定しなくても、
+
+- ローカル: AWS-CLIの資格情報を使ってアクセスする
+- ECS: コンテナのIAM-Roleを使ってアクセスする
+
+ので、双方ともに必要ない、ということが解った。
+
+(なお、実装は「AccessKey/SecretKeyを指定しなければ、Credentialsをくっつけない」という実装にしておいた。)
+
+- https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/using-identity-based-policies.html
+- https://repost.aws/ja/knowledge-center/dynamodb-access-denied-exception
+- https://stackoverflow.com/questions/65115003/aws-cdk-grant-lambda-dynamodb-fullaccess
+
+## トラブルシュート:ECS中のコンテナの”実行時の”ロールはTaskRoleである
+
+- ExecutionRole:コンテナ 起動のためのロール
+- TaskRole: コンテナ実行中のロール
+
+だが、逆だと勘違いしていた。
+
+- https://qiita.com/tmiki/items/25473b8975f8a1095c0a

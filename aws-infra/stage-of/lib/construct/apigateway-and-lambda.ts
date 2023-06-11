@@ -6,6 +6,7 @@ import { Duration, RemovalPolicy, Stack } from 'aws-cdk-lib';
 import { CfnApi, CfnIntegration, CfnDeployment, CfnStage, CfnRoute } from 'aws-cdk-lib/aws-apigatewayv2';
 import { DockerImageCode, DockerImageFunction } from 'aws-cdk-lib/aws-lambda';
 import { Effect, ManagedPolicy, PolicyDocument, PolicyStatement, Role, ServicePrincipal } from 'aws-cdk-lib/aws-iam';
+import { ApiGatewayEndpoint } from './apigateway-endpoint';
 
 export interface ApiGatewayAndLambdaProps {
     readonly context: Context;
@@ -23,13 +24,13 @@ export class ApiGatewayAndLambda extends Construct {
         this.innerApi = this.buildWebSocektApiKickApiGatewayAndLambda(props.context, scope as Stack);
     }
 
-    private buildDynamoDbTableOfWebSocketConnection(settings: Context): Table {
+    private buildDynamoDbTableOfWebSocketConnection(context: Context): Table {
         return new Table(this, 'WebSocketConnectionDynamoDBTable', {
             partitionKey: {
                 name: 'connectionId',
                 type: AttributeType.STRING,
             },
-            tableName: settings.dynamoDbTableName(),
+            tableName: context.dynamoDbTableName(),
             billingMode: BillingMode.PAY_PER_REQUEST,
             removalPolicy: RemovalPolicy.DESTROY
         });
@@ -92,7 +93,7 @@ export class ApiGatewayAndLambda extends Construct {
             apiId: webSocketApi.ref,
             autoDeploy: true,
             deploymentId: deployment.ref,
-            stageName: 'v1',
+            stageName: ApiGatewayEndpoint.STAGE_NAME,
         });
 
         return stage;
@@ -141,7 +142,9 @@ export class ApiGatewayAndLambda extends Construct {
             code: DockerImageCode.fromImageAsset('./dummy/lambda', {}),
             environment: {
                 "DYNAMODB_WEBSOCKET_TABLE": settings.dynamoDbTableName(),
-                "WEBSOCKET_ENDPOINT": settings.websocketEndpointUrl(),
+                // "WEBSOCKET_ENDPOINT": settings.websocketEndpointUrl(),
+                // FIXME 上記の通り…でありたいのだが、今「カスタムドメインとCredentialを仕込めない」という問題があるので、生のAPIエンドポイントを仕込む
+                "WEBSOCKET_ENDPOINT": new ApiGatewayEndpoint(this.webSocketApiStage).httpUrl()
             },
         });
         const me = Stack.of(this).account;
@@ -158,7 +161,7 @@ export class ApiGatewayAndLambda extends Construct {
         const innerApi = new RestApi(this, settings.wpp('SendWebSocketInnerRouteApi'), {
             restApiName: settings.wpk('send-websocket-inner-route-api'),
             deployOptions: {
-                stageName: 'v1',
+                stageName: ApiGatewayEndpoint.STAGE_NAME,
                 loggingLevel: MethodLoggingLevel.ERROR,
             },
             description: `AWSの内側の通信経路を通ってWebSocketのAPIをたたき、Webクライアント(ブラウザ)に通信する。(${settings.currentStageId}用)`,
