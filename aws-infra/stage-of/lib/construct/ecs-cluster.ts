@@ -97,10 +97,14 @@ export class EcsCluster extends Construct {
         const me = Stack.of(stack).account;
         const context = props.context;
 
-        taskDefinition.executionRole?.addManagedPolicy(ManagedPolicy.fromAwsManagedPolicyName('service-role/AmazonECSTaskExecutionRolePolicy'));
+        taskDefinition.executionRole?.addToPrincipalPolicy(PolicyStatement.fromJson({
+            "Effect": "Allow",
+            "Action": ["ecr:BatchGetImage", "ecr:GetDownloadUrlForLayer", "ecr:GetAuthorizationToken"],
+            "Resource": `arn:aws:ecr:${stack.region}:${me}:repository/${context.containerImageId()}`,
+        }));
 
         const taskRole = taskDefinition.taskRole;
-        taskRole.addManagedPolicy(ManagedPolicy.fromAwsManagedPolicyName('service-role/AmazonECSTaskExecutionRolePolicy'));
+        taskRole.addManagedPolicy(ManagedPolicy.fromAwsManagedPolicyName('service-role/AmazonECSTaskExecutionRolePolicy')); // XXX 必要無いかも？
         taskRole.addToPrincipalPolicy(PolicyStatement.fromJson({
             "Effect": "Allow",
             "Action": "dynamodb:Scan",
