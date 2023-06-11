@@ -5,11 +5,10 @@ import { RestApi } from 'aws-cdk-lib/aws-apigateway';
 import { Secret } from 'aws-cdk-lib/aws-secretsmanager';
 import { DatabaseInstance } from 'aws-cdk-lib/aws-rds';
 import { AppProtocol, Cluster, ContainerImage, CpuArchitecture, FargateTaskDefinition, LogDriver, OperatingSystemFamily, Protocol } from 'aws-cdk-lib/aws-ecs';
-import { IRole, ManagedPolicy, PolicyDocument, PolicyStatement, Role, ServicePrincipal } from 'aws-cdk-lib/aws-iam';
+import { IRole, ManagedPolicy, PolicyStatement } from 'aws-cdk-lib/aws-iam';
 import { LogGroup } from 'aws-cdk-lib/aws-logs';
 import { Duration, Stack } from 'aws-cdk-lib';
 import { ApplicationLoadBalancedFargateService } from 'aws-cdk-lib/aws-ecs-patterns';
-import { StringParameter } from 'aws-cdk-lib/aws-ssm';
 import { ApplicationLoadBalancer, ApplicationProtocol, ListenerAction, ListenerCertificate, SslPolicy } from 'aws-cdk-lib/aws-elasticloadbalancingv2';
 import { ARecord, HostedZone, RecordTarget } from 'aws-cdk-lib/aws-route53';
 import { LoadBalancerTarget } from 'aws-cdk-lib/aws-route53-targets';
@@ -97,13 +96,12 @@ export class EcsCluster extends Construct {
         const me = Stack.of(stack).account;
         const context = props.context;
 
-        const executionRole = taskDefinition.executionRole as IRole;
-        executionRole.addToPrincipalPolicy(PolicyStatement.fromJson({
+        taskDefinition.executionRole?.addToPrincipalPolicy(PolicyStatement.fromJson({
             "Effect": "Allow",
             "Action": "ecr:GetAuthorizationToken",
             "Resource": "*",
         }));
-        executionRole.addToPrincipalPolicy(PolicyStatement.fromJson({
+        taskDefinition.executionRole?.addToPrincipalPolicy(PolicyStatement.fromJson({
             "Effect": "Allow",
             "Action": ["ecr:BatchGetImage", "ecr:GetDownloadUrlForLayer"],
             "Resource": `arn:aws:ecr:${stack.region}:${me}:repository/${context.containerImageId()}`,
