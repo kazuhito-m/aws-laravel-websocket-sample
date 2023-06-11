@@ -61,11 +61,11 @@ export class EcsCluster extends Construct {
                 cpuArchitecture: CpuArchitecture.X86_64,
                 operatingSystemFamily: OperatingSystemFamily.LINUX
             },
-            executionRole: this.buildTaskRole()
         });
         const me = Stack.of(stack).account;
         taskDefinition.taskRole.addManagedPolicy(ManagedPolicy.fromAwsManagedPolicyName('service-role/AmazonECSTaskExecutionRolePolicy'));
         taskDefinition.executionRole?.addManagedPolicy(ManagedPolicy.fromAwsManagedPolicyName('service-role/AmazonECSTaskExecutionRolePolicy'));
+
 
         const containerName = `${context.systemName()}-app`;
         taskDefinition.addContainer(`${context.systemNameOfPascalCase()}AppContainer`, {
@@ -115,25 +115,6 @@ export class EcsCluster extends Construct {
             WEBSOCKET_API_REGION: stack.region,
             WSDDB_TABLE_NAME: context.dynamoDbTableName(),
         }
-    }
-
-    private buildTaskRole(): Role {
-        // TODO 実行時ロールの作り込み
-        return new Role(this, 'TaskExecutionRole', {
-            assumedBy: new ServicePrincipal('ecs-tasks.amazonaws.com'),
-            inlinePolicies: {
-                "ApiGatewayManagementForWebSocketRequestPolicy": PolicyDocument.fromJson({
-                    "Version": "2012-10-17",
-                    "Statement": [
-                        {
-                            "Effect": "Allow",
-                            "Action": "execute-api:ManageConnections",
-                            "Resource": "arn:aws:execute-api:*:*:*/*/*/*"
-                        }
-                    ]
-                })  // FIXME これはレンジ広すぎてひどい…
-            }
-        });
     }
 
     private buildAlbFargeteService(
