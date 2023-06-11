@@ -80,3 +80,12 @@
 ので、双方ともに必要ない、ということが解った。
 
 (なお、実装は「AccessKey/SecretKeyを指定しなければ、Credentialsをくっつけない」という実装にしておいた。)
+
+## トラブルシュート:ECS中のコンテナの”実行時の”ロールはTaskRoleである
+
+- ExecutionRole:コンテナ 起動のためのロール
+- TaskRole: コンテナ実行中のロール
+
+だが、逆だと勘違いしていた。
+
+- https://qiita.com/tmiki/items/25473b8975f8a1095c0a
