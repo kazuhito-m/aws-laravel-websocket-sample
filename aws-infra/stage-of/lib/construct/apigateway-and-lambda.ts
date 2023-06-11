@@ -14,13 +14,12 @@ export interface ApiGatewayAndLambdaProps {
 export class ApiGatewayAndLambda extends Construct {
     public readonly webSocketApiStage: CfnStage;
     public readonly innerApi: RestApi;
-    public readonly dynamoDbTable: Table;
 
     constructor(scope: Construct, id: string, props: ApiGatewayAndLambdaProps) {
         super(scope, id);
 
-        this.dynamoDbTable = this.buildDynamoDbTableOfWebSocketConnection(props.context);
-        this.webSocketApiStage = this.buildWebSocektApiGatewayAndLambda(props.context, this.dynamoDbTable, scope as Stack);
+        const dynamoDbTable = this.buildDynamoDbTableOfWebSocketConnection(props.context);
+        this.webSocketApiStage = this.buildWebSocektApiGatewayAndLambda(props.context, dynamoDbTable, scope as Stack);
         this.innerApi = this.buildWebSocektApiKickApiGatewayAndLambda(props.context, scope as Stack);
     }
 

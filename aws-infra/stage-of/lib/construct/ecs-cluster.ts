@@ -66,21 +66,10 @@ export class EcsCluster extends Construct {
         const me = Stack.of(stack).account;
         taskDefinition.taskRole.addManagedPolicy(ManagedPolicy.fromAwsManagedPolicyName('service-role/AmazonECSTaskExecutionRolePolicy'));
         taskDefinition.executionRole?.addManagedPolicy(ManagedPolicy.fromAwsManagedPolicyName('service-role/AmazonECSTaskExecutionRolePolicy'));
-        // taskDefinition.executionRole?.addToPrincipalPolicy(PolicyStatement.fromJson({
-        //     "Sid": "ReadOnlyDynamoDBConnectionsTablePolicy",
-        //     "Effect": "Allow",
-        //     "Action": [
-        //         "dynamodb:DescribeTable",
-        //         "dynamodb:Query",
-        //         "dynamodb:Scan",
-        //     ],
-        //     "Resource": `arn:aws:dynamodb:${stack.region}:${me}:table/${context.dynamoDbTableName()}`,
-        // }));
-        taskDefinition.executionRole?.addManagedPolicy(ManagedPolicy.fromAwsManagedPolicyName('AmazonDynamoDBFullAccess'));
-        taskDefinition.taskRole?.addToPrincipalPolicy(PolicyStatement.fromJson({
+        taskDefinition.executionRole?.addToPrincipalPolicy(PolicyStatement.fromJson({
             "Effect": "Allow",
-            "Action": "execute-api:ManageConnections",
-            "Resource": `arn:aws:execute-api:${stack.region}:${me}:${props.webSocketApiStage.apiId}/*/POST/@connections/*`,
+            "Action": "dynamodb:Scan",
+            "Resource": `arn:aws:dynamodb:${stack.region}:${me}:table/${context.dynamoDbTableName()}`,
         }));
 
         const containerName = `${context.systemName()}-app`;
