@@ -62,10 +62,7 @@ export class EcsCluster extends Construct {
                 operatingSystemFamily: OperatingSystemFamily.LINUX
             },
         });
-        const me = Stack.of(stack).account;
-        taskDefinition.taskRole.addManagedPolicy(ManagedPolicy.fromAwsManagedPolicyName('service-role/AmazonECSTaskExecutionRolePolicy'));
-        taskDefinition.executionRole?.addManagedPolicy(ManagedPolicy.fromAwsManagedPolicyName('service-role/AmazonECSTaskExecutionRolePolicy'));
-
+        this.addPolicyOf(taskDefinition, props, stack);
 
         const containerName = `${context.systemName()}-app`;
         taskDefinition.addContainer(`${context.systemNameOfPascalCase()}AppContainer`, {
@@ -94,6 +91,26 @@ export class EcsCluster extends Construct {
             appProtocol: AppProtocol.http
         });
         return taskDefinition;
+    }
+
+    private addPolicyOf(taskDefinition: FargateTaskDefinition, props: EcsClusterProps, stack: Stack) {
+        const me = Stack.of(stack).account;
+        const context = props.context;
+
+        taskDefinition.executionRole?.addManagedPolicy(ManagedPolicy.fromAwsManagedPolicyName('service-role/AmazonECSTaskExecutionRolePolicy'));
+
+        const taskRole = taskDefinition.taskRole;
+        taskRole.addManagedPolicy(ManagedPolicy.fromAwsManagedPolicyName('service-role/AmazonECSTaskExecutionRolePolicy'));
+        taskRole.addToPrincipalPolicy(PolicyStatement.fromJson({
+            "Effect": "Allow",
+            "Action": "dynamodb:Scan",
+            "Resource": `arn:aws:dynamodb:${stack.region}:${me}:table/${context.dynamoDbTableName()}`,
+        }));
+        taskRole.addToPrincipalPolicy(PolicyStatement.fromJson({
+            "Effect": "Allow",
+            "Action": "execute-api:ManageConnections",
+            "Resource": `arn:aws:execute-api:${stack.region}:${me}:${props.webSocketApiStage.apiId}/*/POST/@connections/*`,
+        }));
     }
 
     private buildContainerEnvironmentVariables(props: EcsClusterProps, stack: Stack): { [key: string]: string; } {
