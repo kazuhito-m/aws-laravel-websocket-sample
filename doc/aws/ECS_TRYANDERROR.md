@@ -81,6 +81,10 @@
 
 (なお、実装は「AccessKey/SecretKeyを指定しなければ、Credentialsをくっつけない」という実装にしておいた。)
 
+- https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/using-identity-based-policies.html
+- https://repost.aws/ja/knowledge-center/dynamodb-access-denied-exception
+- https://stackoverflow.com/questions/65115003/aws-cdk-grant-lambda-dynamodb-fullaccess
+
 ## トラブルシュート:ECS中のコンテナの”実行時の”ロールはTaskRoleである
 
 - ExecutionRole:コンテナ 起動のためのロール
