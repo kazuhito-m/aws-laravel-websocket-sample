@@ -98,13 +98,8 @@ export class EcsCluster extends Construct {
 
         taskDefinition.executionRole?.addToPrincipalPolicy(PolicyStatement.fromJson({
             "Effect": "Allow",
-            "Action": "ecr:GetAuthorizationToken",
+            "Action": ["ecr:GetAuthorizationToken", "ecr:BatchGetImage", "ecr:GetDownloadUrlForLayer"],
             "Resource": "*",
-        }));
-        taskDefinition.executionRole?.addToPrincipalPolicy(PolicyStatement.fromJson({
-            "Effect": "Allow",
-            "Action": ["ecr:BatchGetImage", "ecr:GetDownloadUrlForLayer"],
-            "Resource": `arn:aws:ecr:${stack.region}:${me}:repository/${context.containerImageId()}`,
         }));
 
         const taskRole = taskDefinition.taskRole;
