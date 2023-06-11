@@ -7,6 +7,7 @@ import { ApplicationRds } from './construct/application-rds';
 import { ApiGatewayAndLambda } from './construct/apigateway-and-lambda';
 import { CodeBuildForCdDeploy } from './construct/code-build-for-cd-deploy';
 import { EcsCluster } from './construct/ecs-cluster';
+import { IRole } from 'aws-cdk-lib/aws-iam';
 
 export class AlwsStageOfStack extends cdk.Stack {
     constructor(scope: Construct, id: string, props?: AlwsStackProps) {
@@ -30,6 +31,9 @@ export class AlwsStageOfStack extends cdk.Stack {
             webSocketApiStage: apiAndLambda.webSocketApiStage,
             innerApi: apiAndLambda.innerApi
         });
+
+        // apiAndLambda.dynamoDbTable.grantFullAccess(ecs.taskDefinition.executionRole as IRole);
+        apiAndLambda.dynamoDbTable.grantReadData(ecs.taskDefinition.taskRole);
 
         new CodeBuildForCdDeploy(this, 'CodeBuildForCdDeploy', { context: context, ecsTaskDefinition: ecs.taskDefinition })
 
