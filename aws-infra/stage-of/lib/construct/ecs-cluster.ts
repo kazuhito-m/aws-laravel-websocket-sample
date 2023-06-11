@@ -96,7 +96,7 @@ export class EcsCluster extends Construct {
         const me = Stack.of(stack).account;
         const context = props.context;
 
-        taskDefinition.executionRole?.addToPrincipalPolicy(PolicyStatement.fromJson({
+        taskDefinition.addToExecutionRolePolicy(PolicyStatement.fromJson({
             "Effect": "Allow",
             "Action": ["ecr:GetAuthorizationToken", "ecr:BatchGetImage", "ecr:GetDownloadUrlForLayer"],
             "Resource": "*",
