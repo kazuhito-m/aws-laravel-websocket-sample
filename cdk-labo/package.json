@@ -1,0 +1,32 @@
+{
+  "name": "infrastructure",
+  "version": "0.1.0",
+  "bin": {
+    "infrastructure": "bin/infrastructure.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "watch": "tsc -w",
+    "test": "jest",
+    "cdk": "cdk",
+    "synth_test": "cdk synth 'TestStack'",
+    "deploy_test": "cdk deploy 'TestStack'",
+    "destroy_test": "cdk destroy 'TestStack'",
+    "synth_test2": "cdk synth 'Test2Stack'",
+    "deploy_test2": "cdk deploy 'Test2Stack'",
+    "destroy_test2": "cdk destroy 'Test2Stack'"
+  },
+  "devDependencies": {
+    "@types/jest": "^29.5.1",
+    "@types/node": "20.1.7",
+    "jest": "^29.5.0",
+    "ts-jest": "^29.1.0",
+    "aws-cdk": "2.80.0",
+    "ts-node": "^10.9.1",
+    "typescript": "~5.0.4"
+  },
+  "dependencies": {
+    "aws-cdk-lib": "2.80.0",
+    "constructs": "^10.0.0"
+  }
+}

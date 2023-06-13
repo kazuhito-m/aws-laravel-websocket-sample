@@ -8,5 +8,4 @@ node_modules
 cdk.out
 
 # project prrivate setting
-!lib/stage/websocket-apis/dummy/lambda/index.js
 cdk.context.json
