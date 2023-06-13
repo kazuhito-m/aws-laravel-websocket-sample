@@ -211,3 +211,45 @@ Projectを手動で削除したとしても、差分として検出してくれ�
 結局、`lib/construct` というディレクトリを用意し、 `Construct` クラスを継承したものの「コンストラクター」で、ロジックを記述し分割する。
 
 (これで正しいのだろうか…)
+
+## 2つのCDK Stackを一つのnpmプロジェクトとして統合し片方づつ呼ぶ
+
+1. `./bin/xxx.ts` (プロジェクトの起動ファイル) に、2つのStackをnewさせる
+0. `cdk [スタック名] deploy` 等でコマンドを呼ぶ 
+
+ことにより「2つのStackを一つのnpmプロジェクト」にした上で「片方づつ呼ぶ」が実現できる。
+
+なお、`bin` 下のファイルを蹴るのを決めているのは、`cdk.json` の
+
+`"app": "npx ts-node --prefer-ts-exts bin/xxx.ts",`
+
+の記述であるため、tsファイルをリネームした場合は忘れず追随する。
+
+- https://konem.blog/2021/01/17/how-to-structure-your-application-architecture-using-aws-cdk/
+- https://qiita.com/Kept1994/items/ce608fbacf281adfe368
+
+## SystemManagerのパラメータストア関連
+
+### 「保存は出来ない」といわれていたが…
+
+一応、
+
+`new StringParameter(this, 'パラメータ名', { stringValue: '値' });`
+
+で保存できるのだが…「パラメータ名がよくわからないハッシュの付いた暗号」になるので、取り出す方法も無く、実質使い物にならない。
+
+何か回避策は在るのだろうか？
+
+### AWSコンソール側で設定した値が、実行時には別の値で取れてくる
+
+`StringParameter.valueFromLookup(scope, [パラメータ名])`
+
+で取得できる。
+
+…のだが、「AWSコンソール側で設定した値」と違う値が取得される。感覚としては「以前の値」という感じ。
+
+- https://docs.aws.amazon.com/ja_jp/systems-manager/latest/userguide/ps-integration-lambda-extensions.html
+
+SystemMangerのパラメータストアは「ローカルにキャッシュを取る」仕組みが在り、それは `cdk.context.json` に保存される。
+
+これを削除しない限り「過去の値を取り続ける」ことと成るので、疑う事。
