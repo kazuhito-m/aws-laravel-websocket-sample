@@ -1,7 +1,7 @@
 import * as cdk from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 import { AlwsStackProps } from './alws-stack-props';
-import { Context } from './context/context';
+import { Context } from '../context/context';
 import { VpcAndNetwork } from './construct/vpc-and-network';
 import { ApplicationRds } from './construct/application-rds';
 import { ApiGatewayAndLambda } from './construct/apigateway-and-lambda';

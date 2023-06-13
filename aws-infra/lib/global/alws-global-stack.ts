@@ -3,13 +3,13 @@ import * as ecr from 'aws-cdk-lib/aws-ecr';
 import * as cm from 'aws-cdk-lib/aws-certificatemanager';
 import * as route53 from 'aws-cdk-lib/aws-route53';
 import * as codebuild from 'aws-cdk-lib/aws-codebuild';
+import { Duration } from 'aws-cdk-lib';
+import { StringParameter } from 'aws-cdk-lib/aws-ssm';
 
 import { Construct } from 'constructs';
 import { AlwsStackProps } from './alws-stack-props';
-import { Context } from './context/context';
-import { Duration } from 'aws-cdk-lib';
-import { StringParameter } from 'aws-cdk-lib/aws-ssm';
-import { ParameterStore } from './parameterstore/parameter-store';
+import { Context } from '../context/context';
+import { ParameterStore } from '../parameterstore/parameter-store';
 
 export class AlwsGlobalStack extends cdk.Stack {
     constructor(scope: Construct, id: string, props?: AlwsStackProps) {

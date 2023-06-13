@@ -1,9 +1,9 @@
 import { Construct } from 'constructs';
-import { Context } from '../context/context';
 import { Project, Source, FilterGroup, EventAction, BuildSpec, LinuxBuildImage } from 'aws-cdk-lib/aws-codebuild';
 import { Stack } from 'aws-cdk-lib';
 import { IPrincipal, PolicyStatement } from 'aws-cdk-lib/aws-iam';
 import { FargateTaskDefinition } from 'aws-cdk-lib/aws-ecs';
+import { Context } from '../../context/context';
 
 export interface CodeBuildForCdDeployProps {
     readonly context: Context;
