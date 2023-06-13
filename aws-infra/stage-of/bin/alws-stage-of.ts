@@ -7,12 +7,11 @@ import { Context } from '../lib/context/context';
 const app = new cdk.App();
 
 const context = Context.of(app.node);
+const props = {
+    context,
+    env: { account: process.env.CDK_DEFAULT_ACCOUNT, region: process.env.CDK_DEFAULT_REGION }
+};
+
 
 const id = `AlwsStageOf${context.currentStageIdOfPascalCase()}Stack`;
-new AlwsStageOfStack(app, id, {
-    context,
-    env: {
-        account: process.env.CDK_DEFAULT_ACCOUNT,
-        region: process.env.CDK_DEFAULT_REGION
-    }
-});
+new AlwsStageOfStack(app, id, props);
