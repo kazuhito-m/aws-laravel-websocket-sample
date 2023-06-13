@@ -8,10 +8,12 @@
     "build": "tsc",
     "watch": "tsc -w",
     "test": "jest",
-    "cdk": "cdk",
-    "synth": "cdk synth",
-    "deploy": "cdk deploy",
-    "destroy": "cdk destroy"
+    "synth": "cdk synth AlwsStageOfProductionStack  --context stageId=production",
+    "deploy": "cdk deploy AlwsStageOfProductionStack  --context stageId=production",
+    "destroy": "cdk destroy AlwsStageOfProductionStack  --context stageId=production",
+    "synth_global": "cdk synth AlwsGlobalStack",
+    "deploy_global": "cdk deploy AlwsGlobalStack",
+    "destroy_global": "cdk destroy AlwsGlobalStack"
   },
   "devDependencies": {
     "@types/jest": "^29.5.1",
