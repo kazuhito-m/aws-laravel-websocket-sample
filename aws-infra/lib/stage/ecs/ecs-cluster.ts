@@ -15,6 +15,7 @@ import { CfnStage } from 'aws-cdk-lib/aws-apigatewayv2';
 import { Context } from '../../context/context';
 import { ParameterStore } from '../../parameterstore/parameter-store';
 import { ApiGatewayEndpoint } from '../websocket-apis/apigateway-endpoint';
+import * as path from 'path';
 
 export interface EcsClusterProps {
     readonly context: Context;
@@ -66,7 +67,7 @@ export class EcsCluster extends Construct {
         const containerName = `${context.systemName()}-app`;
         taskDefinition.addContainer(`${context.systemNameOfPascalCase()}AppContainer`, {
             containerName: containerName,
-            image: ContainerImage.fromRegistry("nginx:mainline-alpine"),
+            image: ContainerImage.fromAsset(path.join(__dirname, 'dummy/app')),
             memoryReservationMiB: 256,
             logging: LogDriver.awsLogs({
                 streamPrefix: 'ecs',
