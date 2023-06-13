@@ -1,14 +1,18 @@
-import * as cdk from 'aws-cdk-lib';
+import { Stack, StackProps } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
-import { AlwsStackProps } from './alws-stack-props';
 import { Context } from '../context/context';
+import { Tags } from 'aws-cdk-lib/core';
 import { VpcAndNetwork } from './construct/vpc-and-network';
 import { ApplicationRds } from './construct/application-rds';
 import { ApiGatewayAndLambda } from './construct/apigateway-and-lambda';
 import { CodeBuildForCdDeploy } from './construct/code-build-for-cd-deploy';
 import { EcsCluster } from './construct/ecs-cluster';
 
-export class AlwsStageOfStack extends cdk.Stack {
+export interface AlwsStackProps extends StackProps {
+    context: Context,
+}
+
+export class AlwsStageOfStack extends Stack {
     constructor(scope: Construct, id: string, props?: AlwsStackProps) {
         super(scope, id, props);
 
@@ -38,7 +42,7 @@ export class AlwsStageOfStack extends cdk.Stack {
     }
 
     private setTag(key: string, value: string): void {
-        cdk.Tags.of(this).add(key, value);
+        Tags.of(this).add(key, value);
     }
 
     private confimationOfPreconditions(settings?: Context): void {
