@@ -1,11 +1,11 @@
 #!/usr/bin/env node
 import 'source-map-support/register';
-import * as cdk from 'aws-cdk-lib';
-import { AlwsGlobalStack } from '../lib/global/alws-global-stack';
+import { App } from 'aws-cdk-lib';
 import { Context } from '../lib/context/context';
+import { AlwsGlobalStack } from '../lib/global/alws-global-stack';
 import { AlwsStageOfStack } from '../lib/stage/alws-stage-of-stack';
 
-const app = new cdk.App();
+const app = new App();
 
 const context = Context.of(app.node);
 const props = {
