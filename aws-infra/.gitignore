@@ -6,3 +6,6 @@ node_modules
 # CDK asset staging directory
 .cdk.staging
 cdk.out
+
+# project prrivate setting
+!lib/stage/websocket-apis/dummy/lambda/index.js
