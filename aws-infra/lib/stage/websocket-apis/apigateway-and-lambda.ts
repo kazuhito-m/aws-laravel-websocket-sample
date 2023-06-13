@@ -1,5 +1,5 @@
 import { Construct, DependencyGroup } from 'constructs';
-import { Context } from '../context/context';
+import { Context } from '../../context/context';
 import { LambdaIntegration, MethodLoggingLevel, RestApi } from 'aws-cdk-lib/aws-apigateway';
 import { AttributeType, BillingMode, Table } from 'aws-cdk-lib/aws-dynamodb';
 import { Duration, RemovalPolicy, Stack } from 'aws-cdk-lib';
@@ -7,6 +7,7 @@ import { CfnApi, CfnIntegration, CfnDeployment, CfnStage, CfnRoute } from 'aws-c
 import { DockerImageCode, DockerImageFunction } from 'aws-cdk-lib/aws-lambda';
 import { Effect, ManagedPolicy, PolicyDocument, PolicyStatement, Role, ServicePrincipal } from 'aws-cdk-lib/aws-iam';
 import { ApiGatewayEndpoint } from './apigateway-endpoint';
+import * as path from 'path';
 
 export interface ApiGatewayAndLambdaProps {
     readonly context: Context;
@@ -48,7 +49,7 @@ export class ApiGatewayAndLambda extends Construct {
             functionName: settings.wpk('websocket-lambda'),
             timeout: Duration.seconds(25),
             logRetention: 30,
-            code: DockerImageCode.fromImageAsset('./dummy/lambda', {}),
+            code: DockerImageCode.fromImageAsset(this.dummyDockerfilePath(), {}),
             environment: {
                 TABLE_NAME: dynamoDbTable.tableName,
                 TABLE_KEY: 'connectionId',
@@ -139,7 +140,7 @@ export class ApiGatewayAndLambda extends Construct {
             timeout: Duration.seconds(25),
             logRetention: 30,
             role: lambdaRole,
-            code: DockerImageCode.fromImageAsset('./dummy/lambda', {}),
+            code: DockerImageCode.fromImageAsset(this.dummyDockerfilePath(), {}),
             environment: {
                 "DYNAMODB_WEBSOCKET_TABLE": settings.dynamoDbTableName(),
                 // "WEBSOCKET_ENDPOINT": settings.websocketEndpointUrl(),
@@ -168,5 +169,9 @@ export class ApiGatewayAndLambda extends Construct {
         });
         innerApi.root.addMethod('POST', new LambdaIntegration(lambdaFunc));
         return innerApi;
+    }
+
+    private dummyDockerfilePath(): string {
+        return path.join(__dirname, 'dummy/lambda');
     }
 }

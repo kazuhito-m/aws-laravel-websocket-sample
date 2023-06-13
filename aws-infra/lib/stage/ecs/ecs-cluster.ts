@@ -13,8 +13,8 @@ import { ARecord, HostedZone, RecordTarget } from 'aws-cdk-lib/aws-route53';
 import { LoadBalancerTarget } from 'aws-cdk-lib/aws-route53-targets';
 import { CfnStage } from 'aws-cdk-lib/aws-apigatewayv2';
 import { Context } from '../../context/context';
-import { ParameterStore } from '../parameterstore/parameter-store';
-import { ApiGatewayEndpoint } from './apigateway-endpoint';
+import { ParameterStore } from '../../parameterstore/parameter-store';
+import { ApiGatewayEndpoint } from '../websocket-apis/apigateway-endpoint';
 
 export interface EcsClusterProps {
     readonly context: Context;

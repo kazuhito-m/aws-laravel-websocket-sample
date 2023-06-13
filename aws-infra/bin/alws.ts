@@ -13,7 +13,9 @@ const props = {
     env: { account: process.env.CDK_DEFAULT_ACCOUNT, region: process.env.CDK_DEFAULT_REGION }
 };
 
-new AlwsGlobalStack(app, 'AlwsGlobalStack', props);
-
-const id = `AlwsStageOf${context.currentStageIdOfPascalCase()}Stack`;
-new AlwsStageOfStack(app, id, props);
+if (context.currentStageId === 'global') {
+    new AlwsGlobalStack(app, 'AlwsGlobalStack', props);
+} else {
+    const id = `AlwsStageOf${context.currentStageIdOfPascalCase()}Stack`;
+    new AlwsStageOfStack(app, id, props);
+}

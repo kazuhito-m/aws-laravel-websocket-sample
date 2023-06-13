@@ -2,18 +2,18 @@
   "name": "alws-global",
   "version": "0.1.0",
   "bin": {
-    "alws-global": "bin/alws-global.js"
+    "alws-global": "bin/alws.js"
   },
   "scripts": {
     "build": "tsc",
     "watch": "tsc -w",
     "test": "jest",
-    "synth": "cdk synth AlwsStageOfProductionStack  --context stageId=production",
-    "deploy": "cdk deploy AlwsStageOfProductionStack  --context stageId=production",
-    "destroy": "cdk destroy AlwsStageOfProductionStack  --context stageId=production",
-    "synth_global": "cdk synth AlwsGlobalStack",
-    "deploy_global": "cdk deploy AlwsGlobalStack",
-    "destroy_global": "cdk destroy AlwsGlobalStack"
+    "synth": "cdk synth AlwsStageOfProductionStack --context stageId=production",
+    "deploy": "cdk deploy AlwsStageOfProductionStack --context stageId=production",
+    "destroy": "cdk destroy AlwsStageOfProductionStack --context stageId=production",
+    "synth_global": "cdk synth AlwsGlobalStack --context stageId=global",
+    "deploy_global": "cdk deploy AlwsGlobalStack --context stageId=global",
+    "destroy_global": "cdk destroy AlwsGlobalStack --context stageId=global"
   },
   "devDependencies": {
     "@types/jest": "^29.5.1",

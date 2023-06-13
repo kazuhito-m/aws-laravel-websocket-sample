@@ -2,11 +2,11 @@ import { Stack, StackProps } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 import { Context } from '../context/context';
 import { Tags } from 'aws-cdk-lib/core';
-import { VpcAndNetwork } from './construct/vpc-and-network';
-import { ApplicationRds } from './construct/application-rds';
-import { ApiGatewayAndLambda } from './construct/apigateway-and-lambda';
-import { CodeBuildForCdDeploy } from './construct/code-build-for-cd-deploy';
-import { EcsCluster } from './construct/ecs-cluster';
+import { VpcAndNetwork } from './vpc/vpc-and-network';
+import { ApplicationRds } from './rds/application-rds';
+import { ApiGatewayAndLambda } from './websocket-apis/apigateway-and-lambda';
+import { CodeBuildForCdDeploy } from './code-build/code-build-for-cd-deploy';
+import { EcsCluster } from './ecs/ecs-cluster';
 
 export interface AlwsStackProps extends StackProps {
     context: Context,

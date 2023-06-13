@@ -1,3 +1,10 @@
 {
-  "ssm:account=077931172314:parameterName=alws-github-access-token:region=ap-northeast-1": "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"
+  "ssm:account=077931172314:parameterName=alws-github-access-token:region=ap-northeast-1": "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",
+  "availability-zones:account=077931172314:region=ap-northeast-1": [
+    "ap-northeast-1a",
+    "ap-northeast-1c",
+    "ap-northeast-1d"
+  ],
+  "ssm:account=077931172314:parameterName=alws-certification-arn:region=ap-northeast-1": "arn:aws:acm:ap-northeast-1:077931172314:certificate/e6f7bb8d-3bf8-4184-80f7-58e0eb234623",
+  "ssm:account=077931172314:parameterName=alws-hostedzone-id:region=ap-northeast-1": "Z04515002VABTWMBNCF2G"
 }
