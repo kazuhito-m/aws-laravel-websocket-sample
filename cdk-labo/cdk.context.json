@@ -1,8 +1,0 @@
-{
-  "availability-zones:account=077931172314:region=ap-northeast-1": [
-    "ap-northeast-1a",
-    "ap-northeast-1c",
-    "ap-northeast-1d"
-  ],
-  "ssm:account=077931172314:parameterName=alws-certification-arn:region=ap-northeast-1": "arn:aws:acm:ap-northeast-1:077931172314:certificate/e6f7bb8d-3bf8-4184-80f7-58e0eb234623"
-}
