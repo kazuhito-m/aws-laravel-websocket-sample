@@ -41,7 +41,10 @@ export class CodeBuildGrantPolicyForCdkMigrate extends Construct {
         role.addToPrincipalPolicy(PolicyStatement.fromJson({
             "Effect": "Allow",
             "Action": "ssm:GetParameter",
-            "Resource": `arn:aws:ssm:${stack.region}:${me}:parameter/${context.systemName()}-*`
+            "Resource": [
+                `arn:aws:ssm:${stack.region}:${me}:parameter/${context.systemName()}-*`,
+                `arn:aws:ssm:${stack.region}:${me}:parameter/cdk-bootstrap/*`
+            ]
         }));
     }
 }
