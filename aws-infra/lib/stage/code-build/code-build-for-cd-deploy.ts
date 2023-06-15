@@ -3,7 +3,7 @@ import { Project, Source, FilterGroup, EventAction, BuildSpec, LinuxBuildImage }
 import { Stack } from 'aws-cdk-lib';
 import { FargateTaskDefinition } from 'aws-cdk-lib/aws-ecs';
 import { Context } from '../../context/context';
-import { CodeBuildGrantPolicy } from './code-build-grant-policy';
+import { CodeBuildGrantPolicyForCdkMigrate } from './code-build-grant-policy-for-cdk-migrate';
 
 export interface CodeBuildForCdDeployProps {
     readonly context: Context;
@@ -47,7 +47,7 @@ export class CodeBuildForCdDeploy extends Construct {
             }
         });
 
-        new CodeBuildGrantPolicy(scope as Stack, 'CodeBuildGrantPolicy', {
+        new CodeBuildGrantPolicyForCdkMigrate(scope as Stack, 'CodeBuildGrantPolicy', {
             context: context,
             codeBuildProject: tagDeployOfSourceCDProject,
             ecsTaskDefinition: props.ecsTaskDefinition
