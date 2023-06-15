@@ -2,9 +2,9 @@ version: 0.2
 env:
   shell: bash
 phases:
-  install:
-    commands:
-      - echo Nothing to do in the install phase...
+  # install:
+  #   commands:
+  #     - echo Nothing to do in the install phase...
 
   pre_build:
     commands:
