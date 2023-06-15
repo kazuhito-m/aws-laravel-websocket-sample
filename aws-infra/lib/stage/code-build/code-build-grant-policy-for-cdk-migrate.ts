@@ -2,7 +2,7 @@ import { Construct } from 'constructs';
 import { Stack } from 'aws-cdk-lib';
 import { Project } from 'aws-cdk-lib/aws-codebuild';
 import { FargateTaskDefinition } from 'aws-cdk-lib/aws-ecs';
-import { IPrincipal, PolicyStatement } from 'aws-cdk-lib/aws-iam';
+import { ManagedPolicy, IRole } from 'aws-cdk-lib/aws-iam';
 import { Context } from '../../context/context';
 
 export interface CodeBuildGrantPolicyForCdkMigrateProps {
@@ -15,15 +15,24 @@ export class CodeBuildGrantPolicyForCdkMigrate extends Construct {
     constructor(stack: Stack, id: string, props: CodeBuildGrantPolicyForCdkMigrateProps) {
         super(stack, id);
 
-        this.grantPolicy(props.codeBuildProject.grantPrincipal, props, stack);
+        this.grantPolicy(props.codeBuildProject);
     }
 
-    private grantPolicy(
-        principal: IPrincipal,
-        props: CodeBuildGrantPolicyForCdkMigrateProps,
-        stack: Stack
-    ): void {
-        const context = props.context;
+    private grantPolicy(project: Project): void {
+        const role = project.role as IRole;
 
+        const awsManagedPolicyNames = [
+            'AWSCodeBuildAdminAccess', // TODO AWSCodeBuildDeveloperAccess に変えられないか？
+            'AmazonECS_FullAccess',
+            'AmazonRDSFullAccess',
+            'AmazonVPCFullAccess',
+            `AmazonAPIGatewayAdministrator`,
+            'AWSLambda_FullAccess',
+            'AmazonDynamoDBFullAccess'
+        ];
+
+        for (const name of awsManagedPolicyNames) {
+            role.addManagedPolicy(ManagedPolicy.fromAwsManagedPolicyName(name));
+        }
     }
 }
