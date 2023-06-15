@@ -24,6 +24,7 @@ export class CodeBuildGrantPolicyForCdkMigrate extends Construct {
     ) {
         const role = project.role as IRole;
         const awsManagedPolicyNames = [
+            'AWSCloudFormationFullAccess',
             'AWSCodeBuildAdminAccess', // TODO AWSCodeBuildDeveloperAccess に変えられないか？
             'AmazonECS_FullAccess',
             'AmazonRDSFullAccess',
