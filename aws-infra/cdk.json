@@ -55,6 +55,7 @@
         },
         "stages": {
             "production": {
+                "migrateInfrastructure": true,
                 "siteFqdn": "testcity.click",
                 "apiFqdn": "api.testcity.click",
                 "rds": {
@@ -69,6 +70,7 @@
                 }
             },
             "staging": {
+                "migrateInfrastructure": false,
                 "siteFqdn": "staging.testcity.click",
                 "apiFqdn": "stagingapi.testcity.click",
                 "rds": {

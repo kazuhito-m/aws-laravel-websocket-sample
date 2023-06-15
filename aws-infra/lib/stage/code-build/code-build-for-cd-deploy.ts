@@ -1,9 +1,9 @@
 import { Construct } from 'constructs';
 import { Project, Source, FilterGroup, EventAction, BuildSpec, LinuxBuildImage } from 'aws-cdk-lib/aws-codebuild';
 import { Stack } from 'aws-cdk-lib';
-import { IPrincipal, PolicyStatement } from 'aws-cdk-lib/aws-iam';
 import { FargateTaskDefinition } from 'aws-cdk-lib/aws-ecs';
 import { Context } from '../../context/context';
+import { CodeBuildGrantPolicyForCdkMigrate } from './code-build-grant-policy-for-cdk-migrate';
 
 export interface CodeBuildForCdDeployProps {
     readonly context: Context;
@@ -47,72 +47,10 @@ export class CodeBuildForCdDeploy extends Construct {
             }
         });
 
-        this.grantPolicyOfCodeBuildForCdDeploy(tagDeployOfSourceCDProject.grantPrincipal, props, stack);
-    }
-
-    private grantPolicyOfCodeBuildForCdDeploy(
-        principal: IPrincipal,
-        props: CodeBuildForCdDeployProps,
-        stack: Stack
-    ): void {
-        const context = props.context;
-
-        principal.addToPrincipalPolicy(PolicyStatement.fromJson({
-            "Effect": "Allow",
-            "Action": [
-                "ecs:RegisterTaskDefinition",
-                "ecs:ListTaskDefinitions",
-                "ecs:DescribeTaskDefinition"
-            ],
-            "Resource": [
-                "*"
-            ]
-        }));
-        const me = Stack.of(this).account;
-        principal.addToPrincipalPolicy(PolicyStatement.fromJson({
-            "Effect": "Allow",
-            "Action": [
-                "application-autoscaling:Describe*",
-                "application-autoscaling:PutScalingPolicy",
-                "application-autoscaling:DeleteScalingPolicy",
-                "application-autoscaling:RegisterScalableTarget",
-                "cloudwatch:DescribeAlarms",
-                "cloudwatch:PutMetricAlarm",
-                "ecs:List*",
-                "ecs:Describe*",
-                "ecs:UpdateService",
-                "iam:AttachRolePolicy",
-                "iam:CreateRole",
-                "iam:GetPolicy",
-                "iam:GetPolicyVersion",
-                "iam:GetRole",
-                "iam:ListAttachedRolePolicies",
-                "iam:ListRoles",
-                "iam:ListGroups",
-                "iam:ListUsers"
-            ],
-            "Resource": [
-                "*"
-            ]
-        }));
-        principal.addToPrincipalPolicy(PolicyStatement.fromJson({
-            "Effect": "Allow",
-            "Action": [
-                "lambda:UpdateFunctionCode"
-            ],
-            "Resource": [
-                `arn:aws:lambda:${stack.region}:${me}:function:${context.wpk('*')}`
-            ]
-        }));
-        const taskDef = props.ecsTaskDefinition;
-        principal.addToPrincipalPolicy(PolicyStatement.fromJson({
-            "Effect": "Allow",
-            "Action": "iam:PassRole",
-            "Resource": [
-                `arn:aws:iam::${me}:role/ecsTaskExecutionRole`,
-                taskDef.taskRole.roleArn,
-                taskDef.executionRole?.roleArn
-            ]
-        }));
+        new CodeBuildGrantPolicyForCdkMigrate(scope as Stack, 'CodeBuildGrantPolicy', {
+            context: context,
+            codeBuildProject: tagDeployOfSourceCDProject,
+            ecsTaskDefinition: props.ecsTaskDefinition
+        });
     }
 }
