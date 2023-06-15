@@ -15,10 +15,10 @@ export class CodeBuildGrantPolicy extends Construct {
     constructor(stack: Stack, id: string, props: CodeBuildGrantPolicyProps) {
         super(stack, id);
 
-        this.grantPolicyOfCodeBuildForCdDeploy(props.codeBuildProject.grantPrincipal, props, stack);
+        this.grantPolicy(props.codeBuildProject.grantPrincipal, props, stack);
     }
 
-    private grantPolicyOfCodeBuildForCdDeploy(
+    private grantPolicy(
         principal: IPrincipal,
         props: CodeBuildGrantPolicyProps,
         stack: Stack
