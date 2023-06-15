@@ -1,10 +1,8 @@
 import { Construct } from 'constructs';
 import { Stack } from 'aws-cdk-lib';
-import { IProject, Project } from 'aws-cdk-lib/aws-codebuild';
+import { IProject } from 'aws-cdk-lib/aws-codebuild';
 import { ManagedPolicy, IRole, PolicyStatement } from 'aws-cdk-lib/aws-iam';
 import { CodeBuildGrantPolicyProps } from './code-build-grant-policy';
-import { Context } from '../../context/context';
-
 
 /**
  * CodeBuildで「CDKをキックする」ための権限設定Construct。
@@ -42,7 +40,7 @@ export class CodeBuildGrantPolicyForCdkMigrate extends Construct {
         const me = Stack.of(this).account;
         role.addToPrincipalPolicy(PolicyStatement.fromJson({
             "Effect": "Allow",
-            "Action": "ssm:GetParameters",
+            "Action": "ssm:GetParameter",
             "Resource": `arn:aws:ssm:${stack.region}:${me}:parameter/${context.systemName()}-*`
         }));
     }
