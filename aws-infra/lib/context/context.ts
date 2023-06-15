@@ -9,6 +9,7 @@ export interface GlobalContext {
 
 export interface Stage {
     id: string,
+    migrateInfrastructure: boolean,
     siteFqdn: string,
     apiFqdn: string,
     rds: RdsSettings,
