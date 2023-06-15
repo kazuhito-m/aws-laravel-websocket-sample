@@ -2,7 +2,7 @@
 #
 #
 # 前提として必要なコマンド
-#   jq,
+#   echo, jq, npm, node
 #
 # 前提として必要な環境変数
 #   STAGE_ID
@@ -10,9 +10,12 @@
 
 set -eux
 
-VERSION_TAG=${1}
+cd ./aws-infra
 
-CONTEXT_JSON_FILE_PATH='./aws-infra/cdk.json'
+CONTEXT_JSON_FILE_PATH='./cdk.json'
+STAGE_ID_PASCAL="$(echo ${STAGE_ID} | sed -r 's/(^|_)([a-z])/\U\2/g')"
+
+echo ${STAGE_ID_PASCAL}
 
 migration_cdk=$(jq ".context.stages.${STAGE_ID}.migrateInfrastructure" ${CONTEXT_JSON_FILE_PATH})
 
@@ -25,6 +28,7 @@ fi
 
 echo "migrateInfrastructure:${migration_cdk} ${STAGE_ID} へのCDKを適用。"
 
-
+npm install
+npm run cdk deploy -- AlwsStageOf${STAGE_ID_PASCAL}Stack --context stageId=${STAGE_ID} --require-approval never
 
 exit 0
