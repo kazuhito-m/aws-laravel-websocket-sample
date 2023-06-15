@@ -11,6 +11,11 @@ export interface CodeBuildGrantPolicyProps {
     readonly ecsTaskDefinition: FargateTaskDefinition;
 }
 
+/**
+ * CodeBuildで「LambdaとECSにコンテナをデプロイする」ための権限設定Construct。
+ * 
+ * ※CodeBuildでCDKを使わない場合は、こちらを設定する。今は使っていない。
+ */
 export class CodeBuildGrantPolicy extends Construct {
     constructor(stack: Stack, id: string, props: CodeBuildGrantPolicyProps) {
         super(stack, id);
