@@ -25,6 +25,7 @@ export class CodeBuildGrantPolicyForCdkMigrate extends Construct {
         const role = project.role as IRole;
         const awsManagedPolicyNames = [
             'AWSCloudFormationFullAccess',
+            'AmazonS3FullAccess',
             'AWSCodeBuildAdminAccess', // TODO AWSCodeBuildDeveloperAccess に変えられないか？
             'AmazonECS_FullAccess',
             'AmazonRDSFullAccess',
@@ -45,6 +46,13 @@ export class CodeBuildGrantPolicyForCdkMigrate extends Construct {
             "Resource": [
                 `arn:aws:ssm:${stack.region}:${me}:parameter/${context.systemName()}-*`,
                 `arn:aws:ssm:${stack.region}:${me}:parameter/cdk-bootstrap/*`
+            ]
+        }));
+        role.addToPrincipalPolicy(PolicyStatement.fromJson({
+            "Effect": "Allow",
+            "Action": "iam:PassRole",
+            "Resource": [
+                `arn:aws:iam::${me}:role/cdk-*-cfn-exec-role-${me}-${stack.region}`
             ]
         }));
     }
