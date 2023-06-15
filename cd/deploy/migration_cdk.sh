@@ -1,5 +1,6 @@
 #!/bin/bash
 #
+# 設定ファイル(./aws-infra/cdk.josn)に従い、StageIDにしたがってCDKを適用するスクリプト。
 #
 # 前提として必要なコマンド
 #   echo, jq, npm, node
@@ -12,16 +13,15 @@ set -eux
 
 cd ./aws-infra
 
-CONTEXT_JSON_FILE_PATH='./cdk.json'
 STAGE_ID_PASCAL="$(echo ${STAGE_ID} | sed -r 's/(^|_)([a-z])/\U\2/g')"
 
 echo ${STAGE_ID_PASCAL}
 
-migration_cdk=$(jq ".context.stages.${STAGE_ID}.migrateInfrastructure" ${CONTEXT_JSON_FILE_PATH})
+migration_cdk=$(jq ".context.stages.${STAGE_ID}.migrateInfrastructure" ./cdk.json)
 
 echo ${migration_cdk}
 
-if [[ "${migration_cdk}" != 'true' ]] ; then
+if [[ "${migration_cdk}" != 'true' ]]; then
     echo "migrateInfrastructure が ${migration_cdk} であるため、${STAGE_ID} へのCDKの適用はスキップします。"
     exit 0
 fi
