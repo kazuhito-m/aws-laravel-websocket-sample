@@ -105,3 +105,14 @@ principal.addToPrincipalPolicy(iam.PolicyStatement.fromJson({
 - https://dev.classmethod.jp/articles/tsnote-vpc-endpoint-cli-not-authorized-001/
     - これが「出来なかった」ので、長くハマった
 - https://docs.aws.amazon.com/ja_jp/AmazonECS/latest/developerguide/security_iam_id-based-policy-examples.html#IAM_task_definition_policies
+
+
+## CodeBuildをGUIで修正しようとした場合、"The policy is attached to 0 entities but it must be attached to a single role" というエラーが表示され、更新できない
+
+- https://qiita.com/kyuaz/items/3da93bd05b1342212577
+
+対処法は、「CodeBuildに寄って作られた、ポリシーを削除する」のだが…。
+
+「ロールを見つけて先に削除してしまうと、ぶら下がってるポリシーがわからなくなる上に、それを削除しないといけない」
+
+ので、ロール探して、ポリシー→ロールの順で削除する必要あり。注意。
