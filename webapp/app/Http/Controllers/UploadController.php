@@ -62,6 +62,5 @@ class UploadController extends Controller
 
         return redirect()->route('upload.index')
             ->with('success', 'user deleted successfully');
-
     }
 }
