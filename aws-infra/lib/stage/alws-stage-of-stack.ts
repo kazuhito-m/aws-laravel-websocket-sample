@@ -7,6 +7,7 @@ import { ApplicationRds } from './rds/application-rds';
 import { ApiGatewayAndLambda } from './websocket-apis/apigateway-and-lambda';
 import { CodeBuildForCdDeploy } from './code-build/code-build-for-cd-deploy';
 import { EcsCluster } from './ecs/ecs-cluster';
+import { S3BucketForUpload } from './s3/s3-bucket-for-upload';
 
 export interface AlwsStackProps extends StackProps {
     context: Context,
@@ -20,6 +21,8 @@ export class AlwsStageOfStack extends Stack {
         this.confimationOfPreconditions(props?.context);
 
         const vpc = new VpcAndNetwork(this, 'VpcAndNetwork', { context: context });
+
+        const s3 = new S3BucketForUpload(this, 'S3BucketForUpload', { context: context });
 
         const rds = new ApplicationRds(this, 'ApplicationRds', vpc);
 
