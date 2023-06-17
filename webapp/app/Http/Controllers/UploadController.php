@@ -13,14 +13,16 @@ class UploadController extends Controller
 {
     public function index()
     {
-        return view('upload.index');
+        $files = S3UploadedFile::select('*')
+            ->where("user_id", Auth::getUser()->getAuthIdentifier())
+            ->orderByDesc("id")
+            ->get();
+        return view('upload.index', compact('files'));
     }
 
     public function store(Request $request)
     {
         $result = Storage::disk('s3')->putFile('', $request->file('file'));
-        Log::info($request->file('file')->getClientOriginalName());
-        Log::info($result);
 
         S3UploadedFile::create($this->makeRecord($request->file('file'), $result));
 
