@@ -10,16 +10,12 @@ services:
       - "3306:3306"
     restart: "unless-stopped"
   locals3:
-    image: "minio/minio"
+    image: "bitnami/minio"
     container_name: "local-s3-minio"
     ports:
       - "9000:9000"
       - "9001:9001"
     environment:
-      MINIO_ACCESS_KEY: "minio_access_key"
-      MINIO_SECRET_KEY: "minio_secret_key"
-      MINIO_ROOT_USER: "mineo"
-      MINIO_ROOT_PASSWORD: "mineo_password"
-    command: [ 'server', '/data', '--console-address', ':9001' ]
-    volumes:
-      - ./data/s3/data:/data
+      MINIO_ROOT_USER: "mineo"  # concurrently access key
+      MINIO_ROOT_PASSWORD: "mineo_password" #  concurrently secret key
+      MINIO_DEFAULT_BUCKETS: "laravel-test-upload-bucket:public"
