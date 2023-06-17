@@ -22,4 +22,9 @@ class S3UploadedFile extends Model
     protected $casts = [
         'created_at' => 'datetime',
     ];
+
+    public function itemName()
+    {
+        return preg_replace('/.*\//', '', $this->s3_url);
+    }
 }

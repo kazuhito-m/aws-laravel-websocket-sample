@@ -50,4 +50,18 @@ class UploadController extends Controller
         }
         return "{$head}/{$s3UploadedName}";
     }
+
+    public function destroy(Request $request)
+    {
+        $id = $request->get('id');
+        $file = S3UploadedFile::find($id);
+        Log::debug("削除対象 - ID:{$id}, S3-itemName:{$file->itemName()}");
+        Storage::disk('s3')->delete($file->itemName());
+
+        $file->delete();
+
+        return redirect()->route('upload.index')
+            ->with('success', 'user deleted successfully');
+
+    }
 }
