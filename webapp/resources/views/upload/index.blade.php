@@ -38,6 +38,10 @@
                                     <a href="{{ $file->s3_url }}" target="_blank" rel="noopener"
                                         download="{{ $file->s3_url }}">
                                         {{ $file->original_name }}
+                                        @if (str_contains($file->mime_type, 'image'))
+                                            <br>
+                                            <img src="{{ $file->s3_url }}" width="100" height="100">
+                                        @endif
                                     </a>
                                 </td>
                                 <td>{{ $file->mime_type }}</td>
