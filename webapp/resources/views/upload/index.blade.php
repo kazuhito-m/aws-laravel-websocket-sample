@@ -34,7 +34,12 @@
                             <form action="{{ route('send.store') }}" method="POST">
                                 @csrf
                                 <td>{{ $file->id }}</td>
-                                <td>{{ $file->original_name }}({{ $file->s3_url }})</td>
+                                <td>
+                                    <a href="{{ $file->s3_url }}" target="_blank" rel="noopener"
+                                        download="{{ $file->s3_url }}">
+                                        {{ $file->original_name }}
+                                    </a>
+                                </td>
                                 <td>{{ $file->mime_type }}</td>
                                 <td>{{ $file->size }} Byte</td>
                                 <td>{{ $file->created_at }}</td>
