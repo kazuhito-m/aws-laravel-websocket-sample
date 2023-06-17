@@ -14,7 +14,9 @@
     "destroy_test": "cdk destroy 'TestStack'",
     "synth_test2": "cdk synth 'Test2Stack'",
     "deploy_test2": "cdk deploy 'Test2Stack'",
-    "destroy_test2": "cdk destroy 'Test2Stack'"
+    "destroy_test2": "cdk destroy 'Test2Stack'",
+    "deploy_test3": "cdk deploy 'Test3Stack'",
+    "destroy_test3": "cdk destroy 'Test3Stack'"
   },
   "devDependencies": {
     "@types/jest": "^29.5.1",
