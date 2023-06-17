@@ -12,14 +12,38 @@
 
                     <form method="POST" action="/upload" enctype="multipart/form-data">
                         {{ csrf_field() }}
-                  
+
                         <input type="file" id="file" name="file" class="form-control" />
-                  
+
                         <button type="submit">アップロード</button>
-                      </form>                  
+                    </form>
 
                 </div>
+
+                <table class="table">
+                    <tr>
+                        <th>ID</th>
+                        <th style="min-width: 250px">Original Name</th>
+                        <th>Mime Type</th>
+                        <th>Size</th>
+                        <th>Updated Time</th>
+                        <th>
+                    </tr>
+                    @foreach ($files as $file)
+                        <tr>
+                            <form action="{{ route('send.store') }}" method="POST">
+                                @csrf
+                                <td>{{ $file->id }}</td>
+                                <td>{{ $file->original_name }}({{ $file->s3_url }})</td>
+                                <td>{{ $file->mime_type }}</td>
+                                <td>{{ $file->size }} Byte</td>
+                                <td>{{ $file->created_at }}</td>
+                            </form>
+                        </tr>
+                    @endforeach
+                </table>
             </div>
         </div>
     </div>
+
 </x-app-layout>

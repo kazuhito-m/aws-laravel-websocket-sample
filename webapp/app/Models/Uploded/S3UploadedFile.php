@@ -11,9 +11,9 @@ class S3UploadedFile extends Model
 
     protected $fillable = [
         'id',
-        'originaln_name',
+        'original_name',
         'mime_type',
-        's3_uploaded_name',
+        's3_url',
         'size',
         'user_id',
         'created_at',

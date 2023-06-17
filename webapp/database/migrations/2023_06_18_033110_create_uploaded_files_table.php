@@ -12,9 +12,9 @@ return new class extends Migration {
     {
         Schema::create('s3_uploaded_files', function (Blueprint $table) {
             $table->id();
-            $table->string('originaln_name')->index();
+            $table->string('original_name')->index();
             $table->string('mime_type')->index();
-            $table->string('s3_uploaded_name')->index();
+            $table->string('s3_url')->index();
             $table->integer('size')->index();
             $table->foreignId('user_id')->index();
             $table->timestamp('updated_at')->useCurrent();
