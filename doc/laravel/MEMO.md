@@ -123,6 +123,33 @@ npm run dev
 
 TODO 書き換えテスト
 
+## DBからModelオブジェクトを取得する際のとり方いろいろ
+
+- https://blog.capilano-fw.com/?p=665#findid
+
+## モデルにメソッドを書く
+
+- https://laraweb.net/practice/4865/
+
+ふっつーに、
+
+```php
+public function itemName()
+{
+    return preg_replace('/.*\//', '', $this->s3_url);
+}
+```
+
+のように「外から値を取る時と同じように内側からあたい取得して加工」とかすれば、周りから
+
+`model->itemName()`
+
+のように呼べるし、DBから取得後でも使える。
+
+## Laravelでの「アップロード」画面づくりと、アップロード時に得られる情報
+
+- http://taustation.com/laravel-acquiring-uploaded-file/
+
 ## トラブルシュート:APサーバの冗長化構成でページを遷移するたび「419:PAGE EXPIRED」になる問題
 
 デフォルトが「サーバのファイルをセッションファイルにしている」になっているから、当然ちゃぁ当然なんだが…。
@@ -178,7 +205,7 @@ public function boot()
 - https://codelikes.com/laravel-logging/
 - https://stackoverflow.com/questions/32061775/where-to-specify-an-app-version-on-a-laravel-app
 
-#### PHP自体
+### PHP自体
 
 - https://medium-company.com/php-static/#static-5
 - https://www.php.net/manual/ja/functions.arguments.php
@@ -191,10 +218,14 @@ public function boot()
   - https://hydrocul.github.io/wiki/programming_languages_diff/json/encode.html
 - 通信(外部WebAPI呼ぶ)まわり
   - https://laraweb.net/surrounding/9720/
+- テキストテンプレート(リテラル表現)
+  - https://qiita.com/tadsan/items/e4796449c736cfb5c9bd
 
-#### HTML/JS関連
+### HTML/JS関連
 
 - https://iwb.jp/javascript-canvas-confetti-animation/
   - 紙吹雪を簡単に降らせることが出来た
 - https://developer.mozilla.org/ja/docs/Web/API/WebSockets_API/Writing_WebSocket_client_applications
   - 本家(mdm)によるWebSocketの標準的な使い方の説明
+- https://web-dev.tech/front-end/html/a-tag-download-attribute/
+  - <a>で「ダウンロードのリンクが出来る」となっていたが、Chromeではそうならなかった…
