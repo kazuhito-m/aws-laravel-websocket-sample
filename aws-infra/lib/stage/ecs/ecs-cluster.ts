@@ -114,6 +114,9 @@ export class EcsCluster extends Construct {
             WEBSOCKET_API_URL: apiEp.httpUrl(),
             WEBSOCKET_API_REGION: stack.region,
             WSDDB_TABLE_NAME: context.dynamoDbTableName(),
+
+            AWS_DEFAULT_REGION: stack.region,
+            AWS_BUCKET: context.s3BucketName(),
         }
     }
 
