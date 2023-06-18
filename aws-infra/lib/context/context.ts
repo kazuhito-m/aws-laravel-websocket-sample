@@ -149,7 +149,7 @@ export class Context {
 
     public s3BucketName(): string {
         const stagePart = this.currentStageId === 'production' ? '' : '-' + this.currentStageId;
-        return `${this.systemName()}${stagePart}-bucket`;
+        return `${this.systemName()}${stagePart}-file-upload-bucket`;
     }
 
 
