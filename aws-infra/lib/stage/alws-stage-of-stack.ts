@@ -22,7 +22,7 @@ export class AlwsStageOfStack extends Stack {
 
         const vpc = new VpcAndNetwork(this, 'VpcAndNetwork', { context: context });
 
-        const s3 = new S3BucketForUpload(this, 'S3BucketForUpload', { context: context });
+        // const s3 = new S3BucketForUpload(this, 'S3BucketForUpload', { context: context });
 
         const rds = new ApplicationRds(this, 'ApplicationRds', vpc);
 

@@ -38,5 +38,13 @@ export class EcsGrantPolicy extends Construct {
             "Action": "execute-api:ManageConnections",
             "Resource": `arn:aws:execute-api:${stack.region}:${me}:${props.webSocketApiStage.apiId}/*/POST/@connections/*`,
         }));
+        taskRole.addToPrincipalPolicy(PolicyStatement.fromJson({
+            "Effect": "Allow",
+            "Action": [
+                "s3:PutObject",
+                "s3:DeleteObject"
+            ],
+            "Resource": `arn:aws:s3:::${context.s3BucketName()}/*`
+        }));
     }
 }
