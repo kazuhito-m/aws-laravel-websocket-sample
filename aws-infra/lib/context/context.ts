@@ -147,6 +147,11 @@ export class Context {
         return this.buildContainerRegistryUri(this.containerRegistryNameLambda(), stack);
     }
 
+    public s3BucketName(): string {
+        const stagePart = this.currentStageId === 'production' ? '' : '-' + this.currentStageId;
+        return `${this.systemName()}${stagePart}-file-upload-bucket`;
+    }
+
 
     private buildContainerRegistryUri(name: string, stack: Stack): string {
         const me = Stack.of(stack).account;

@@ -4,7 +4,6 @@ import { RestApi } from 'aws-cdk-lib/aws-apigateway';
 import { Secret } from 'aws-cdk-lib/aws-secretsmanager';
 import { DatabaseInstance } from 'aws-cdk-lib/aws-rds';
 import { AppProtocol, Cluster, ContainerImage, CpuArchitecture, FargateTaskDefinition, LogDriver, OperatingSystemFamily, Protocol } from 'aws-cdk-lib/aws-ecs';
-import { ManagedPolicy, PolicyStatement } from 'aws-cdk-lib/aws-iam';
 import { LogGroup } from 'aws-cdk-lib/aws-logs';
 import { Duration, Stack } from 'aws-cdk-lib';
 import { ApplicationLoadBalancedFargateService } from 'aws-cdk-lib/aws-ecs-patterns';
@@ -16,6 +15,7 @@ import { Context } from '../../context/context';
 import { ParameterStore } from '../../parameterstore/parameter-store';
 import { ApiGatewayEndpoint } from '../websocket-apis/apigateway-endpoint';
 import * as path from 'path';
+import { EcsGrantPolicy, EcsGrantPolicyProps } from './ecs-grant-policy';
 
 export interface EcsClusterProps {
     readonly context: Context;
@@ -62,7 +62,10 @@ export class EcsCluster extends Construct {
                 operatingSystemFamily: OperatingSystemFamily.LINUX
             },
         });
-        this.addPolicyOf(taskDefinition, props, stack);
+        const policyProps = props as EcsGrantPolicyProps;
+        policyProps.taskDefinition = taskDefinition;
+
+        new EcsGrantPolicy(stack, 'EcsGrantPolicy', policyProps);
 
         const containerName = `${context.systemName()}-app`;
         taskDefinition.addContainer(`${context.systemNameOfPascalCase()}AppContainer`, {
@@ -93,30 +96,6 @@ export class EcsCluster extends Construct {
         return taskDefinition;
     }
 
-    private addPolicyOf(taskDefinition: FargateTaskDefinition, props: EcsClusterProps, stack: Stack) {
-        const me = Stack.of(stack).account;
-        const context = props.context;
-
-        taskDefinition.addToExecutionRolePolicy(PolicyStatement.fromJson({
-            "Effect": "Allow",
-            "Action": ["ecr:GetAuthorizationToken", "ecr:BatchGetImage", "ecr:GetDownloadUrlForLayer"],
-            "Resource": "*",
-        }));
-
-        const taskRole = taskDefinition.taskRole;
-        taskRole.addManagedPolicy(ManagedPolicy.fromAwsManagedPolicyName('service-role/AmazonECSTaskExecutionRolePolicy')); // XXX 必要無いかも？
-        taskRole.addToPrincipalPolicy(PolicyStatement.fromJson({
-            "Effect": "Allow",
-            "Action": "dynamodb:Scan",
-            "Resource": `arn:aws:dynamodb:${stack.region}:${me}:table/${context.dynamoDbTableName()}`,
-        }));
-        taskRole.addToPrincipalPolicy(PolicyStatement.fromJson({
-            "Effect": "Allow",
-            "Action": "execute-api:ManageConnections",
-            "Resource": `arn:aws:execute-api:${stack.region}:${me}:${props.webSocketApiStage.apiId}/*/POST/@connections/*`,
-        }));
-    }
-
     private buildContainerEnvironmentVariables(props: EcsClusterProps, stack: Stack): { [key: string]: string; } {
         const apiEp = new ApiGatewayEndpoint(props.webSocketApiStage);
 
@@ -135,6 +114,9 @@ export class EcsCluster extends Construct {
             WEBSOCKET_API_URL: apiEp.httpUrl(),
             WEBSOCKET_API_REGION: stack.region,
             WSDDB_TABLE_NAME: context.dynamoDbTableName(),
+
+            AWS_DEFAULT_REGION: stack.region,
+            AWS_BUCKET: context.s3BucketName(),
         }
     }
 
