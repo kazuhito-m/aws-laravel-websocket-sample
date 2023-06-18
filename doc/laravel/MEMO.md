@@ -149,6 +149,12 @@ public function itemName()
 ## Laravelでの「アップロード」画面づくりと、アップロード時に得られる情報
 
 - http://taustation.com/laravel-acquiring-uploaded-file/
+- https://reffect.co.jp/laravel/how_to_upload_file_in_laravel/
+
+## Laravelで「StreageでS3にアップロード」する方法
+
+- https://zenn.dev/ikeo/articles/c55ecf1345e70c193f7a
+- https://reffect.co.jp/laravel/laravel-storage-manipulation-master/
 
 ## トラブルシュート:APサーバの冗長化構成でページを遷移するたび「419:PAGE EXPIRED」になる問題
 
