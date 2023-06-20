@@ -25,9 +25,9 @@ export class Test4Stack extends Stack {
             removalPolicy: RemovalPolicy.DESTROY,
         });
 
-        const originAccessIdentity = new OriginAccessIdentity(this, 'OriginAccessIdentity',
-            { comment: 'website-distribution-originAccessIdentity' }
-        );
+        const originAccessIdentity = new OriginAccessIdentity(this, 'OriginAccessIdentity', {
+            comment: 'system-stage-image-cloudfront-distribution-oai'
+        });
 
         bucket.addToResourcePolicy(new PolicyStatement({
             actions: ['s3:GetObject'],
@@ -41,7 +41,7 @@ export class Test4Stack extends Stack {
         }));
 
         const distribution = new Distribution(this, 'distribution', {
-            comment: 'for laravel-test4-upload-bucket s3 bucket CDN.',
+            comment: '日本語通るぽい。テスト用S3のCDN。',
             defaultBehavior: {
                 allowedMethods: AllowedMethods.ALLOW_GET_HEAD,
                 cachedMethods: CachedMethods.CACHE_GET_HEAD,
@@ -49,9 +49,10 @@ export class Test4Stack extends Stack {
                 viewerProtocolPolicy: ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
                 origin: new S3Origin(bucket, {
                     originAccessIdentity: originAccessIdentity,
+                    originId: bucket.bucketName + '-s3'
                 }),
             },
-            priceClass: PriceClass.PRICE_CLASS_ALL,
+            priceClass: PriceClass.PRICE_CLASS_200,
             certificate: certificate,
             domainNames: [cfDomainName]
         });
