@@ -16,7 +16,8 @@ export class Test4Stack extends Stack {
         const certificateArn = StringParameter.valueFromLookup(this, "alws-certification-arn-global");
         const certificate = Certificate.fromCertificateArn(this, 'test', certificateArn);
 
-        const hostedZoneId =  StringParameter.valueFromLookup(this, "alws-hostedzone-id");
+        const hostedZoneId = StringParameter.valueFromLookup(this, "alws-hostedzone-id");
+        const cfDomainName = 'cdk-sample-image-s3.testcity.click';
 
 
         const bucket = new Bucket(this, 'Test4CreateBucket', {
@@ -51,7 +52,8 @@ export class Test4Stack extends Stack {
                 }),
             },
             priceClass: PriceClass.PRICE_CLASS_ALL,
-            certificate: certificate
+            certificate: certificate,
+            domainNames: [cfDomainName]
         });
 
         const hostedZone = HostedZone.fromHostedZoneAttributes(this, "HostZone", {
