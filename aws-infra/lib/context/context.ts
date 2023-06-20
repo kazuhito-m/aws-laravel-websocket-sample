@@ -12,6 +12,7 @@ export interface Stage {
     migrateInfrastructure: boolean,
     siteFqdn: string,
     apiFqdn: string,
+    imageServerFqdn: string,
     rds: RdsSettings,
     container: ContainerSettings,
 }
