@@ -14,7 +14,5 @@ export class Test2Stack extends Stack {
         values[2] = StringParameter.valueFromLookup(this, '日本語パラメータ');
 
         new StringParameter(this, 'TotalALlValue', { stringValue: values.join(', ') });
-
-        console.log('Test2です。');
     }
 }
