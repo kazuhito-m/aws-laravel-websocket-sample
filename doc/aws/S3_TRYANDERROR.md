@@ -33,6 +33,7 @@ Tiwtter等で聞いた話では、そんな感じだった。
 ### CDKにCloudFrontで「カスタムドメイン」を貼り付ける設定
 
 - https://dev.classmethod.jp/articles/i-tried-building-cloudfronts3-static-site-hosting-with-aws-cdk-v2/
+- https://tech.nri-net.com/entry/aws_cdk_cross_region_stack_deployment_acm
 
 ## 番外:ローカルで使える「S3互換サーバ」であるMinIOの情報
 
