@@ -4,10 +4,20 @@ import { AllowedMethods, CachePolicy, CachedMethods, Distribution, OriginAccessI
 import { Construct } from 'constructs';
 import { S3Origin } from 'aws-cdk-lib/aws-cloudfront-origins';
 import { CanonicalUserPrincipal, Effect, PolicyStatement } from 'aws-cdk-lib/aws-iam';
+import { StringParameter } from 'aws-cdk-lib/aws-ssm';
+import { Certificate } from 'aws-cdk-lib/aws-certificatemanager';
+import { ARecord, HostedZone, RecordTarget } from 'aws-cdk-lib/aws-route53';
+import { CloudFrontTarget } from 'aws-cdk-lib/aws-route53-targets';
 
 export class Test4Stack extends Stack {
     constructor(scope: Construct, id: string, props?: StackProps) {
         super(scope, id, props);
+
+        const certificateArn = StringParameter.valueFromLookup(this, "alws-certification-arn-global");
+        const certificate = Certificate.fromCertificateArn(this, 'test', certificateArn);
+
+        const hostedZoneId =  StringParameter.valueFromLookup(this, "alws-hostedzone-id");
+
 
         const bucket = new Bucket(this, 'Test4CreateBucket', {
             bucketName: "laravel-test4-upload-bucket",
@@ -41,6 +51,19 @@ export class Test4Stack extends Stack {
                 }),
             },
             priceClass: PriceClass.PRICE_CLASS_ALL,
+            certificate: certificate
+        });
+
+        const hostedZone = HostedZone.fromHostedZoneAttributes(this, "HostZone", {
+            zoneName: 'testcity.click',
+            hostedZoneId: hostedZoneId,
+        });
+        new ARecord(this, "DnsImageAnameRecord", {
+            zone: hostedZone,
+            recordName: 'test-image.testcity.click',
+            target: RecordTarget.fromAlias(new CloudFrontTarget(distribution)),
+            ttl: Duration.minutes(5),
+            comment: 'CloudFront of Image S3 Record.'
         });
     }
 }
