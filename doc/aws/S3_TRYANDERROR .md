@@ -13,11 +13,21 @@
 ## S3で「ダウンはPublic公開」したい時の権限について
 
 - https://docs.aws.amazon.com/ja_jp/IAM/latest/UserGuide/reference_policies_examples_s3_rw-bucket.html
+- https://it-web-life.com/aws_s3_how_to_bucket_all_public/
+- https://dev.classmethod.jp/articles/s3-block-public-access/
 
 作ることはできるのだが…「AWSのコンソール上で警告でまくる」ので、最適な設定があるのか探りたい。
 
 - CDKで上記の記事のようなPlicyを追加すると「同じようなのが二個」ある状態に
   - 他のフラグ設定によって「全公開」となったら、勝手にデフォルトのPolicyがそれになる…のかな？
+
+### 「S3はクローズド、CloudFrontで公開する」という定石
+
+Tiwtter等で聞いた話では、そんな感じだった。
+
+- https://docs.aws.amazon.com/ja_jp/AmazonS3/latest/userguide/WebsiteAccessPermissionsReqd.html
+- https://blog.ch3cooh.jp/entry/2022/06/03/145050#:~:text=S3%E3%81%A8CloudFront%E3%81%AE%E3%83%87%E3%83%BC%E3%82%BF%E8%BB%A2%E9%80%81%E6%96%99%E9%87%91&text=%E9%A0%AD%E3%81%AE%E4%B8%AD%E3%81%A7%E3%81%AF%E3%81%BC%E3%82%93%E3%82%84%E3%82%8A,%E5%90%8C%E3%81%98%E4%BE%A1%E6%A0%BC%E3%81%A7%E3%81%82%E3%81%A3%E3%81%9F%E3%80%82
+- https://tech.nri-net.com/entry/aws_cdk_cross_region_stack_deployment_acm
 
 
 ## 番外:ローカルで使える「S3互換サーバ」であるMinIOの情報
