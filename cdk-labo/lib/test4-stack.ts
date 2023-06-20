@@ -62,7 +62,7 @@ export class Test4Stack extends Stack {
         });
         new ARecord(this, "DnsImageAnameRecord", {
             zone: hostedZone,
-            recordName: 'test-image.testcity.click',
+            recordName: cfDomainName,
             target: RecordTarget.fromAlias(new CloudFrontTarget(distribution)),
             ttl: Duration.minutes(5),
             comment: 'CloudFront of Image S3 Record.'
