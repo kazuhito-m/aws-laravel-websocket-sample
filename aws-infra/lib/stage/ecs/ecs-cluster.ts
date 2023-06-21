@@ -117,6 +117,7 @@ export class EcsCluster extends Construct {
 
             AWS_DEFAULT_REGION: stack.region,
             AWS_BUCKET: context.s3BucketName(),
+            IMAGE_SITE_URL: context.currentStage().imageServerFqdn
         }
     }
 
