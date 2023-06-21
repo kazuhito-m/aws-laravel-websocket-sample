@@ -32,7 +32,8 @@ export class CodeBuildGrantPolicyForCdkMigrate extends Construct {
             'AmazonVPCFullAccess',
             `AmazonAPIGatewayAdministrator`,
             'AWSLambda_FullAccess',
-            'AmazonDynamoDBFullAccess'
+            'AmazonDynamoDBFullAccess',
+            'CloudFrontFullAccess'
         ];
         for (const name of awsManagedPolicyNames) {
             role.addManagedPolicy(ManagedPolicy.fromAwsManagedPolicyName(name));
