@@ -44,8 +44,8 @@ class UploadController extends Controller
     {
         $id = $request->get('id');
         $file = S3UploadedFile::find($id);
-        Log::debug("削除対象 - ID:{$id}, S3-itemName:{$file->itemName()}");
-        Storage::disk('s3')->delete($file->itemName());
+        Log::debug("削除対象 - ID:{$id}, S3-uploadedName:{$file->uploaded_name}");
+        Storage::disk('s3')->delete($file->uploaded_name);
 
         $file->delete();
 

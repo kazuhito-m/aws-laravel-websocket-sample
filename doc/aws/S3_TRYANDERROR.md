@@ -38,6 +38,8 @@ Tiwtter等で聞いた話では、そんな感じだった。
 ## 番外:ローカルで使える「S3互換サーバ」であるMinIOの情報
 
 - https://min.io/docs/minio/linux/reference/minio-server/minio-server.html#minio-server-environment-variables
+- https://qiita.com/reflet/items/44faf217efd66d83c4a7
+- https://go-tech.blog/aws/s3-minio/
 
 ### Docker化して使う場合の勘所
 
