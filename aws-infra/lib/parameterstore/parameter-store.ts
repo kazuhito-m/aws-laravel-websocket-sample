@@ -22,15 +22,6 @@ export class ParameterStore {
     }
 
 
-    public registerCerificationArn(value: string): void {
-        this.register(this.certArnPraStoreName(), value);
-    }
-
-    public registerHostedZoneId(value: string): void {
-        this.register(this.hostedZoneIdPraStoreName(), value);
-    }
-
-
     public certArnPraStoreName(): string {
         return `${this.context.systemName()}-certification-arn`;
     }
@@ -48,9 +39,5 @@ export class ParameterStore {
         return Lazy.string({
             produce: () => StringParameter.valueFromLookup(this.scope, parameterName)
         });
-    }
-
-    private register(parameterName: string, value: string): StringParameter {
-        return new StringParameter(this.scope, parameterName, { stringValue: value });
     }
 }
