@@ -1,4 +1,5 @@
 import { StringParameter } from 'aws-cdk-lib/aws-ssm';
+import { Lazy } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 import { Context } from '../context/context';
 
@@ -44,7 +45,9 @@ export class ParameterStore {
 
 
     private lookup(parameterName: string): string {
-        return StringParameter.valueFromLookup(this.scope, parameterName);
+        return Lazy.string({
+            produce: () => StringParameter.valueFromLookup(this.scope, parameterName)
+        });
     }
 
     private register(parameterName: string, value: string): StringParameter {
