@@ -33,12 +33,12 @@
                         <tr>
                             <td>{{ $file->id }}</td>
                             <td>
-                                <a href="{{ $file->s3_url }}" target="_blank" rel="noopener"
-                                    download="{{ $file->s3_url }}">
+                                <a href="{{ $file->url() }}" target="_blank" rel="noopener"
+                                    download="{{ $file->url() }}">
                                     {{ $file->original_name }}
                                     @if (str_contains($file->mime_type, 'image'))
                                         <br>
-                                        <img src="{{ $file->s3_url }}" width="100" height="100">
+                                        <img src="{{ $file->url() }}" width="100" height="100">
                                     @endif
                                 </a>
                             </td>

@@ -34,21 +34,10 @@ class UploadController extends Controller
         return array(
             'original_name' => $file->getClientOriginalName(),
             'mime_type' => $file->getClientMimeType(),
-            's3_url' => $this->buildS3UrlOf($s3UploadedName),
+            'uploaded_name' => $s3UploadedName,
             'size' => $file->getSize(),
             'user_id' => Auth::getUser()->getAuthIdentifier()
         );
-    }
-
-    private function buildS3UrlOf(string $s3UploadedName)
-    {
-        $head = env('AWS_URL');
-        if (is_null($head) || empty($head)) {
-            $region = env('AWS_DEFAULT_REGION');
-            $bucket = env('AWS_BUCKET');
-            $head = "https://s3-{$region}.amazonaws.com/{$bucket}";
-        }
-        return "{$head}/{$s3UploadedName}";
     }
 
     public function destroy(Request $request)
