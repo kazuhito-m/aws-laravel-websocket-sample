@@ -53,8 +53,6 @@ export class AlwsGlobalStack extends Stack {
         });
 
         const parameterStore = new ParameterStore(settings, this);
-        parameterStore.registerHostedZoneId(hostedZone.hostedZoneId);
-        parameterStore.registerCerificationArn(certificate.certificateArn);
     }
 
     private buildContainerRepository(settings: Context): Repository[] {
