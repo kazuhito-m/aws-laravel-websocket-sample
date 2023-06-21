@@ -55,7 +55,7 @@
         },
         "stages": {
             "production": {
-                "migrateInfrastructure": false,
+                "migrateInfrastructure": true,
                 "siteFqdn": "testcity.click",
                 "apiFqdn": "api.testcity.click",
                 "imageServerFqdn": "image.testcity.click",
