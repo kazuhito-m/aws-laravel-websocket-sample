@@ -12,6 +12,10 @@ export class ParameterStore {
         return this.lookup(this.certArnPraStoreName());
     }
 
+    public cerificationGlobalArn(): string {
+        return this.lookup(this.certGlobalArnPraStoreName());
+    }
+
     public hostedZoneId(): string {
         return this.lookup(this.hostedZoneIdPraStoreName());
     }
@@ -28,6 +32,10 @@ export class ParameterStore {
 
     public certArnPraStoreName(): string {
         return `${this.context.systemName()}-certification-arn`;
+    }
+
+    public certGlobalArnPraStoreName(): string {
+        return `${this.context.systemName()}-certification-global-arn`;
     }
 
     public hostedZoneIdPraStoreName(): string {
