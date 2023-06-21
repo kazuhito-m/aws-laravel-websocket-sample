@@ -34,29 +34,18 @@ class UploadController extends Controller
         return array(
             'original_name' => $file->getClientOriginalName(),
             'mime_type' => $file->getClientMimeType(),
-            's3_url' => $this->buildS3UrlOf($s3UploadedName),
+            'uploaded_name' => $s3UploadedName,
             'size' => $file->getSize(),
             'user_id' => Auth::getUser()->getAuthIdentifier()
         );
-    }
-
-    private function buildS3UrlOf(string $s3UploadedName)
-    {
-        $head = env('AWS_URL');
-        if (is_null($head) || empty($head)) {
-            $region = env('AWS_DEFAULT_REGION');
-            $bucket = env('AWS_BUCKET');
-            $head = "https://s3-{$region}.amazonaws.com/{$bucket}";
-        }
-        return "{$head}/{$s3UploadedName}";
     }
 
     public function destroy(Request $request)
     {
         $id = $request->get('id');
         $file = S3UploadedFile::find($id);
-        Log::debug("削除対象 - ID:{$id}, S3-itemName:{$file->itemName()}");
-        Storage::disk('s3')->delete($file->itemName());
+        Log::debug("削除対象 - ID:{$id}, S3-uploadedName:{$file->uploaded_name}");
+        Storage::disk('s3')->delete($file->uploaded_name);
 
         $file->delete();
 

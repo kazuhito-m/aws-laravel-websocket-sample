@@ -11,6 +11,8 @@
 
 set -eux
 
+VERSION_TAG=${1}
+
 cd ./aws-infra
 
 STAGE_ID_PASCAL="$(echo ${STAGE_ID} | sed -r 's/(^|_)([a-z])/\U\2/g')"
@@ -27,6 +29,8 @@ if [[ "${migration_cdk}" != 'true' ]]; then
 fi
 
 echo "migrateInfrastructure:${migration_cdk} ${STAGE_ID} へのCDKを適用。"
+
+./rewrite_version.sh ${VERSION_TAG}
 
 npm install
 npm run cdk deploy -- AlwsStageOf${STAGE_ID_PASCAL}Stack --context stageId=${STAGE_ID} --require-approval never

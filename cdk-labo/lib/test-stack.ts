@@ -10,7 +10,5 @@ export class TestStack extends Stack {
         new StringParameter(this, 'test-parameter', { stringValue: 'これがでればOK' });
         new StringParameter(this, 'MiuraKazuhito', { stringValue: '三浦一仁' });
         new StringParameter(this, '日本語パラメータ', { stringValue: '文字列が表示されるかな。' });
-
-        console.log('これが表示されたら、動いたってことで');
     }
 }

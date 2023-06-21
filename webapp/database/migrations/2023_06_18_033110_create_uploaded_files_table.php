@@ -14,7 +14,7 @@ return new class extends Migration {
             $table->id();
             $table->string('original_name')->index();
             $table->string('mime_type')->index();
-            $table->string('s3_url')->index();
+            $table->string('uploaded_name')->index();
             $table->integer('size')->index();
             $table->foreignId('user_id')->index();
             $table->timestamp('updated_at')->useCurrent();

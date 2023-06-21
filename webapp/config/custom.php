@@ -8,5 +8,6 @@ return [
   'wsddb-aws-access-key-id' => env('WSDDB_AWS_ACCESS_KEY_ID'),
   'wsddb-aws-secret-access-key' => env('WSDDB_AWS_SECRET_ACCESS_KEY'),
   'wsddb-table-name' => env('WSDDB_TABLE_NAME'),
+  'image-site-url' => env('IMAGE_SITE_URL'),
   'test-verbose' => env('TEST_VERBOSE'),
 ];

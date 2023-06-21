@@ -32,15 +32,22 @@ XXX
 - 以下の作業はbashかつ開発リポジトリフォルダの直下から開始する
 - 「このシステムのドメイン」をAWSのRoute53で購入している
 
+### AWSに「前提となる構成」を手動で作成
+
+1. AWSのRoute53「ドメイン」から「ドメインを登録」する(移管でも良い)
+0. AWSのRoute53「ホストゾーン」から、上記ドメインのホストゾーンを作成する
+0. AWSのCertificate Managerから「自分が今からシステムを立てたいリージョン」を選択し、上記ドメインの証明書を作成する(*.[ドメイン名]のワイルドカード証明書)
+0. AWSのCertificate Managerから `us-east-1(バージニア北部)` を選択し、上記ドメインの証明書を作成する(*.[ドメイン名]のワイルドカード証明書)
+0. 上記で作成されたAWSの構成から、AWSのSystemManergerのパラメータストアに、以下の値を登録
+   1. `alws-hostedzone-id` : 前述Route53で作成したホストゾーンのゾーンID
+   0. `alws-certification-arn` : 前述Certificate Managerで作成した「自分が今からシステムを立てたいリージョン」の証明書ARN
+   0. `alws-certification-arn-global` : 前述Certificate Managerで作成した `us-east-1(バージニア北部)` の証明書ARN
+   0. `alws-github-access-token` : WebHookを登録出来る権限を持ったGitHubのAccessToken
+
 ### AWSにGlobal(全体)に掛かる構成を構築
 
 1. `./aws-infra/global/cdk.json` の末尾、`grobal` , `stages` の情報を「自身が作りたいシステムの情報」に書き換える
-0. 「WebHookを登録出来る権限を持ったGitHubのAccessToken」を、AWSのSystemManergerのパラメータストアに `alws-github-access-token` という名前で登録
 0. コンソールから `cd ./aws-infra/global && npm run deploy` を実行
-0. AWSのRoute53に元からある「このシステムのドメイン」のネームサーバを、cdkで作られたドメインのネームサバ−(4個)に入れ替える
-0. 作成されたAWSの構成から、AWSのSystemManergerのパラメータストアに、以下の値を登録
-   1. `alws-certification-arn` : Certificate Managerから作成された証明書のARN
-   0. `alws-hostedzone-id` : Route53から作成されたホストゾーンのゾーンID
 
 ### AWSにStage(環境ごと)に掛かる構成を構築
 

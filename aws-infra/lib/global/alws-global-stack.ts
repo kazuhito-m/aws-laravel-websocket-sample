@@ -26,7 +26,8 @@ export class AlwsGlobalStack extends Stack {
 
         this.buildCiCdParts(settings, repositories);
 
-        this.buildDnsAndCertificate(settings);
+        // 一旦コメントアウト。ここは「手動操作」で作成する(ということを手順書ベースで書いておく)
+        // this.buildDnsAndCertificate(settings);
 
         this.setTag("Version", settings.packageVersion());
     }
@@ -52,8 +53,6 @@ export class AlwsGlobalStack extends Stack {
         });
 
         const parameterStore = new ParameterStore(settings, this);
-        parameterStore.registerHostedZoneId(hostedZone.hostedZoneId);
-        parameterStore.registerCerificationArn(certificate.certificateArn);
     }
 
     private buildContainerRepository(settings: Context): Repository[] {

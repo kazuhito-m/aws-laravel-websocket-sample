@@ -13,7 +13,7 @@ class S3UploadedFile extends Model
         'id',
         'original_name',
         'mime_type',
-        's3_url',
+        'uploaded_name',
         'size',
         'user_id',
         'created_at',
@@ -23,8 +23,9 @@ class S3UploadedFile extends Model
         'created_at' => 'datetime',
     ];
 
-    public function itemName()
+    public function url()
     {
-        return preg_replace('/.*\//', '', $this->s3_url);
+        // FIXME 本当はモデルに対して「外部から値取得」するような機能を持たせてはだめですよ。
+        return config('custom.image-site-url') . "/" . $this->uploaded_name;
     }
 }
