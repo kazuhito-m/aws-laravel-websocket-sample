@@ -92,7 +92,7 @@ export class ApiGatewayAndLambda extends Construct {
 
         const stage = new CfnStage(this, 'WebSocketApiGatewayStage', {
             apiId: webSocketApi.ref,
-            autoDeploy: true,
+            autoDeploy: false,
             deploymentId: deployment.ref,
             stageName: ApiGatewayEndpoint.STAGE_NAME,
         });
