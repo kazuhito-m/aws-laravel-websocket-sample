@@ -13,7 +13,10 @@ class WebsocketConnectionStorage
 
     public function findAll()
     {
-        $records = $this->client->scan(['TableName' => $this->ddTableName()]);
+        $tableName = $this->ddTableName();
+        Log::info('検索対象のDynamoDBのテーブル名:' . $tableName);
+
+        $records = $this->client->scan(['TableName' => $tableName]);
 
         $websocketConnections = array();
         foreach ($records['Items'] as $record) {
@@ -30,23 +33,10 @@ class WebsocketConnectionStorage
 
     public function findConnectionIdsOf(string $userId)
     {
-        $tableName = $this->ddTableName();
-        Log::info('検索対象のDynamoDBのテーブル名:' . $tableName);
-
-        $records = $this->client->scan(['TableName' => $tableName]);
-
-        $websocketConnections = array();
-        foreach ($records['Items'] as $record) {
-            $connection = WebsocketConnectionDDB::of(
-                $record['connectionId']['S'],
-                $record['userId']['S'],
-                $record['connectedTime']['S'],
-            );
-            array_push($websocketConnections, $connection);
-        }
+        $connections = $this->findAll();
 
         $connectionIds = array();
-        foreach ($websocketConnections as $connection) {
+        foreach ($connections as $connection) {
             if ($connection->userId != $userId)
                 continue;
             array_push($connectionIds, $connection->connectionId);
