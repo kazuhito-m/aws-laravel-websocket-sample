@@ -14,9 +14,17 @@ XXX
 - PHP
 - Laravel
 - WebSocket
-- AWS API Gateway
-- AWS Lambda
-- AWS DynamoDB
+- AWS 
+  - CDK(CloudFormation)
+  - API Gateway(nomal(lambda type)/WebSocket)
+  - Lambda
+  - DynamoDB
+  - ECS/ECR
+  - RDS(MySQL)
+  - S3/CloudFront
+  - WAF
+  - CodeBuild
+  - VPC
 
 ## Instration(for Developers)
 
