@@ -8,8 +8,7 @@ import { LogGroup } from 'aws-cdk-lib/aws-logs';
 import { Duration, Stack } from 'aws-cdk-lib';
 import { ApplicationLoadBalancedFargateService } from 'aws-cdk-lib/aws-ecs-patterns';
 import { ApplicationLoadBalancer, ApplicationProtocol, SslPolicy } from 'aws-cdk-lib/aws-elasticloadbalancingv2';
-import { ARecord, HostedZone, IHostedZone, RecordTarget } from 'aws-cdk-lib/aws-route53';
-import { LoadBalancerTarget } from 'aws-cdk-lib/aws-route53-targets';
+import { HostedZone, IHostedZone } from 'aws-cdk-lib/aws-route53';
 import { CfnStage } from 'aws-cdk-lib/aws-apigatewayv2';
 import { Context } from '../../context/context';
 import { ParameterStore } from '../../parameterstore/parameter-store';
@@ -47,8 +46,6 @@ export class EcsCluster extends Construct {
         const taskDef = this.buildTaskDefinition(props, stack);
 
         const albService = this.buildAlbFargeteService(taskDef, ecsCluster, hostedZone, props);
-
-        this.buildDnsRecord(albService.loadBalancer, hostedZone, context);
 
         this.taskDefinition = taskDef;
         this.alb = albService.loadBalancer;
@@ -168,16 +165,6 @@ export class EcsCluster extends Construct {
         }
 
         return albFargateService;
-    }
-
-    private buildDnsRecord(alb: ApplicationLoadBalancer, hostedZone: IHostedZone, context: Context): void {
-        new ARecord(this, "DnsAppAnameRecord", {
-            zone: hostedZone,
-            recordName: context.applicationDnsARecordName(),
-            target: RecordTarget.fromAlias(new LoadBalancerTarget(alb)),
-            ttl: Duration.minutes(5),
-            comment: 'Application LB Record.'
-        });
     }
 
     private lookUpHostedZone(context: Context): IHostedZone {
