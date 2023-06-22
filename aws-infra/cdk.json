@@ -56,7 +56,7 @@
         "stages": {
             "production": {
                 "migrateInfrastructure": false,
-                "withBasicAuthentication": false,
+                "withBasicAuthentication": true,
                 "siteFqdn": "testcity.click",
                 "apiFqdn": "api.testcity.click",
                 "imageServerFqdn": "image.testcity.click",
