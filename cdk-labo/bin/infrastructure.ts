@@ -5,6 +5,7 @@ import { Test2Stack } from '../lib/test2-stack';
 import { TestStack } from '../lib/test-stack';
 import { Test3Stack } from '../lib/test3-stack';
 import { Test4Stack } from '../lib/test4-stack';
+import { Test5Stack } from '../lib/test5-stack';
 
 const app = new cdk.App();
 
@@ -17,3 +18,4 @@ new TestStack(app, 'TestStack', props);
 new Test2Stack(app, 'Test2Stack', props);
 new Test3Stack(app, 'Test3Stack', props);
 new Test4Stack(app, 'Test4Stack', props);
+new Test5Stack(app, 'Test5Stack', props);
