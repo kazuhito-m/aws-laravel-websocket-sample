@@ -2,8 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\StoreWebsocketConnectionRequest;
-use App\Http\Requests\UpdateWebsocketConnectionRequest;
 use App\Models\Websocket\WebsocketConnection;
 use Illuminate\Support\Facades\Log;
 
