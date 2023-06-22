@@ -36,7 +36,8 @@ export class Waf extends Construct {
     private buildRules(context: Context): Array<CfnWebACL.RuleProperty> {
         const rules = Array<CfnWebACL.RuleProperty>();
 
-        rules.push(this.basicAuthorizationRule());
+        if (context.currentStage().withBasicAuthentication)
+            rules.push(this.basicAuthorizationRule());
 
         return rules;
     }
