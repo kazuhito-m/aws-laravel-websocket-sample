@@ -8,6 +8,7 @@ import { ApiGatewayAndLambda } from './websocket-apis/apigateway-and-lambda';
 import { CodeBuildForCdDeploy } from './code-build/code-build-for-cd-deploy';
 import { EcsCluster } from './ecs/ecs-cluster';
 import { S3BucketForUpload } from './s3/s3-bucket-for-upload';
+import { WafAndAuthentication } from './waf/waf-and-authentication';
 
 export interface AlwsStackProps extends StackProps {
     context: Context,
@@ -37,6 +38,8 @@ export class AlwsStageOfStack extends Stack {
             webSocketApiStage: apiAndLambda.webSocketApiStage,
             innerApi: apiAndLambda.innerApi
         });
+
+        new WafAndAuthentication(this, 'WafAndAuthentication', { context: context, alb: ecs.alb });
 
         new CodeBuildForCdDeploy(this, 'CodeBuildForCdDeploy', { context: context, ecsTaskDefinition: ecs.taskDefinition })
 
