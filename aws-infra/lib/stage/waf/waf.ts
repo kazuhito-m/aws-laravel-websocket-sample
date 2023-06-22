@@ -3,13 +3,13 @@ import { Context } from '../../context/context';
 import { CfnWebACL, CfnWebACLAssociation } from 'aws-cdk-lib/aws-wafv2';
 import { ApplicationLoadBalancer } from 'aws-cdk-lib/aws-elasticloadbalancingv2';
 
-export interface WafAndAuthenticationrops {
+export interface WafProps {
     readonly context: Context;
     readonly alb: ApplicationLoadBalancer;
 }
 
-export class WafAndAuthentication extends Construct {
-    constructor(scope: Construct, id: string, props: WafAndAuthenticationrops) {
+export class Waf extends Construct {
+    constructor(scope: Construct, id: string, props: WafProps) {
         super(scope, id);
 
         const context = props.context;
