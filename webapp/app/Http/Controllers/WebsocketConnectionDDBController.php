@@ -2,12 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\StoreWebsocketConnectionRequest;
-use App\Http\Requests\UpdateWebsocketConnectionRequest;
 use App\Models\Websocket\WebsocketConnectionDDB;
 use Illuminate\Support\Facades\Log;
 
-use Aws\ApiGatewayManagementApi\ApiGatewayManagementApiClient;
 use Aws\DynamoDb\DynamoDbClient;
 
 class WebsocketConnectionDDBController extends Controller
@@ -16,7 +13,7 @@ class WebsocketConnectionDDBController extends Controller
     {
         $client = $this->createDynamoDBClient();
 
-        $records = $client->scan(['TableName' => 'simplechat_connections']);
+        $records = $client->scan(['TableName' => $this->ddTableName()]);
 
         $websocketConnections = array();
         foreach ($records['Items'] as $record) {
@@ -38,8 +35,8 @@ class WebsocketConnectionDDBController extends Controller
         $client = $this->createDynamoDBClient();
 
         $client->deleteItem([
-            'Key' => ['connectionId' => ['S' => $connectionId ]],
-            'TableName' => 'simplechat_connections',
+            'Key' => ['connectionId' => ['S' => $connectionId]],
+            'TableName' => $this->ddTableName(),
         ]);
 
         return redirect()->route('websocketconnectionsddb.index')
@@ -52,12 +49,17 @@ class WebsocketConnectionDDBController extends Controller
             'region' => config('custom.websocket-api-region'),
             'version' => 'latest',
             'credentials' => [
-                'key' =>  config('custom.wsddb-aws-access-key-id'),
+                'key' => config('custom.wsddb-aws-access-key-id'),
                 'secret' => config('custom.wsddb-aws-secret-access-key'),
             ],
             'http' => [
                 'timeout' => 5,
             ],
         ]);
+    }
+
+    private function ddTableName()
+    {
+        return config('custom.wsddb-table-name');
     }
 }
