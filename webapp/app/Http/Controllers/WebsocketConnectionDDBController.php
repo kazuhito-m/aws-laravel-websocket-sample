@@ -2,31 +2,15 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\StoreWebsocketConnectionRequest;
-use App\Http\Requests\UpdateWebsocketConnectionRequest;
-use App\Models\Websocket\WebsocketConnectionDDB;
-use Illuminate\Support\Facades\Log;
-
-use Aws\ApiGatewayManagementApi\ApiGatewayManagementApiClient;
-use Aws\DynamoDb\DynamoDbClient;
+use App\Models\Websocket\WebsocketConnectionStorage;
 
 class WebsocketConnectionDDBController extends Controller
 {
     public function index()
     {
-        $client = $this->createDynamoDBClient();
+        $storage = WebsocketConnectionStorage::of();
 
-        $records = $client->scan(['TableName' => 'simplechat_connections']);
-
-        $websocketConnections = array();
-        foreach ($records['Items'] as $record) {
-            $connection = WebsocketConnectionDDB::of(
-                $record['connectionId']['S'],
-                $record['userId']['S'],
-                $record['connectedTime']['S'],
-            );
-            array_push($websocketConnections, $connection);
-        }
+        $websocketConnections = $storage->findAll();
 
         return view('websocketconnectionddb.index')
             ->with('websocketConnections', $websocketConnections);
@@ -34,30 +18,11 @@ class WebsocketConnectionDDBController extends Controller
 
     public function destroy(string $connectionId)
     {
-        Log::debug('削除対象ID:' . $connectionId);
-        $client = $this->createDynamoDBClient();
+        $storage = WebsocketConnectionStorage::of();
 
-        $client->deleteItem([
-            'Key' => ['connectionId' => ['S' => $connectionId ]],
-            'TableName' => 'simplechat_connections',
-        ]);
+        $storage->removeOf($connectionId);
 
         return redirect()->route('websocketconnectionsddb.index')
             ->with('success', 'websocket connections deleted successfully');
-    }
-
-    private function createDynamoDBClient()
-    {
-        return new DynamoDbClient([
-            'region' => config('custom.websocket-api-region'),
-            'version' => 'latest',
-            'credentials' => [
-                'key' =>  config('custom.wsddb-aws-access-key-id'),
-                'secret' => config('custom.wsddb-aws-secret-access-key'),
-            ],
-            'http' => [
-                'timeout' => 5,
-            ],
-        ]);
     }
 }
