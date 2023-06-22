@@ -63,3 +63,7 @@ Tiwtter等で聞いた話では、そんな感じだった。
 - 環境変数は「Dockerのもの」ではなく「MinIO本体」で定義されているもの
 - 昔の「Accessキー」「Secretキー」の環境変数は、現在非推奨
   - 最新のものでは、管理画面のパスワードである `MINIO_ROOT_USER` , `MINIO_ROOT_PASSWORD` が、それぞれAccessキー、Secretキーと対応しており、それで外側からはアクセス出来る
+
+### Laravelとの絡み
+
+- https://zenn.dev/nicopin/articles/e92eb4bc99cc4a

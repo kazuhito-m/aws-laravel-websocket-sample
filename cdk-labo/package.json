@@ -18,7 +18,9 @@
     "deploy_test3": "cdk deploy 'Test3Stack'",
     "destroy_test3": "cdk destroy 'Test3Stack'",
     "deploy_test4": "cdk deploy 'Test4Stack'",
-    "destroy_test4": "cdk destroy 'Test4Stack'"
+    "destroy_test4": "cdk destroy 'Test4Stack'",
+    "deploy_test5": "cdk deploy 'Test5Stack'",
+    "destroy_test5": "cdk destroy 'Test5Stack'"
   },
   "devDependencies": {
     "@types/jest": "^29.5.2",

@@ -29,6 +29,7 @@ export interface EcsClusterProps {
 
 export class EcsCluster extends Construct {
     public readonly taskDefinition: FargateTaskDefinition;
+    public readonly alb: ApplicationLoadBalancer;
 
     constructor(scope: Construct, id: string, props: EcsClusterProps) {
         super(scope, id);
@@ -48,6 +49,7 @@ export class EcsCluster extends Construct {
         this.buildDnsRecord(albService.loadBalancer, context);
 
         this.taskDefinition = taskDef;
+        this.alb = albService.loadBalancer;
     }
 
     private buildTaskDefinition(props: EcsClusterProps, stack: Stack): FargateTaskDefinition {

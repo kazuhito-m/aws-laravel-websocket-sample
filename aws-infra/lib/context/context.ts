@@ -10,6 +10,7 @@ export interface GlobalContext {
 export interface Stage {
     id: string,
     migrateInfrastructure: boolean,
+    withBasicAuthentication: boolean,
     siteFqdn: string,
     apiFqdn: string,
     imageServerFqdn: string,
