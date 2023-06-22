@@ -7,13 +7,13 @@ import { AppProtocol, Cluster, ContainerImage, CpuArchitecture, FargateTaskDefin
 import { LogGroup } from 'aws-cdk-lib/aws-logs';
 import { Duration, Stack } from 'aws-cdk-lib';
 import { ApplicationLoadBalancedFargateService } from 'aws-cdk-lib/aws-ecs-patterns';
-import { ApplicationLoadBalancer, ApplicationProtocol, ListenerAction, ListenerCertificate, SslPolicy } from 'aws-cdk-lib/aws-elasticloadbalancingv2';
-import { ARecord, HostedZone, RecordTarget } from 'aws-cdk-lib/aws-route53';
-import { LoadBalancerTarget } from 'aws-cdk-lib/aws-route53-targets';
+import { ApplicationLoadBalancer, ApplicationProtocol, SslPolicy } from 'aws-cdk-lib/aws-elasticloadbalancingv2';
+import { HostedZone, IHostedZone } from 'aws-cdk-lib/aws-route53';
 import { CfnStage } from 'aws-cdk-lib/aws-apigatewayv2';
 import { Context } from '../../context/context';
 import { ParameterStore } from '../../parameterstore/parameter-store';
 import { ApiGatewayEndpoint } from '../websocket-apis/apigateway-endpoint';
+import { Certificate } from 'aws-cdk-lib/aws-certificatemanager';
 import * as path from 'path';
 import { EcsGrantPolicy, EcsGrantPolicyProps } from './ecs-grant-policy';
 
@@ -36,6 +36,7 @@ export class EcsCluster extends Construct {
 
         const stack = scope as Stack;
         const context = props.context;
+        const hostedZone = this.lookUpHostedZone(context);
 
         const ecsCluster = new Cluster(this, context.wpp("EcsCluster"), {
             clusterName: context.wpk('ecs-cluster'),
@@ -44,9 +45,7 @@ export class EcsCluster extends Construct {
 
         const taskDef = this.buildTaskDefinition(props, stack);
 
-        const albService = this.buildAlbFargeteService(taskDef, ecsCluster, props);
-
-        this.buildDnsRecord(albService.loadBalancer, context);
+        const albService = this.buildAlbFargeteService(taskDef, ecsCluster, hostedZone, props);
 
         this.taskDefinition = taskDef;
         this.alb = albService.loadBalancer;
@@ -126,9 +125,13 @@ export class EcsCluster extends Construct {
     private buildAlbFargeteService(
         taskDifinition: FargateTaskDefinition,
         ecsCluster: Cluster,
+        hostedZone: IHostedZone,
         props: EcsClusterProps
     ): ApplicationLoadBalancedFargateService {
         const context = props.context;
+
+        const certificateArn = new ParameterStore(props.context, this).cerificationArn();
+        const certificate = Certificate.fromCertificateArn(this, 'SearchCertificationByArn', certificateArn);
 
         const albFargateService = new ApplicationLoadBalancedFargateService(this, 'AppService', {
             serviceName: context.wpk('app-service'),
@@ -136,8 +139,14 @@ export class EcsCluster extends Construct {
             securityGroups: [props.ecsSecurityGroup],
             healthCheckGracePeriod: Duration.seconds(240),
             loadBalancerName: context.wpk('app-alb'),
-            // redirectHTTP: true,  // TODO この設定だけでは80塞ぎが出来ないよう、後で
             cluster: ecsCluster,
+            domainName: context.applicationDnsARecordName(),
+            domainZone: hostedZone,
+            protocol: ApplicationProtocol.HTTPS,
+            listenerPort: 443,
+            certificate: certificate,
+            sslPolicy: SslPolicy.RECOMMENDED_TLS,
+            redirectHTTP: true,
         });
         albFargateService.targetGroup.configureHealthCheck({
             path: "/login",
@@ -155,31 +164,14 @@ export class EcsCluster extends Construct {
             })
         }
 
-        const certificateArn = new ParameterStore(props.context, this).cerificationArn();
-        const certificate = ListenerCertificate.fromArn(certificateArn);
-
-        albFargateService.loadBalancer.addListener('AlbListenerHTTPS', {
-            protocol: ApplicationProtocol.HTTPS,
-            defaultAction: ListenerAction.forward([albFargateService.targetGroup]),
-            sslPolicy: SslPolicy.RECOMMENDED_TLS,
-            certificates: [certificate]
-        });
-
         return albFargateService;
     }
 
-    private buildDnsRecord(alb: ApplicationLoadBalancer, context: Context): void {
+    private lookUpHostedZone(context: Context): IHostedZone {
         const hostedZoneId = new ParameterStore(context, this).hostedZoneId();
-        const hostedZone = HostedZone.fromHostedZoneAttributes(this, "HostZone", {
+        return HostedZone.fromHostedZoneAttributes(this, "HostZone", {
             zoneName: context.applicationDnsARecordName(),
             hostedZoneId: hostedZoneId,
-        });
-        new ARecord(this, "DnsAppAnameRecord", {
-            zone: hostedZone,
-            recordName: context.applicationDnsARecordName(),
-            target: RecordTarget.fromAlias(new LoadBalancerTarget(alb)),
-            ttl: Duration.minutes(5),
-            comment: 'Application LB Record.'
         });
     }
 }
