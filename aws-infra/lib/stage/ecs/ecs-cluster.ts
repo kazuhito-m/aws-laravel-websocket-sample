@@ -158,11 +158,19 @@ export class EcsCluster extends Construct {
         const certificateArn = new ParameterStore(props.context, this).cerificationArn();
         const certificate = ListenerCertificate.fromArn(certificateArn);
 
-        albFargateService.loadBalancer.addListener('AlbListenerHTTPS', {
+        albFargateService.loadBalancer.addListener('AlbListenerHttps', {
             protocol: ApplicationProtocol.HTTPS,
             defaultAction: ListenerAction.forward([albFargateService.targetGroup]),
             sslPolicy: SslPolicy.RECOMMENDED_TLS,
             certificates: [certificate]
+        });
+
+        albFargateService.loadBalancer.addListener('AlbListenerHttpRedirectHttps', {
+            protocol: ApplicationProtocol.HTTP,
+            defaultAction: ListenerAction.redirect({
+                protocol: ApplicationProtocol.HTTPS,
+                port: '443',
+            }),
         });
 
         return albFargateService;
