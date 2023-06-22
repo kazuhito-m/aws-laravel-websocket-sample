@@ -21,17 +21,57 @@ export class Test5Stack extends Stack {
         });
 
         const webAclAssociation = new CfnWebACLAssociation(this, "AddAlbResource", {
-            resourceArn: 'arn:aws:elasticloadbalancing:ap-northeast-1:077931172314:loadbalancer/app/alws-production-app-alb/c5ae1f0cb8bebe0b',
+            resourceArn: 'arn:aws:elasticloadbalancing:ap-northeast-1:000000000000:loadbalancer/app/xxx-app-alb/xxx',
             webAclArn: waf.attrArn,
         });
         webAclAssociation.addDependency(waf);
     }
 
     private buildRules(): Array<CfnWebACL.RuleProperty | IResolvable> {
-        const rules = Array();
+        const rules = Array<CfnWebACL.RuleProperty>();
 
-
+        rules.push(this.basicAuthorizationRule());
 
         return rules;
+    }
+
+    private basicAuthorizationRule(): CfnWebACL.RuleProperty {
+        return {
+            name: 'basic-authorization-rule',
+            priority: 0,
+            statement: {
+                notStatement: {
+                    statement: {
+                        byteMatchStatement: {
+                            searchString: 'Basic dGVzdDp0ZXN0', // test:test
+                            fieldToMatch: {
+                                singleHeader: { name: 'authorization' }
+                            },
+                            textTransformations: [{
+                                priority: 0,
+                                type: 'NONE'
+                            }],
+                            positionalConstraint: 'EXACTLY',
+                        }
+                    }
+                }
+            },
+            action: {
+                block: {
+                    customResponse: {
+                        responseCode: 401,
+                        responseHeaders: [{
+                            name: 'www-authenticate',
+                            value: 'Basic'
+                        }]
+                    }
+                }
+            },
+            visibilityConfig: {
+                sampledRequestsEnabled: true,
+                cloudWatchMetricsEnabled: false,
+                metricName: "BasicAuthRule"
+            }
+        }
     }
 }
