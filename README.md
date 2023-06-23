@@ -49,7 +49,7 @@ XXX
 0. 上記で作成されたAWSの構成から、AWSのSystemManergerのパラメータストアに、以下の値を登録
    1. `alws-hostedzone-id` : 前述Route53で作成したホストゾーンのゾーンID
    0. `alws-certification-arn` : 前述Certificate Managerで作成した「自分が今からシステムを立てたいリージョン」の証明書ARN
-   0. `alws-certification-arn-global` : 前述Certificate Managerで作成した `us-east-1(バージニア北部)` の証明書ARN
+   0. `alws-certification-global-arn` : 前述Certificate Managerで作成した `us-east-1(バージニア北部)` の証明書ARN
    0. `alws-github-access-token` : WebHookを登録出来る権限を持ったGitHubのAccessToken
 
 ### AWSにGlobal(全体)に掛かる構成を構築
