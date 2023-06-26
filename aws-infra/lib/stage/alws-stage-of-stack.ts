@@ -23,11 +23,11 @@ export class AlwsStageOfStack extends Stack {
 
         const vpc = new VpcAndNetwork(this, 'VpcAndNetwork', { context: context });
 
-        const s3 = new S3BucketForUpload(this, 'S3BucketForUpload', { context: context });
+        // const s3 = new S3BucketForUpload(this, 'S3BucketForUpload', { context: context });
 
         const rds = new ApplicationRds(this, 'ApplicationRds', vpc);
 
-        const apiAndLambda = new ApiGatewayAndLambda(this, 'ApiGatewayAndLambda', { context: context });
+        // const apiAndLambda = new ApiGatewayAndLambda(this, 'ApiGatewayAndLambda', { context: context });
 
         const ecs = new EcsCluster(this, 'EcsCluster', {
             context: context,
@@ -35,8 +35,8 @@ export class AlwsStageOfStack extends Stack {
             rds: rds.appRds,
             rdsSecret: rds.rdsSecret,
             ecsSecurityGroup: vpc.ecsSecurityGroup,
-            webSocketApiStage: apiAndLambda.webSocketApiStage,
-            innerApi: apiAndLambda.innerApi
+            // webSocketApiStage: apiAndLambda.webSocketApiStage,
+            // innerApi: apiAndLambda.innerApi
         });
 
         new Waf(this, 'Waf', { context: context, alb: ecs.alb });

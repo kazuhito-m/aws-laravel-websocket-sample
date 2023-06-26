@@ -30,7 +30,7 @@ export class EcsGrantPolicy extends Construct {
         taskRole.addManagedPolicy(ManagedPolicy.fromAwsManagedPolicyName('service-role/AmazonECSTaskExecutionRolePolicy')); // XXX 必要無いかも？
         taskRole.addToPrincipalPolicy(PolicyStatement.fromJson({
             "Effect": "Allow",
-            "Action":[
+            "Action": [
                 "dynamodb:Scan",
                 "dynamodb:DeleteItem"
             ],
@@ -48,6 +48,14 @@ export class EcsGrantPolicy extends Construct {
                 "s3:DeleteObject"
             ],
             "Resource": `arn:aws:s3:::${context.s3BucketName()}/*`
+        }));
+        taskRole.addToPrincipalPolicy(PolicyStatement.fromJson({
+            "Effect": "Allow",
+            "Action": [
+                "ses:SendEmail",
+                "ses:SendRawEmail"
+            ],
+            "Resource": `arn:aws:ses:${stack.region}:${me}:identity/*`
         }));
     }
 }

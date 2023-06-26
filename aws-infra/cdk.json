@@ -51,7 +51,7 @@
         "@aws-cdk/aws-apigateway:requestValidatorUniqueId": true,
         "global": {
             "systemName": "alws",
-            "siteDomain": "testcity.click"
+            "siteDomain": "maho.city"
         },
         "stages": {
             "production": {
@@ -87,7 +87,25 @@
                     "maxCapacity": 1,
                     "cpuUtilizationPercent": 0
                 }
+            },
+            "mailtest": {
+                "migrateInfrastructure": false,
+                "withBasicAuthentication": true,
+                "siteFqdn": "mailtest.maho.city",
+                "apiFqdn": "api-mailtest.maho.city",
+                "imageServerFqdn": "image-mailtest.maho.city",
+                "rds": {
+                    "class": "t2",
+                    "size": "micro",
+                    "multiAz": false
+                },
+                "container": {
+                    "minCapacity": 1,
+                    "maxCapacity": 1,
+                    "cpuUtilizationPercent": 0
+                }
             }
+
         }
     }
 }

@@ -10,9 +10,9 @@
     "test": "jest",
     "cdk": "cdk",
     "bootstrap": "cdk bootstrap --context stageId=global",
-    "synth": "cdk synth AlwsStageOfProductionStack --context stageId=production",
-    "deploy": "cdk deploy AlwsStageOfProductionStack --context stageId=production",
-    "destroy": "cdk destroy AlwsStageOfProductionStack --context stageId=production",
+    "synth": "cdk synth AlwsStageOfMailtestStack --context stageId=mailtest",
+    "deploy": "cdk deploy AlwsStageOfMailtestStack --context stageId=mailtest",
+    "destroy": "cdk destroy AlwsStageOfMailtestStack --context stageId=mailtest",
     "synth_global": "cdk synth AlwsGlobalStack --context stageId=global",
     "deploy_global": "cdk deploy AlwsGlobalStack --context stageId=global",
     "destroy_global": "cdk destroy AlwsGlobalStack --context stageId=global"
