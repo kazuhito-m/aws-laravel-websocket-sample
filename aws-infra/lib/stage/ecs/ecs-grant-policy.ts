@@ -36,11 +36,11 @@ export class EcsGrantPolicy extends Construct {
             ],
             "Resource": `arn:aws:dynamodb:${stack.region}:${me}:table/${context.dynamoDbTableName()}`,
         }));
-        taskRole.addToPrincipalPolicy(PolicyStatement.fromJson({
-            "Effect": "Allow",
-            "Action": "execute-api:ManageConnections",
-            "Resource": `arn:aws:execute-api:${stack.region}:${me}:${props.webSocketApiStage.apiId}/*/POST/@connections/*`,
-        }));
+        // taskRole.addToPrincipalPolicy(PolicyStatement.fromJson({
+        //     "Effect": "Allow",
+        //     "Action": "execute-api:ManageConnections",
+        //     "Resource": `arn:aws:execute-api:${stack.region}:${me}:${props.webSocketApiStage.apiId}/*/POST/@connections/*`,
+        // }));
         taskRole.addToPrincipalPolicy(PolicyStatement.fromJson({
             "Effect": "Allow",
             "Action": [
