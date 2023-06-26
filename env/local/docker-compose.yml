@@ -9,7 +9,7 @@ services:
     ports:
       - "3306:3306"
     restart: "unless-stopped"
-  locals3:
+  local-s3:
     image: "bitnami/minio"
     container_name: "local-s3-minio"
     ports:
@@ -19,3 +19,8 @@ services:
       MINIO_ROOT_USER: "mineo"  # concurrently access key
       MINIO_ROOT_PASSWORD: "mineo_password" #  concurrently secret key
       MINIO_DEFAULT_BUCKETS: "laravel-test-upload-bucket:public"
+  smtp:
+    image: "schickling/mailcatcher"
+    container_name: "local-smtp-mailcatcher"
+    ports:
+      - "1080:1080"
