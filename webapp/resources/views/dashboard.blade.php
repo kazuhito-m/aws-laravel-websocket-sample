@@ -32,6 +32,9 @@
                 <div class="pull-right">
                     <a class="btn btn-success" href="/upload"> ファイルアップロード</a>
                 </div>
+                <div class="pull-right">
+                    <a class="btn btn-success" href="/mailsend"> メール送信</a>
+                </div>
             </div>
         </div>
     </div>

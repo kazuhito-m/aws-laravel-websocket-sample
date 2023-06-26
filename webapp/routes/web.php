@@ -8,6 +8,7 @@ use App\Http\Controllers\DirectSendController;
 use App\Http\Controllers\WebsocketConnectionController;
 use App\Http\Controllers\WebsocketConnectionDDBController;
 use App\Http\Controllers\UploadController;
+use App\Http\Controllers\MailSendController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -40,5 +41,6 @@ Route::resource('directsend', DirectSendController::class)->middleware(['auth', 
 Route::resource('websocketconnections', WebsocketConnectionController::class)->middleware(['auth', 'verified']);
 Route::resource('websocketconnectionsddb', WebsocketConnectionDDBController::class)->middleware(['auth', 'verified']);
 Route::resource('upload', UploadController::class)->middleware(['auth', 'verified']);
+Route::resource('mailsend', MailSendController::class)->middleware(['auth', 'verified']);
 
 require __DIR__ . '/auth.php';
