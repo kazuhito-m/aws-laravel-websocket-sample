@@ -1,4 +1,4 @@
-import { Construct } from 'constructs';
+/*  */import { Construct } from 'constructs';
 import { Stack } from 'aws-cdk-lib';
 import { FargateTaskDefinition } from 'aws-cdk-lib/aws-ecs';
 import { ManagedPolicy, PolicyStatement } from 'aws-cdk-lib/aws-iam';
@@ -22,7 +22,10 @@ export class EcsGrantPolicy extends Construct {
 
         taskDefinition.addToExecutionRolePolicy(PolicyStatement.fromJson({
             "Effect": "Allow",
-            "Action": ["ecr:GetAuthorizationToken", "ecr:BatchGetImage", "ecr:GetDownloadUrlForLayer"],
+            "Action": [
+                "ecr:GetAuthorizationToken",
+                "ecr:BatchGetImage",
+                "ecr:GetDownloadUrlForLayer"],
             "Resource": "*",
         }));
 
@@ -30,7 +33,7 @@ export class EcsGrantPolicy extends Construct {
         taskRole.addManagedPolicy(ManagedPolicy.fromAwsManagedPolicyName('service-role/AmazonECSTaskExecutionRolePolicy')); // XXX 必要無いかも？
         taskRole.addToPrincipalPolicy(PolicyStatement.fromJson({
             "Effect": "Allow",
-            "Action":[
+            "Action": [
                 "dynamodb:Scan",
                 "dynamodb:DeleteItem"
             ],
@@ -48,6 +51,24 @@ export class EcsGrantPolicy extends Construct {
                 "s3:DeleteObject"
             ],
             "Resource": `arn:aws:s3:::${context.s3BucketName()}/*`
+        }));
+        taskRole.addToPrincipalPolicy(PolicyStatement.fromJson({
+            "Effect": "Allow",
+            "Action": [
+                "ses:SendEmail",
+                "ses:SendRawEmail"
+            ],
+            "Resource": `arn:aws:ses:${stack.region}:${me}:identity/*`
+        }));
+        // for debug (AessionManagerPlugin and execute-command(Container Shell) enable)
+        taskRole.addToPrincipalPolicy(PolicyStatement.fromJson({
+            "Effect": "Allow",
+            "Action": [
+                "ssmmessages:CreateControlChannel",
+                "ssmmessages:CreateDataChannel",
+                "ssmmessages:OpenControlChannel",
+                "ssmmessages:OpenDataChannel"],
+            "Resource": `*`
         }));
     }
 }

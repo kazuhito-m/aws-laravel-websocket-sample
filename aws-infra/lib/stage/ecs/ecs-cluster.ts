@@ -118,7 +118,9 @@ export class EcsCluster extends Construct {
 
             AWS_DEFAULT_REGION: stack.region,
             AWS_BUCKET: context.s3BucketName(),
-            IMAGE_SITE_URL: `https://${context.currentStage().imageServerFqdn}`
+            IMAGE_SITE_URL: `https://${context.currentStage().imageServerFqdn}`,
+
+            MAIL_FROM_ADDRESS: context.mailFromAddress(),
         }
     }
 
@@ -170,7 +172,7 @@ export class EcsCluster extends Construct {
     private lookUpHostedZone(context: Context): IHostedZone {
         const hostedZoneId = new ParameterStore(context, this).hostedZoneId();
         return HostedZone.fromHostedZoneAttributes(this, "HostZone", {
-            zoneName: context.applicationDnsARecordName(),
+            zoneName: context.global.siteDomain,
             hostedZoneId: hostedZoneId,
         });
     }

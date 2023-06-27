@@ -156,6 +156,10 @@ public function itemName()
 - https://zenn.dev/ikeo/articles/c55ecf1345e70c193f7a
 - https://reffect.co.jp/laravel/laravel-storage-manipulation-master/
 
+## Laravel Broadcasting とは「なんなのか」
+
+- https://reffect.co.jp/laravel/laravel-broadcasting-understandig/
+
 ## トラブルシュート:APサーバの冗長化構成でページを遷移するたび「419:PAGE EXPIRED」になる問題
 
 デフォルトが「サーバのファイルをセッションファイルにしている」になっているから、当然ちゃぁ当然なんだが…。

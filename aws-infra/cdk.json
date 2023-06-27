@@ -51,7 +51,8 @@
         "@aws-cdk/aws-apigateway:requestValidatorUniqueId": true,
         "global": {
             "systemName": "alws",
-            "siteDomain": "testcity.click"
+            "siteDomain": "testcity.click",
+            "mailServerName": "alws-mail"
         },
         "stages": {
             "production": {

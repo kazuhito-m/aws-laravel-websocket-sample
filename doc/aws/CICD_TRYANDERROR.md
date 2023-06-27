@@ -116,3 +116,9 @@ principal.addToPrincipalPolicy(iam.PolicyStatement.fromJson({
 「ロールを見つけて先に削除してしまうと、ぶら下がってるポリシーがわからなくなる上に、それを削除しないといけない」
 
 ので、ロール探して、ポリシー→ロールの順で削除する必要あり。注意。
+
+## CloudBuildで「DockerHubからイメージが取得できなく」なり、ビルドがコケる
+
+- https://dev.classmethod.jp/articles/codebuild-has-to-use-dockerhub-login-to-avoid-ip-gacha/
+
+固定アドレスでログインしたくない…ので、残念ながら「解消する対策を見いだせていない」。要検討。

@@ -1,40 +1,6 @@
 import { Node } from 'constructs';
-import { Environment, Stack } from 'aws-cdk-lib';
-import { InstanceClass, InstanceSize } from 'aws-cdk-lib/aws-ec2';
-
-export interface GlobalContext {
-    systemName: string,
-    siteDomain: string,
-}
-
-export interface Stage {
-    id: string,
-    migrateInfrastructure: boolean,
-    withBasicAuthentication: boolean,
-    siteFqdn: string,
-    apiFqdn: string,
-    imageServerFqdn: string,
-    rds: RdsSettings,
-    container: ContainerSettings,
-}
-
-export interface RdsSettings {
-    class: InstanceClass,
-    size: InstanceSize,
-    multiAz: boolean
-}
-
-export interface ContainerSettings {
-    minCapacity: number,
-    maxCapacity: number,
-    cpuUtilizationPercent: number
-}
-
-export interface EnvContext extends Environment {
-    account: string,
-    region: string,
-}
-
+import { EnvContext, GlobalContext, Stage } from './interfaces';
+import { Stack } from 'aws-cdk-lib';
 
 export class Context {
     private constructor(
@@ -150,8 +116,18 @@ export class Context {
     }
 
     public s3BucketName(): string {
-        const stagePart = this.currentStageId === 'production' ? '' : '-' + this.currentStageId;
+        const stagePart = this.stageSuffix();
         return `${this.systemName()}${stagePart}-file-upload-bucket`;
+    }
+
+    public mailDomainName(): string {
+        return `${this.global.mailServerName}.${this.global.siteDomain}`;
+    }
+
+    public mailFromAddress(): string {
+        const stagePart = this.stageSuffix();
+        const domain = this.mailDomainName();
+        return `info${stagePart}@${domain}`;
     }
 
 
@@ -159,6 +135,11 @@ export class Context {
         const me = Stack.of(stack).account;
         const region = stack.region;
         return `${me}.dkr.ecr.${region}.amazonaws.com/${name}`;
+    }
+
+    private stageSuffix(): string {
+        const id = this.currentStageId;
+        return id === 'production' ? '' : `-${id}`;
     }
 
     private toPascalCase(text: string): string {
