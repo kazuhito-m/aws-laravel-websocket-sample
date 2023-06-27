@@ -38,9 +38,32 @@
   - 送信数なんかよりこっちの制限のほうが遥かにしんどい
 - 「”MAIL FROM ドメイン”に設定したものを、アプリ上でもFROMに設定する」しなければ、送れない
   - 本番用の.envファイルが違う設定だったので、最初環境差異かと思ったが、それ以前の問題でハマってた
+- 呼ぶ側(自分の場合はECS)の権限が足りないと送れない
+  - わかってはいたし、最初仕込んでからやったのだが、仕込み方をミスった
+  - https://docs.aws.amazon.com/ja_jp/ses/latest/dg/control-user-access.html
 - Laravelの設定値「AWS_ACCESS_KEY_ID、AWS_SECRET_ACCESS_KEY」は空文字にしてはいけない
   - Laravel独自の話なので、厳密にはSES/CDKの問題ではないが…
     - aws-sdkが隠蔽されてしまっているので、特殊なノウハウなので書いておきたい
   - パラメータが「ある」時点で「その値を使おうとする」挙動のようだ
     - たとえ空(あるいは"")としてたとしても「空文字がCecret」としてそれで認証しようとする模様
   - 設定ファイルにあれば消す必要がある
+  - Laravel＆AmazonSES周りは、ここが役に立った
+    - https://akamist.com/blog/archives/3885
+
+## SESのID(単位)の作成
+
+### 手動での作成
+
+- https://docs.aws.amazon.com/ja_jp/ses/latest/dg/control-user-access.html
+  - 少し古いので、GUIが違う
+- https://qiita.com/hiroaki-u/items/986b523998d5e415fc4d
+
+基本的にそのまま出来ない、合致しないものばかりだが、概念を理解するのに役立った。
+
+### 自動(CDK)での作成
+
+- https://docs.aws.amazon.com/cdk/api/v2/docs/aws-cdk-lib.aws_ses.Identity.html
+- https://qiita.com/watany/items/5700b391f6f5c69e0ae0
+  - この手順内の「Route53のCレコードを作る」をしなくても、今では「勝手につくって承認する」みたい
+
+おそらく「最近は」なのだろうけれど、CDKで「最低限のコード」を書けば、GUIと同じように「勝手にデフォルト仕込んでくれる」感じがした。(なので、自分の本番コードはnewしているだけ)
