@@ -51,7 +51,8 @@
         "@aws-cdk/aws-apigateway:requestValidatorUniqueId": true,
         "global": {
             "systemName": "alws",
-            "siteDomain": "maho.city"
+            "siteDomain": "maho.city",
+            "mailServerName": "alws-mail"
         },
         "stages": {
             "production": {
@@ -105,7 +106,6 @@
                     "cpuUtilizationPercent": 0
                 }
             }
-
         }
     }
 }
