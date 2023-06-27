@@ -68,6 +68,14 @@
 - https://dev.classmethod.jp/articles/alb-vpc-lambda-sample-cdk/
   - これはLambdaの例だが、ALB周りの知識として
 
+## デプロイ方法が「JSON取って書き換えて投げ込む」で良いのか？
+
+あるところから持ってきたやり方が「たまたま上手く行った」ので、探求していなかった。
+
+このやりかたは本当に「正しい」くて「一般的」なのか…わからないので情報を集める。
+
+- https://nulab.com/ja/blog/nulab/git-team-ecs-deploy/
+
 ## トラブルシュート:ECSからDynamoDBにアクセスするのに、IAMだけでよく、SecretKeyは要らない
 
 ローカルでテストするために、php+AWS-SDK+DynamoDBClientを使い「AccessKey/SecretKey」でアクセスしていた。

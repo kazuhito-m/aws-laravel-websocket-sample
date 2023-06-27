@@ -19,11 +19,15 @@ aws ecs describe-task-definition --task-definition ${ECS_TASK_FAMILY} | \
     jq '.taskDefinition | del (.taskDefinitionArn, .revision, .status, .requiresAttributes, .compatibilities, .registeredAt, .registeredBy)' \
     > ./taskdef.json
 
-sed -i "s/\"image\": .*\",/\"image\": \"${CONTAINER_REGISTRY_TAG_URI}\",/g" ./taskdef.json
+jq ".containerDefinitions[0].image=\"${CONTAINER_REGISTRY_TAG_URI}\"" ./taskdef.json > ./overwrited.json
+
+echo '-------- 変更後 taskdef.json begin --------'
+cat ./overwrited.json
+echo '-------- 変更後 taskdef.json end   --------'
 
 # TDOO ECSにコンテナがあるかどうかをチェックして、なかったら殺す。
 
-aws ecs register-task-definition --cli-input-json file://taskdef.json > ./register-result.json
+aws ecs register-task-definition --cli-input-json file://overwrited.json > ./register-result.json
 aws ecs update-service --cluster ${ECS_CLUSTER} \
     --service ${ECS_SERVICE} \
     --task-definition ${ECS_TASK_FAMILY}
