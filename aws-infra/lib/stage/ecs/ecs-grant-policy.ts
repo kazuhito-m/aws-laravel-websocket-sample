@@ -1,4 +1,4 @@
-import { Construct } from 'constructs';
+/*  */import { Construct } from 'constructs';
 import { Stack } from 'aws-cdk-lib';
 import { FargateTaskDefinition } from 'aws-cdk-lib/aws-ecs';
 import { ManagedPolicy, PolicyStatement } from 'aws-cdk-lib/aws-iam';
@@ -22,7 +22,10 @@ export class EcsGrantPolicy extends Construct {
 
         taskDefinition.addToExecutionRolePolicy(PolicyStatement.fromJson({
             "Effect": "Allow",
-            "Action": ["ecr:GetAuthorizationToken", "ecr:BatchGetImage", "ecr:GetDownloadUrlForLayer"],
+            "Action": [
+                "ecr:GetAuthorizationToken",
+                "ecr:BatchGetImage",
+                "ecr:GetDownloadUrlForLayer"],
             "Resource": "*",
         }));
 
@@ -56,6 +59,16 @@ export class EcsGrantPolicy extends Construct {
                 "ses:SendRawEmail"
             ],
             "Resource": `arn:aws:ses:${stack.region}:${me}:identity/*`
+        }));
+        // for debug (AessionManagerPlugin and execute-command(Container Shell) enable)
+        taskRole.addToPrincipalPolicy(PolicyStatement.fromJson({
+            "Effect": "Allow",
+            "Action": [
+                "ssmmessages:CreateControlChannel",
+                "ssmmessages:CreateDataChannel",
+                "ssmmessages:OpenControlChannel",
+                "ssmmessages:OpenDataChannel"],
+            "Resource": `*`
         }));
     }
 }
