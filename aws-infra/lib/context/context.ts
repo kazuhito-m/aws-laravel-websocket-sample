@@ -127,7 +127,7 @@ export class Context {
     public mailFromAddress(): string {
         const stagePart = this.stageSuffix();
         const domain = this.mailDomainName();
-        return `info-${stagePart}@${domain}`;
+        return `info${stagePart}@${domain}`;
     }
 
 
