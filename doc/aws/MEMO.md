@@ -329,6 +329,7 @@ CONTAINER_NAME=[コンテナ名]
   - つながらないなー、と思ったら、以下も確認
     - `aws ecs list-tasks --cluster ${CLUSTER} --query "taskArns[]" --output text`
     - `aws ecs describe-tasks --cluster ${CLUSTER} --tasks ${TASK_ARN} --query "tasks[].containers[].name" --output text`
+    - 権限を疑う: https://repost.aws/ja/knowledge-center/ecs-error-execute-command
 - 入った先がAlpineなのでmysqlのクライアントを入れてつないで見る
   - `apk add --no-cache mysql-client`
   - `mysql --host=xxxx.rds.amazonaws.com --user=root --password`
