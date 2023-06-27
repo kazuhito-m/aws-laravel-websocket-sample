@@ -24,7 +24,7 @@ export class Ses extends Construct {
     private lookUpHostedZone(context: Context): IHostedZone {
         const hostedZoneId = new ParameterStore(context, this).hostedZoneId();
         return HostedZone.fromHostedZoneAttributes(this, "HostZone", {
-            zoneName: context.applicationDnsARecordName(),
+            zoneName: context.global.siteDomain,
             hostedZoneId: hostedZoneId,
         });
     }
