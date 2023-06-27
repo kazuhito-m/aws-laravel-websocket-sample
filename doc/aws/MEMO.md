@@ -305,16 +305,30 @@ DBへの接続テストが非常にやりやすそうなので、「コンテナ
 
 ほぼ [このとおり](https://blog.serverworks.co.jp/ecs-exec) にする。ので、ざっくりと書く。
 
+なお、
+
+```bash
+CLUSTER=[クラスタ名]
+SERVICE=[サービス名]
+TASK_ARN=[タスクARN]
+CONTAINER_NAME=[コンテナ名]
+```
+
+しておくと、以下がスムーズになる。
+
 - Session Manager plugin for the AWS CLIのインストール
   - https://docs.aws.amazon.com/systems-manager/latest/userguide/session-manager-working-with-install-plugin.html
   - `curl "https://s3.amazonaws.com/session-manager-downloads/plugin/latest/ubuntu_64bit/session-manager-plugin.deb" -o "session-manager-plugin.deb"`
 - コマンドで「現在のServiceの状態」を確認
-  - `aws ecs describe-services --cluster EcscCurrent --services LaravelWebAppService17 | grep enableExecuteCommand`
+  - `aws ecs describe-services --cluster ${CLUSTER} --services ${SERVICE} | grep enableExecuteCommand`
   - 最初、aws-cliのリージョンが正しくなかったので `Could not connect to the endpoint` だったが、ARNの中のリージョン名へ修正した
 - 既存サービスへのenableExecuteCommandの有効化
-  - `aws ecs update-service --cluster x --service y --enable-execute-command`
+  - `aws ecs update-service --cluster ${CLUSTER} --service ${SERVICE} --enable-execute-command`
 - 実際に接続してコマンドうってみる
-  - `aws ecs execute-command --cluster ecs-exec-test --task タスクARN --container コンテナ名 --interactive --command "/bin/sh"`
+  - `aws ecs execute-command --cluster ${CLUSTER} --task ${TASK_ARN} --container ${CONTAINER_NAME} --interactive --command "/bin/sh"`
+  - つながらないなー、と思ったら、以下も確認
+    - `aws ecs list-tasks --cluster ${CLUSTER} --query "taskArns[]" --output text`
+    - `aws ecs describe-tasks --cluster ${CLUSTER} --tasks ${TASK_ARN} --query "tasks[].containers[].name" --output text`
 - 入った先がAlpineなのでmysqlのクライアントを入れてつないで見る
   - `apk add --no-cache mysql-client`
   - `mysql --host=xxxx.rds.amazonaws.com --user=root --password`
