@@ -10,6 +10,7 @@ import { StringParameter } from 'aws-cdk-lib/aws-ssm';
 
 import { Context } from '../context/context';
 import { ParameterStore } from '../parameterstore/parameter-store';
+import { Ses } from './ses/ses';
 
 export interface AlwsStackProps extends StackProps {
     context: Context,
@@ -28,6 +29,8 @@ export class AlwsGlobalStack extends Stack {
 
         // 一旦コメントアウト。ここは「手動操作」で作成する(ということを手順書ベースで書いておく)
         // this.buildDnsAndCertificate(settings);
+
+        new Ses(this, 'CreateSes', { context: settings });
 
         this.setTag("Version", settings.packageVersion());
     }
