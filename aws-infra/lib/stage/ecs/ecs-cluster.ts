@@ -23,8 +23,8 @@ export interface EcsClusterProps {
     readonly ecsSecurityGroup: SecurityGroup;
     readonly rds: DatabaseInstance;
     readonly rdsSecret: Secret;
-    // readonly webSocketApiStage: CfnStage
-    // readonly innerApi: RestApi;
+    readonly webSocketApiStage: CfnStage
+    readonly innerApi: RestApi;
 }
 
 export class EcsCluster extends Construct {
@@ -98,7 +98,7 @@ export class EcsCluster extends Construct {
     }
 
     private buildContainerEnvironmentVariables(props: EcsClusterProps, stack: Stack): { [key: string]: string; } {
-        // const apiEp = new ApiGatewayEndpoint(props.webSocketApiStage);
+        const apiEp = new ApiGatewayEndpoint(props.webSocketApiStage);
 
         const context = props.context;
         return {
@@ -107,12 +107,12 @@ export class EcsCluster extends Construct {
             DB_DATABASE: context.systemName(),
             DB_USERNAME: props.rdsSecret.secretValueFromJson('username').unsafeUnwrap(),
             DB_PASSWORD: props.rdsSecret.secretValueFromJson('password').unsafeUnwrap(),
-            // CLIENT_SEND_API_URL: props.innerApi.url,
+            CLIENT_SEND_API_URL: props.innerApi.url,
             // WEBSOCKET_URL: context.currentStage().apiFqdn,
             // WEBSOCKET_API_URL: context.websocketEndpointUrl(),
             // FIXME 上記の通り…でありたいのだが、今「カスタムドメインとCredentialを仕込めない」という問題があるので、生のAPIエンドポイントを仕込む
-            // WEBSOCKET_URL: apiEp.path(),
-            // WEBSOCKET_API_URL: apiEp.httpUrl(),
+            WEBSOCKET_URL: apiEp.path(),
+            WEBSOCKET_API_URL: apiEp.httpUrl(),
             WEBSOCKET_API_REGION: stack.region,
             WSDDB_TABLE_NAME: context.dynamoDbTableName(),
 
