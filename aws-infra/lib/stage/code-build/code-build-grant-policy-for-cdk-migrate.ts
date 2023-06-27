@@ -28,6 +28,7 @@ export class CodeBuildGrantPolicyForCdkMigrate extends Construct {
             'AmazonS3FullAccess',
             'AWSCodeBuildDeveloperAccess',
             'AmazonECS_FullAccess',
+            'AmazonEC2ContainerRegistryFullAccess',
             'AmazonRDSFullAccess',
             'AmazonVPCFullAccess',
             `AmazonAPIGatewayAdministrator`,
