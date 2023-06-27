@@ -16,7 +16,7 @@ phases:
     commands:
       - ${CD_DIR}/migration_cdk.sh ${VERSION_TAG}
       - ${CD_DIR}/deploy_ecs.sh ${VERSION_TAG}
-      - ${CD_DIR}/deploy_lambda.sh ${VERSION_TAG}
+      # - ${CD_DIR}/deploy_lambda.sh ${VERSION_TAG}
 
   post_build:
     commands:
