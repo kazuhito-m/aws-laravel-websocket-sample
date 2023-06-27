@@ -120,6 +120,10 @@ export class Context {
         return `${this.systemName()}${stagePart}-file-upload-bucket`;
     }
 
+    public storageServerUrl(): string {
+        return `https://${this.currentStage().uploadStorageDomainName}`;
+    }
+
     public mailDomainName(): string {
         return `${this.global.mailServerName}.${this.global.siteDomain}`;
     }

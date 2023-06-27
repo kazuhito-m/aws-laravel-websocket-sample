@@ -13,7 +13,7 @@ export interface Stage {
     withBasicAuthentication: boolean,
     siteFqdn: string,
     apiFqdn: string,
-    storageServerFqdn: string,
+    uploadStorageDomainName: string,
     rds: RdsSettings,
     container: ContainerSettings,
 }

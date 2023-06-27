@@ -81,7 +81,7 @@ export class EcsTaskDefinition extends Construct {
 
             AWS_DEFAULT_REGION: stack.region,
             AWS_BUCKET: context.s3BucketName(),
-            STRAGE_SERVER_URL: `https://${context.currentStage().storageServerFqdn}`,
+            STRAGE_SERVER_URL: context.storageServerUrl(),
 
             MAIL_FROM_ADDRESS: context.mailFromAddress(),
         }

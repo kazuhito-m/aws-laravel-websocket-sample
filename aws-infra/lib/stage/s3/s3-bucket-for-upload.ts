@@ -67,7 +67,7 @@ export class S3BucketForUpload extends Construct {
             },
             priceClass: PriceClass.PRICE_CLASS_200,
             certificate: certificate,
-            domainNames: [context.currentStage().storageServerFqdn]
+            domainNames: [context.currentStage().uploadStorageDomainName]
         });
         return distribution;
     }
@@ -80,7 +80,7 @@ export class S3BucketForUpload extends Construct {
 
         new ARecord(this, "DnsImageAnameRecord", {
             zone: hostedZone,
-            recordName: context.currentStage().storageServerFqdn,
+            recordName: context.currentStage().uploadStorageDomainName,
             target: RecordTarget.fromAlias(new CloudFrontTarget(distribution)),
             ttl: Duration.minutes(5),
             comment: `For ${context.currentStageId} CloudFront of Image S3 Record.`
