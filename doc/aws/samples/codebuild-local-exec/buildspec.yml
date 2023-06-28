@@ -3,6 +3,8 @@ env:
   shell: bash
   variables:
     RESULT: false
+    IMAGE_TAG: '1.2.3'
+    SLACK_WEBHOOK_URL: ''
 phases:
   build:
     commands:
@@ -10,4 +12,4 @@ phases:
       - echo 'hoge' | grep 'fuga'
       - RESULT=true
     finally:
-      - echo "this is result:${RESULT}"
+      - ./notification_build.sh ${RESULT}
