@@ -1,17 +1,14 @@
 import { Stack, StackProps } from 'aws-cdk-lib';
 import { SecretValue, Tags } from 'aws-cdk-lib/core';
 import { Repository } from 'aws-cdk-lib/aws-ecr';
-import { Certificate, CertificateValidation } from 'aws-cdk-lib/aws-certificatemanager';
-import { PublicHostedZone, CnameRecord } from 'aws-cdk-lib/aws-route53';
 import { GitHubSourceCredentials, Project, FilterGroup, Source, EventAction, BuildSpec, LinuxBuildImage } from 'aws-cdk-lib/aws-codebuild';
-import { Duration } from 'aws-cdk-lib';
 import { StringParameter } from 'aws-cdk-lib/aws-ssm';
 
 import { Context } from '../context/context';
-import { ParameterStore } from '../parameterstore/parameter-store';
 import { Ses } from './ses/ses';
 import { PolicyStatement } from 'aws-cdk-lib/aws-iam';
 import { Ecr } from './ecr/ecr';
+import { DnsAndCertificate } from './dns/dns-and-certificate';
 
 export interface AlwsStackProps extends StackProps {
     context: Context,
@@ -29,34 +26,11 @@ export class AlwsGlobalStack extends Stack {
         this.buildCiCdParts(context, ecr.repositories, stack);
 
         // 一旦コメントアウト。ここは「手動操作」で作成する(ということを手順書ベースで書いておく)
-        // this.buildDnsAndCertificate(settings);
+        // new DnsAndCertificate(stack, 'CreateDnsAndCertificate', { context: context });
 
         new Ses(this, 'CreateSes', { context: context });
 
         this.setTag("Version", context.packageVersion());
-    }
-
-    private buildDnsAndCertificate(settings: Context) {
-        const domainName = settings.global.siteDomain;
-        const hostedZone = new PublicHostedZone(this, `${settings.systemNameOfPascalCase()}HostedZone`, {
-            zoneName: domainName,
-            comment: `Site ${domainName} hosted Zone. Created from cdk.`
-        });
-        const certificate = new Certificate(this, `${settings.systemNameOfPascalCase()}Certificate`, {
-            certificateName: `${settings.systemName()}-common-certificate`,
-            domainName: `*.${domainName}`,
-            validation: CertificateValidation.fromDns(hostedZone),
-        });
-
-        new CnameRecord(this, "DnsCommonCnameRecord", {
-            zone: hostedZone,
-            recordName: "*",
-            domainName: ".",
-            ttl: Duration.minutes(5),
-            comment: 'All names that do not exist in the A record are treated as "."'
-        });
-
-        const parameterStore = new ParameterStore(settings, this);
     }
 
     private buildCiCdParts(settings: Context, repositories: Repository[], stack: Stack): void {
