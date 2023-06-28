@@ -12,6 +12,7 @@ phases:
     commands:
       - echo 'this is a pen !'
       - echo 'hoge' | grep 'hoge'
+      - env | sort
       - RESULT=true
     finally:
       - ${SCRIPT_PATH}/notification_build.sh ${RESULT}
