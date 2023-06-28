@@ -32,8 +32,8 @@ data=`cat <<_EOT_
 	        "mrkdwn_in": ["text"],
             "color": "${color}",
             "pretext": "maho.cityのコンテナイメージのビルドと登録が${result_text}しました。",
-            "title": "CodeBuild:${CODEBUILD_BUILD_ID}",
-            "title_link": "${CODEBUILD_PUBLIC_BUILD_URL}",
+            "title": "CodeBuild : ${CODEBUILD_BUILD_ID}",
+            "title_link": "${CODEBUILD_BUILD_URL}",
             "fields": [
                 {
                     "title": "ContainerTag/Version",
@@ -46,13 +46,8 @@ data=`cat <<_EOT_
                     "short": false
                 },
                 {
-                    "title": "Source(git tag)",
-                    "value": "${CODEBUILD_SOURCE_REPO_URL}/tag/${IMAGE_TAG}",
-                    "short": false
-                },
-                {
-                    "title": "Source hash",
-                    "value": "${CODEBUILD_SOURCE_VERSION}",
+                    "title": "Source(eligible git hash)",
+                    "value": "${CODEBUILD_SOURCE_REPO_URL}/tree/${CODEBUILD_SOURCE_VERSION}",
                     "short": false
                 }
             ]
