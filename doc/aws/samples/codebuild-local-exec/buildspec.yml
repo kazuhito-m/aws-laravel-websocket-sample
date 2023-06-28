@@ -1,7 +1,13 @@
 version: 0.2
 env:
   shell: bash
+  variables:
+    RESULT: false
 phases:
   build:
     commands:
       - echo 'this is a pen !'
+      - echo 'hoge' | grep 'fuga'
+      - RESULT=true
+    finally:
+      - echo "this is result:${RESULT}"
