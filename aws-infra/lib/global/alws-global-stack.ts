@@ -11,21 +11,22 @@ import { StringParameter } from 'aws-cdk-lib/aws-ssm';
 import { Context } from '../context/context';
 import { ParameterStore } from '../parameterstore/parameter-store';
 import { Ses } from './ses/ses';
+import { PolicyStatement } from 'aws-cdk-lib/aws-iam';
 
 export interface AlwsStackProps extends StackProps {
     context: Context,
 }
 
 export class AlwsGlobalStack extends Stack {
-    constructor(scope: Construct, id: string, props?: AlwsStackProps) {
-        super(scope, id, props);
+    constructor(stack: Stack, id: string, props?: AlwsStackProps) {
+        super(stack, id, props);
 
         const settings = props?.context as Context;
         this.confimationOfPreconditions(settings);
 
         const repositories = this.buildContainerRepository(settings);
 
-        this.buildCiCdParts(settings, repositories);
+        this.buildCiCdParts(settings, repositories, stack);
 
         // 一旦コメントアウト。ここは「手動操作」で作成する(ということを手順書ベースで書いておく)
         // this.buildDnsAndCertificate(settings);
@@ -75,7 +76,7 @@ export class AlwsGlobalStack extends Stack {
         return repositories;
     }
 
-    private buildCiCdParts(settings: Context, repositories: Repository[]): void {
+    private buildCiCdParts(settings: Context, repositories: Repository[], stack: Stack): void {
         const githubAccessToken = StringParameter.valueFromLookup(this, `${settings.systemName()}-github-access-token`);
         new GitHubSourceCredentials(this, 'CodebuildGithubCredentials', {
             accessToken: SecretValue.unsafePlainText(githubAccessToken),
@@ -105,6 +106,15 @@ export class AlwsGlobalStack extends Stack {
             }
         });
         repositories.forEach(r => r.grantPullPush(tagBuildOfSourceCIProject.grantPrincipal));
+
+        const me = Stack.of(stack).account;
+        tagBuildOfSourceCIProject.addToRolePolicy(PolicyStatement.fromJson({
+            "Effect": "Allow",
+            "Action": "ssm:GetParameter",
+            "Resource": [
+                `arn:aws:ssm:${stack.region}:${me}:parameter/${settings.systemName()}-*`,
+            ]
+        }));
     }
 
     private setTag(key: string, value: string): void {
