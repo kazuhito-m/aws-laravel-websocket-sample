@@ -24,6 +24,7 @@ if [ $RESULT = true ]; then
 fi
 
 ecr_console="https://${AWS_DEFAULT_REGION}.console.aws.amazon.com/ecr/repositories/private/${CODEBUILD_WEBHOOK_ACTOR_ACCOUNT_ID}/alws-app"
+repo_hash_url="${CODEBUILD_SOURCE_REPO_URL/%.git/}/tree/${CODEBUILD_SOURCE_VERSION}"
 
 data=`cat <<_EOT_
 {
@@ -36,7 +37,7 @@ data=`cat <<_EOT_
             "title_link": "${CODEBUILD_BUILD_URL}",
             "fields": [
                 {
-                    "title": "ContainerTag/Version",
+                    "title": "Version/Git Tag/Container Image Tag",
                     "value": "${IMAGE_TAG}",
                     "short": false
                 },
@@ -47,7 +48,7 @@ data=`cat <<_EOT_
                 },
                 {
                     "title": "Source(eligible git hash)",
-                    "value": "${CODEBUILD_SOURCE_REPO_URL}/tree/${CODEBUILD_SOURCE_VERSION}",
+                    "value": "${repo_hash_url}",
                     "short": false
                 }
             ]
