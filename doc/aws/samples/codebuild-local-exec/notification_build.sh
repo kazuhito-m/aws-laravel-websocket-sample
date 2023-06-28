@@ -56,4 +56,4 @@ data=`cat <<_EOT_
 }
 _EOT_`
 
-./slackSend.sh "${data}" ${SLACK_WEBHOOK_URL}
+./slack_send.sh "${data}" ${SLACK_WEBHOOK_URL}
