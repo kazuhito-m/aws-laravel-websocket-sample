@@ -46,8 +46,13 @@ data=`cat <<_EOT_
                     "short": false
                 },
                 {
-                    "title": "Source",
+                    "title": "Source(git tag)",
                     "value": "${CODEBUILD_SOURCE_REPO_URL}/tag/${IMAGE_TAG}",
+                    "short": false
+                },
+                {
+                    "title": "Source hash",
+                    "value": "${CODEBUILD_SOURCE_VERSION}",
                     "short": false
                 }
             ]
