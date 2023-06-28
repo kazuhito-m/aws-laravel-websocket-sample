@@ -47,7 +47,7 @@ data=`cat <<_EOT_
                 },
                 {
                     "title": "Source",
-                    "value": "${CODEBUILD_SOURCE_REPO_URL}",
+                    "value": "${CODEBUILD_SOURCE_REPO_URL}/tag/${IMAGE_TAG}",
                     "short": false
                 }
             ]
