@@ -1,15 +1,17 @@
 version: 0.2
 env:
   shell: bash
+  parameter-store:
+    SLACK_WEBHOOK_URL: "alws-slack-webhook-url"
   variables:
     RESULT: false
     IMAGE_TAG: '1.2.3'
-    SLACK_WEBHOOK_URL: ''
+    SCRIPT_PATH : './doc/aws/samples/codebuild-local-exec'
 phases:
   build:
     commands:
       - echo 'this is a pen !'
-      - echo 'hoge' | grep 'fuga'
+      - echo 'hoge' | grep 'hoge'
       - RESULT=true
     finally:
-      - ./notification_build.sh ${RESULT}
+      - ${SCRIPT_PATH}/notification_build.sh ${RESULT}

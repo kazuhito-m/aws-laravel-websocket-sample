@@ -14,9 +14,11 @@ cd ${SCRIPT_DIR}
 
 RESULT=${1}
 
+echo $RESULT
+
 color='danger'
 result_text='失敗'
-if [ $RESULT = 'true']; then
+if [ $RESULT = true ]; then
     color='good'
     result_text='完了'
 fi
