@@ -122,3 +122,9 @@ principal.addToPrincipalPolicy(iam.PolicyStatement.fromJson({
 - https://dev.classmethod.jp/articles/codebuild-has-to-use-dockerhub-login-to-avoid-ip-gacha/
 
 固定アドレスでログインしたくない…ので、残念ながら「解消する対策を見いだせていない」。要検討。
+
+## ローカルでCloudBuildを実行する方法
+
+- https://dev.classmethod.jp/articles/codebuild-exec-on-local/
+
+めちゃくちゃビルド時間がかかるので、一度目は一時間くらい覚悟しよう。
