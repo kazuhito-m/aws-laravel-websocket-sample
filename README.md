@@ -51,6 +51,7 @@ XXX
    0. `alws-certification-arn` : 前述Certificate Managerで作成した「自分が今からシステムを立てたいリージョン」の証明書ARN
    0. `alws-certification-global-arn` : 前述Certificate Managerで作成した `us-east-1(バージニア北部)` の証明書ARN
    0. `alws-github-access-token` : WebHookを登録出来る権限を持ったGitHubのAccessToken
+   0. `alws-slack-webhook-url` : Slackに通知を行うためのWebHookURL
 
 ### AWSにGlobal(全体)に掛かる構成を構築
 
