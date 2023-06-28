@@ -4,4 +4,4 @@ env:
 phases:
   build:
     commands:
-      - echo 'これが出たら、正しく実行されています。'
+      - echo 'this is a pen !'
