@@ -23,7 +23,10 @@ if [ $RESULT = true ]; then
     result_text='完了'
 fi
 
-ecr_console="https://${AWS_DEFAULT_REGION}.console.aws.amazon.com/ecr/repositories/private/${CODEBUILD_WEBHOOK_ACTOR_ACCOUNT_ID}/alws-app"
+part=${CODEBUILD_BUILD_ARN%%:build*}
+aws_account_id=${tmp##*:}
+
+ecr_console="https://${AWS_DEFAULT_REGION}.console.aws.amazon.com/ecr/repositories/private/${aws_account_id}/alws-app"
 repo_hash_url="${CODEBUILD_SOURCE_REPO_URL/%.git/}/tree/${CODEBUILD_SOURCE_VERSION}"
 
 data=`cat <<_EOT_
