@@ -25,8 +25,15 @@ popd
 
 docker pull amazon/aws-codebuild-local:latest --disable-content-trust=false
 
+echo '----------------------------------------------------------'
+echo '---- CloudBuild実行(最期はCtrl+Cで自力で止めるように) ----'
+echo '----------------------------------------------------------'
+
 docker run \
-  -it -v /var/run/docker.sock:/var/run/docker.sock \
+  -it \
+  -v /var/run/docker.sock:/var/run/docker.sock \
+  -v $(pwd)/output:/output \
   -e "IMAGE_NAME=${CODEBUILD_EXEC_CONTAINER_IMAGE_TAG}" \
+  -e "ARTIFACTS=/output" \
   -e "SOURCE=$(pwd)" \
   amazon/aws-codebuild-local
