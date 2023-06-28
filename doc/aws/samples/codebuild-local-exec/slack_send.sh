@@ -12,4 +12,3 @@ curl -X POST \
   -H 'Content-type: application/json' \
   --data "${data}" \
   ${webhookUrl}
-
