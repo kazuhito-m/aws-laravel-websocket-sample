@@ -1,7 +1,6 @@
-import { Construct } from 'constructs';
 import { Stack, StackProps } from 'aws-cdk-lib';
 import { SecretValue, Tags } from 'aws-cdk-lib/core';
-import { Repository, TagMutability } from 'aws-cdk-lib/aws-ecr';
+import { Repository } from 'aws-cdk-lib/aws-ecr';
 import { Certificate, CertificateValidation } from 'aws-cdk-lib/aws-certificatemanager';
 import { PublicHostedZone, CnameRecord } from 'aws-cdk-lib/aws-route53';
 import { GitHubSourceCredentials, Project, FilterGroup, Source, EventAction, BuildSpec, LinuxBuildImage } from 'aws-cdk-lib/aws-codebuild';
@@ -12,6 +11,7 @@ import { Context } from '../context/context';
 import { ParameterStore } from '../parameterstore/parameter-store';
 import { Ses } from './ses/ses';
 import { PolicyStatement } from 'aws-cdk-lib/aws-iam';
+import { Ecr } from './ecr/ecr';
 
 export interface AlwsStackProps extends StackProps {
     context: Context,
@@ -21,19 +21,19 @@ export class AlwsGlobalStack extends Stack {
     constructor(stack: Stack, id: string, props?: AlwsStackProps) {
         super(stack, id, props);
 
-        const settings = props?.context as Context;
-        this.confimationOfPreconditions(settings);
+        const context = props?.context as Context;
+        this.confimationOfPreconditions(context);
 
-        const repositories = this.buildContainerRepository(settings);
+        const ecr = new Ecr(stack, 'CreateEcr', { context: context });
 
-        this.buildCiCdParts(settings, repositories, stack);
+        this.buildCiCdParts(context, ecr.repositories, stack);
 
         // 一旦コメントアウト。ここは「手動操作」で作成する(ということを手順書ベースで書いておく)
         // this.buildDnsAndCertificate(settings);
 
-        new Ses(this, 'CreateSes', { context: settings });
+        new Ses(this, 'CreateSes', { context: context });
 
-        this.setTag("Version", settings.packageVersion());
+        this.setTag("Version", context.packageVersion());
     }
 
     private buildDnsAndCertificate(settings: Context) {
@@ -57,23 +57,6 @@ export class AlwsGlobalStack extends Stack {
         });
 
         const parameterStore = new ParameterStore(settings, this);
-    }
-
-    private buildContainerRepository(settings: Context): Repository[] {
-        const repositories: Repository[] = [];
-        [settings.containerRegistryNameApp(), settings.containerRegistryNameLambda()].forEach(name => {
-            const containerRepository = new Repository(this, 'ContainerRepsitory_' + name, {
-                repositoryName: name,
-                imageTagMutability: TagMutability.IMMUTABLE,
-                imageScanOnPush: false, // 脆弱性検査は Amazon Inspector に移譲する
-            });
-            // Stack削除時、連鎖削除設定だが、イメージが一つでも在れば削除せず、Stackから外れる。
-            containerRepository.addLifecycleRule({
-                maxImageCount: 500
-            });
-            repositories.push(containerRepository);
-        });
-        return repositories;
     }
 
     private buildCiCdParts(settings: Context, repositories: Repository[], stack: Stack): void {
