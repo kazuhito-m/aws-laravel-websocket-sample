@@ -26,7 +26,11 @@ fi
 part=${CODEBUILD_BUILD_ARN%%:build*}
 aws_account_id=${tmp##*:}
 
-ecr_console="https://${AWS_DEFAULT_REGION}.console.aws.amazon.com/ecr/repositories/private/${aws_account_id}/alws-app"
+echo "CODEBUILD_BUILD_ARN:$CODEBUILD_BUILD_ARN"
+echo "part:$part"
+echo "aws_account_id:$aws_account_id"
+
+ecr_console="https://${AWS_DEFAULT_REGION}.console.aws.amazon.com/ecr/repositories/private/${aws_account_id}/cdk-hnb659fds-container-assets-533637920540-ap-northeast-1"
 repo_hash_url="${CODEBUILD_SOURCE_REPO_URL/%.git/}/tree/${CODEBUILD_SOURCE_VERSION}"
 
 data=`cat <<_EOT_
