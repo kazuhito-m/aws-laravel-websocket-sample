@@ -1,3 +1,4 @@
+import { Construct } from 'constructs';
 import { Stack, StackProps } from 'aws-cdk-lib';
 import { Tags } from 'aws-cdk-lib/core';
 
@@ -11,15 +12,15 @@ export interface AlwsStackProps extends StackProps {
 }
 
 export class AlwsGlobalStack extends Stack {
-    constructor(stack: Stack, id: string, props?: AlwsStackProps) {
-        super(stack, id, props);
+    constructor(scope: Construct, id: string, props?: AlwsStackProps) {
+        super(scope, id, props);
 
         const context = props?.context as Context;
         this.confimationOfPreconditions(context);
 
-        const ecr = new Ecr(stack, 'CreateEcr', { context: context });
+        const ecr = new Ecr(this, 'CreateEcr', { context: context });
 
-        new CodeBuildForTagBuild(stack, 'CreateCodeBuild', {
+        new CodeBuildForTagBuild(this, 'CreateCodeBuild', {
             context: context,
             repositories: ecr.repositories,
         })
@@ -27,7 +28,7 @@ export class AlwsGlobalStack extends Stack {
         // 一旦コメントアウト。ここは「手動操作」で作成する(ということを手順書ベースで書いておく)
         // new DnsAndCertificate(stack, 'CreateDnsAndCertificate', { context: context });
 
-        new Ses(stack, 'CreateSes', { context: context });
+        new Ses(this, 'CreateSes', { context: context });
 
         this.setTag("Version", context.packageVersion());
     }
