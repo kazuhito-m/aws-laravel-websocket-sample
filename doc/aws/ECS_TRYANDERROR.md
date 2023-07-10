@@ -76,6 +76,32 @@
 
 - https://nulab.com/ja/blog/nulab/git-team-ecs-deploy/
 
+
+## ECSのクラスタ内で、コンテナを使ったスケジュールタスクを動かす
+
+「EventBridge&ECSTask vs ECS Scheduled Task vs Step Functions」という記事が散見されるくらい「いくつかの手段がある」よう。
+
+自分は、今回は
+
+- https://dev.classmethod.jp/articles/amazon-eventbridge-scheduler-ecs-stop-start/
+- https://qiita.com/ynstkt/items/73946f467a6d234122d9#ecs
+- https://qiita.com/wrshige/items/9abc7170e8c1607f181f
+- https://developers.bookwalker.jp/entry/2022/07/29/110000
+- https://www.ritolab.com/posts/222#ecs-%E3%82%BF%E3%82%B9%E3%82%AF%E3%81%AE%E3%82%B9%E3%82%B1%E3%82%B8%E3%83%A5%E3%83%BC%E3%83%AA%E3%83%B3%E3%82%B0
+- https://docs.aws.amazon.com/ja_jp/AmazonECS/latest/userguide/scheduled_tasks.html
+
+### ふつーにサンプルを漁っていると、UIで操作できる「コマンドの上書き」が出来ない
+
+UIだとECSのClusterから「スケジュールされたタスク」というところから「作成」で出来る「ECS Scheduled Task」。
+
+名前が「そのままそれ用」のクラスであるところの `ScheduledFargateTask` を使うと「UIで出来る”コマンドの上書き”が出来るインターフェイスが無い」ので「コンテナを使いまわしてバッチに…」みたいなことができなくなる。
+
+`Rule` クラスを使って、自力で全部組み立てると「UIでやることと一緒のことが出来る」ので、注意されたし。
+
+- https://qiita.com/akihiko_sugiyama/items/bc1628230e7ac58e09d1
+- https://docs.aws.amazon.com/cdk/api/v2/docs/aws-cdk-lib.aws_ecs_patterns.ScheduledFargateTask.html
+- https://zenn.dev/ishiki/articles/4fa83676169b14914e17
+
 ## トラブルシュート:ECSからDynamoDBにアクセスするのに、IAMだけでよく、SecretKeyは要らない
 
 ローカルでテストするために、php+AWS-SDK+DynamoDBClientを使い「AccessKey/SecretKey」でアクセスしていた。
